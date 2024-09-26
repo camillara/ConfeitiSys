@@ -5,6 +5,8 @@ export interface Venda {
   cliente?: Cliente;
   itens?: Array<ItemVenda>;
   formaPagamento?: string;
+  statusPagamento?: string;
+  statusPedido?: string;
   total: number;
 }
 

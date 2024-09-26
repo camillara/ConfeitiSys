@@ -4,4 +4,6 @@ export const validationScheme = Yup.object().shape({
   cliente: Yup.object().nullable(true).required("Campo obrigatório."),
   itens: Yup.array().min(1, "Você deve adicionar pelo menos um Item."),
   formaPagamento: Yup.string().trim().required("Campo obrigatório."),
+  statusPagamento: Yup.string().trim().required("Campo obrigatório."),
+  statusPedido: Yup.string().trim().required("Campo obrigatório."),
 });

@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 const msgCampoObrigatorio = "Campo Obrigatório";
 
 const validationSchema = yup.object().shape({
-  sku: yup.string().trim().required(msgCampoObrigatorio),
+  categoria: yup.string().trim().required(msgCampoObrigatorio),
   nome: yup.string().trim().required(msgCampoObrigatorio),
   descricao: yup
     .string()
@@ -25,7 +25,7 @@ const validationSchema = yup.object().shape({
 });
 
 interface FormErrors {
-  sku?: string;
+  categoria?: string;
   nome?: string;
   preco?: string;
   descricao?: string;
@@ -35,7 +35,7 @@ export const CadastroProdutos: React.FC = () => {
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
-  const [sku, setSku] = useState<string>("");
+  const [categoria, setCategoria] = useState<string>("");
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
@@ -49,7 +49,7 @@ export const CadastroProdutos: React.FC = () => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: any) => {
         setId(produtoEncontrado.id);
-        setSku(produtoEncontrado.sku);
+        setCategoria(produtoEncontrado.categoria);
         setNome(produtoEncontrado.nome);
         setDescricao(produtoEncontrado.descricao);
         setPreco(formatReal(`${produtoEncontrado.preco}`));
@@ -62,7 +62,7 @@ export const CadastroProdutos: React.FC = () => {
   const submit = () => {
     const produto: Produto = {
       id,
-      sku,
+      categoria,
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
@@ -130,13 +130,13 @@ export const CadastroProdutos: React.FC = () => {
 
       <div className="columns">
         <Input
-          label="SKU: *"
+          label="Categoria: *"
           columnClasses="is-half"
-          onChange={(e) => setSku(e.target.value)}
-          value={sku}
-          id="inputSku"
-          placeholder="Digite o SKU do produto"
-          error={errors.sku}
+          onChange={(e) => setCategoria(e.target.value)}
+          value={categoria}
+          id="inputCategoria"
+          placeholder="Digite a categoria do produto"
+          error={errors.categoria}
         />
 
         <InputMoney

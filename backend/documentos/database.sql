@@ -5,7 +5,7 @@ CREATE TABLE produto (
     nome varchar(100) NOT NULL,
     descricao varchar(255),
     preco numeric(16,2),
-    sku varchar(20),
+    categoria varchar(20),
     data_cadastro date
 );
 
@@ -24,7 +24,11 @@ CREATE TABLE venda (
     id bigserial NOT NULL PRIMARY KEY,
     id_cliente bigint REFERENCES cliente (id) NOT NULL,
     forma_pagamento varchar(8) CHECK (forma_pagamento IN ('DINHEIRO', 'PIX', 'CARTAO')) NOT NULL,
-    total numeric(16,2) NOT NULL
+    status_pagamento varchar(8) CHECK (status_pagamento IN ('PAGO', 'PENDENTE')) NOT NULL,
+    status_pedido varchar(8) CHECK (status_pedido IN ('PRODUCAO', 'ENTREGUE', 'CANCELADO')) NOT NULL,
+    total numeric(16,2) NOT NULL,
+    data_cadastro date,
+    data_entrega date
 );
 
 CREATE TABLE item_venda (

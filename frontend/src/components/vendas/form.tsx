@@ -38,6 +38,8 @@ const formScheme: Venda = {
   itens: [] as ItemVenda[],
   total: 0,
   formaPagamento: "",
+  statusPagamento: "",
+  statusPedido: "",
 };
 
 // Componente funcional React para o formulário de vendas
@@ -51,6 +53,15 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     "PIX",
     "CARTAO_DE_CREDITO",
     "CARTAO_DE_DEBITO",
+  ];
+  const statusPagamento: String[] = [
+    "PENDENTE",
+    "PAGO",
+  ];
+  const statusPedido: String[] = [
+    "PRODUCAO",
+    "ENTREGUE",
+    "CANCELADO",
   ];
   const clienteService = useClienteService();
   const produtoService = useProdutoService();
@@ -279,7 +290,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 }}
               />
               <Column field="produto.id" header="Código" />
-              <Column field="produto.sku" header="SKU" />
+              <Column field="produto.categoria" header="Categoria" />
               <Column field="produto.nome" header="Produto" />
               <Column field="produto.preco" header="Preço Unitário" />
               <Column field="quantidade" header="QTD" />
@@ -310,6 +321,40 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               />
               <small className="p-error p-d-block">
                 {formik.touched && formik.errors.formaPagamento}
+              </small>
+            </div>
+          </div>
+          <div className="p-col-5">
+            <div className="p-field">
+              <label htmlFor="statusPagamento">Status de Pagamento: *</label>
+              <Dropdown
+                id="statusPagamento"
+                options={statusPagamento}
+                value={formik.values.statusPagamento}
+                onChange={(e) =>
+                  formik.setFieldValue("statusPagamento", e.value)
+                }
+                placeholder="Selecione..."
+              />
+              <small className="p-error p-d-block">
+                {formik.touched && formik.errors.statusPagamento}
+              </small>
+            </div>
+          </div>
+          <div className="p-col-5">
+            <div className="p-field">
+              <label htmlFor="statusPedido">Status do Pedido: *</label>
+              <Dropdown
+                id="statusPedido"
+                options={statusPedido}
+                value={formik.values.statusPedido}
+                onChange={(e) =>
+                  formik.setFieldValue("statusPedido", e.value)
+                }
+                placeholder="Selecione..."
+              />
+              <small className="p-error p-d-block">
+                {formik.touched && formik.errors.statusPedido}
               </small>
             </div>
           </div>

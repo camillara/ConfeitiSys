@@ -81,7 +81,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   return (
     <DataTable value={produtos} paginator rows={5}>
       <Column field="id" header="Código" />
-      <Column field="sku" header="SKU" />
+      <Column field="categoria" header="Categoria" />
       <Column field="nome" header="Nome" />
       <Column field="preco" header="Preço" />
       <Column body={actionTemplate} />
