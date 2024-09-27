@@ -5,6 +5,8 @@ const resourceURL = "/api/vendas";
 
 export const useVendaService = () => {
   const realizarVenda = async (venda: Venda): Promise<void> => {
+    console.log("Venda enviada para o backend:", venda); 
+    
     await httpClient.post<Venda>(resourceURL, venda);
   };
 

@@ -6,4 +6,5 @@ export const validationScheme = Yup.object().shape({
   formaPagamento: Yup.string().trim().required("Campo obrigatório."),
   statusPagamento: Yup.string().trim().required("Campo obrigatório."),
   statusPedido: Yup.string().trim().required("Campo obrigatório."),
+  dataEntrega: Yup.string().trim().required("Campo obrigatório."),
 });

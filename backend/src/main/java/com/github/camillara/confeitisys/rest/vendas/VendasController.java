@@ -26,6 +26,7 @@ public class VendasController {
 	@PostMapping
 	@Transactional
 	public void realizarVenda(@RequestBody Venda venda) {
+		venda.cadastrarPedido();
 		repository.save(venda);
 		venda.getItens().stream().forEach(iv -> iv.setVenda(venda));
 		itemVendaReposistory.saveAll(venda.getItens());

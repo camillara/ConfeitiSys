@@ -169,6 +169,10 @@ public class Venda {
 		return result;
 	}
 
+	public void cadastrarPedido() {
+		this.dataCadastro = LocalDate.now(); // Define a data atual como data de cadastro
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -1,4 +1,3 @@
-// Importação de módulos e componentes necessários
 import { Cliente } from "app/models/clientes";
 import { Page } from "app/models/common/page";
 import { ItemVenda, Venda } from "app/models/vendas";
@@ -18,21 +17,19 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
 import { validationScheme } from "./validationScheme";
+import { InputDate } from "components";
 
-// Definição do formato de moeda
 const formatadorMoney = new Intl.NumberFormat("pt-br", {
   style: "currency",
   currency: "BRL",
 });
 
-// Definição da interface para as propriedades do componente VendasForm
 interface VendasFormProps {
   onSubmit: (venda: Venda) => void;
   onNovaVenda: () => void;
   vendaRealizada: boolean;
 }
 
-// Definição do esquema inicial para o formulário de vendas
 const formScheme: Venda = {
   cliente: null!,
   itens: [] as ItemVenda[],
@@ -40,9 +37,10 @@ const formScheme: Venda = {
   formaPagamento: "",
   statusPagamento: "",
   statusPedido: "",
+  cadastro: "",
+  dataEntrega: "",
 };
 
-// Componente funcional React para o formulário de vendas
 export const VendasForm: React.FC<VendasFormProps> = ({
   onSubmit,
   onNovaVenda,
@@ -54,15 +52,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     "CARTAO_DE_CREDITO",
     "CARTAO_DE_DEBITO",
   ];
-  const statusPagamento: String[] = [
-    "PENDENTE",
-    "PAGO",
-  ];
-  const statusPedido: String[] = [
-    "PRODUCAO",
-    "ENTREGUE",
-    "CANCELADO",
-  ];
+  const statusPagamento: String[] = ["PENDENTE", "PAGO"];
+  const statusPedido: String[] = ["PRODUCAO", "ENTREGUE", "CANCELADO"];
   const clienteService = useClienteService();
   const produtoService = useProdutoService();
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
@@ -81,14 +72,20 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     totalElements: 0,
   });
 
-  // Formik hook para gerenciar o estado do formulário
   const formik = useFormik<Venda>({
-    onSubmit,
+    onSubmit: (values) => {
+      //console.log("Form values:", values); // Adiciona o console.log aqui
+      const venda: Venda = {
+        ...values,
+        dataEntrega: values.dataEntrega ? new Date(values.dataEntrega).toISOString().split("T")[0] : "",
+      };
+      //console.log("Venda enviada:", venda);
+      onSubmit(venda);
+    },
     initialValues: formScheme,
     validationSchema: validationScheme,
   });
 
-  // Função para lidar com a pesquisa automática de clientes ao digitar no campo de autocompletar
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
     clienteService
@@ -96,13 +93,11 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       .then((clientes) => setListaClientes(clientes));
   };
 
-  // Função para lidar com a seleção de um cliente no campo de autocompletar
   const handleClienteChange = (e: AutoCompleteChangeParams) => {
     const clienteSelecionado: Cliente = e.value;
     formik.setFieldValue("cliente", clienteSelecionado);
   };
 
-  // Função para lidar com a seleção de um código de produto
   const handleCodigoProdutoSelect = (event: any) => {
     const parsedValue = parseInt(codigoProduto);
 
@@ -114,7 +109,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     }
   };
 
-  // Função para adicionar um produto à venda
   const handleAddProduto = () => {
     const itensAdicionados = formik.values.itens || [];
 
@@ -145,7 +139,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     formik.setFieldValue("total", total);
   };
 
-  // Função para fechar o dialog quando um produto não é encontrado
   const handleFecharDialogProdutoNaoEncontrado = () => {
     setCodigoProduto("");
     setMensagem("");
@@ -166,7 +159,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     setListaFiltradaProdutos(produtosEncontrados);
   };
 
-  // Função para renderizar o rodapé do dialog de mensagem
   const dialogMensagemFooter = () => {
     return (
       <div>
@@ -175,7 +167,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     );
   };
 
-  // Função para desabilitar o botão de adicionar produto
   const disableAddProdutoButton = () => {
     return !produto || !quantidadeProduto;
   };
@@ -341,6 +332,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               </small>
             </div>
           </div>
+
           <div className="p-col-5">
             <div className="p-field">
               <label htmlFor="statusPedido">Status do Pedido: *</label>
@@ -348,9 +340,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 id="statusPedido"
                 options={statusPedido}
                 value={formik.values.statusPedido}
-                onChange={(e) =>
-                  formik.setFieldValue("statusPedido", e.value)
-                }
+                onChange={(e) => formik.setFieldValue("statusPedido", e.value)}
                 placeholder="Selecione..."
               />
               <small className="p-error p-d-block">
@@ -358,6 +348,18 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               </small>
             </div>
           </div>
+
+          <InputDate
+          id="dataEntrega"
+          name="dataEntrega"
+          label="Data Entrega: *"
+          autoComplete="off"
+          columnClasses="is-half"
+          onChange={formik.handleChange}
+          value={formik.values.dataEntrega}
+          error={formik.errors.dataEntrega}
+        />
+
           <div className="p-col-2">
             <div className="p-field">
               <label htmlFor="itens">Itens:</label>

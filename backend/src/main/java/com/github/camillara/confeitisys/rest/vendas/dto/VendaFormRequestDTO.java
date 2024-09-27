@@ -22,7 +22,7 @@ public class VendaFormRequestDTO {
 	private LocalDate cadastro;
 
 	@JsonFormat(pattern = "dd/MM/yyyy")
-	private LocalDate entrega;
+	private LocalDate dataEntrega;
 
 	// constructors
 	public VendaFormRequestDTO() {
@@ -30,7 +30,7 @@ public class VendaFormRequestDTO {
 	}
 
 	public VendaFormRequestDTO(Long id, Long idCliente, FormaPagamento formaPagamento, StatusPagamento statusPagamento, StatusPedido statusPedido,
-			List<ItemVendaFormRequestDTO> itens, BigDecimal total, LocalDate cadastro, LocalDate entrega) {
+			List<ItemVendaFormRequestDTO> itens, BigDecimal total, LocalDate cadastro, LocalDate dataEntrega) {
 		super();
 		this.id = id;
 		this.idCliente = idCliente;
@@ -40,7 +40,7 @@ public class VendaFormRequestDTO {
 		this.itens = itens;
 		this.total = total;
 		this.cadastro = cadastro;
-		this.entrega = entrega;
+		this.dataEntrega = dataEntrega;
 	}
 
 	// get and set
@@ -100,10 +100,26 @@ public class VendaFormRequestDTO {
 		this.total = total;
 	}
 
+	public LocalDate getCadastro() {
+		return cadastro;
+	}
+
+	public void setCadastro(LocalDate cadastro) {
+		this.cadastro = cadastro;
+	}
+
+	public LocalDate getDataEntrega() {
+		return dataEntrega;
+	}
+
+	public void setDataEntrega(LocalDate dataEntrega) {
+		this.dataEntrega = dataEntrega;
+	}
+
 	@Override
 	public String toString() {
 		return "VendaFormRequestDTO [id=" + id + ", idCliente=" + idCliente + ", formaPagamento=" + formaPagamento
-				+ ", itens=" + itens + ", total=" + total + ", cadastro=" + cadastro + ", entrega=" + entrega + "]";
+				+ ", itens=" + itens + ", total=" + total + ", cadastro=" + cadastro + ", dataEntrega=" + dataEntrega + "]";
 	}
 
 	@Override
@@ -116,7 +132,7 @@ public class VendaFormRequestDTO {
 		result = prime * result + ((itens == null) ? 0 : itens.hashCode());
 		result = prime * result + ((total == null) ? 0 : total.hashCode());
 		result = prime * result + ((cadastro == null) ? 0 : cadastro.hashCode());
-		result = prime * result + ((entrega == null) ? 0 : entrega.hashCode());
+		result = prime * result + ((dataEntrega == null) ? 0 : dataEntrega.hashCode());
 		return result;
 	}
 
@@ -156,10 +172,10 @@ public class VendaFormRequestDTO {
 				return false;
 		} else if (!cadastro.equals(other.cadastro))
 			return false;
-		if (entrega == null) {
-			if (other.entrega != null)
+		if (dataEntrega == null) {
+			if (other.dataEntrega != null)
 				return false;
-		} else if (!entrega.equals(other.entrega))
+		} else if (!dataEntrega.equals(other.dataEntrega))
 			return false;
 		return true;
 	}

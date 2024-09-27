@@ -8,6 +8,8 @@ export interface Venda {
   statusPagamento?: string;
   statusPedido?: string;
   total: number;
+  cadastro?: string;
+  dataEntrega?: string;
 }
 
 export interface ItemVenda {
