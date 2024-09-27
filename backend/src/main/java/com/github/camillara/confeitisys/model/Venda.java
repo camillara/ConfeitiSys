@@ -56,12 +56,15 @@ public class Venda {
 	@Column(name = "data_de_entrega")
 	private LocalDate dataEntrega;
 
+	@Column(name = "observacao", length = 255)
+	private String observacao;
+
 	// constructors
 	public Venda() {
 		super();
 	}
 
-	public Venda(Long id, Cliente cliente, FormaPagamento formaPagamento, StatusPagamento statusPagamento, StatusPedido statusPedido, List<ItemVenda> itens, BigDecimal total, LocalDate dataCadastro, LocalDate dataEntrega) {
+	public Venda(Long id, Cliente cliente, FormaPagamento formaPagamento, StatusPagamento statusPagamento, StatusPedido statusPedido, List<ItemVenda> itens, BigDecimal total, LocalDate dataCadastro, LocalDate dataEntrega, String observacao) {
 		super();
 		this.id = id;
 		this.cliente = cliente;
@@ -72,6 +75,7 @@ public class Venda {
 		this.total = total;
 		this.dataCadastro = dataCadastro;
 		this.dataEntrega = dataEntrega;
+		this.observacao = observacao;
 	}
 
 	// get and set
@@ -146,11 +150,19 @@ public class Venda {
 		this.dataEntrega = dataEntrega;
 	}
 
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+
 	// toString
 	@Override
 	public String toString() {
 		return "Venda [id=" + id + ", cliente=" + cliente + ", formaPagamento=" + formaPagamento + " statusPagamento= " + statusPagamento + ", statusPedido=" + statusPedido + ", itens=" + itens
-				+ ", total=" + total + ", datacadstro =  " + dataCadastro + ", dataEntrega=" + dataEntrega + "]";
+				+ ", total=" + total + ", datacadstro =  " + dataCadastro + ", dataEntrega=" + dataEntrega + ", observacao= " + observacao + "]";
 	}
 
 	@Override
@@ -166,6 +178,7 @@ public class Venda {
 		result = prime * result + ((total == null) ? 0 : total.hashCode());
 		result = prime * result + ((dataCadastro == null) ? 0 : dataCadastro.hashCode());
 		result = prime * result + ((dataEntrega == null) ? 0 : dataEntrega.hashCode());
+		result = prime * result + ((observacao == null) ? 0 : observacao.hashCode());
 		return result;
 	}
 
@@ -217,6 +230,11 @@ public class Venda {
 			if (other.dataEntrega != null)
 				return false;
 		} else if (!dataEntrega.equals(other.dataEntrega))
+			return false;
+		if (observacao == null) {
+			if (other.observacao != null)
+				return false;
+		} else if (!observacao.equals(other.observacao))
 			return false;
 		return true;
 	}

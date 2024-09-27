@@ -28,7 +28,8 @@ CREATE TABLE venda (
     status_pedido varchar(8) CHECK (status_pedido IN ('PRODUCAO', 'ENTREGUE', 'CANCELADO')) NOT NULL,
     total numeric(16,2) NOT NULL,
     data_cadastro date,
-    data_entrega date
+    data_entrega date,
+    observacao varchar(255),
 );
 
 CREATE TABLE item_venda (

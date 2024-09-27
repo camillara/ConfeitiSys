@@ -10,6 +10,7 @@ export interface Venda {
   total: number;
   cadastro?: string;
   dataEntrega?: string;
+  observacao?: string;
 }
 
 export interface ItemVenda {

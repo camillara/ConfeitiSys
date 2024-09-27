@@ -38,7 +38,8 @@ const formScheme: Venda = {
   statusPagamento: "",
   statusPedido: "",
   cadastro: "",
-  dataEntrega: "",
+  dataEntrega: "", 
+  observacao: "",
 };
 
 export const VendasForm: React.FC<VendasFormProps> = ({
@@ -377,6 +378,25 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             </div>
           </div>
         </div>
+        
+        <div className="columns">
+          <div className="field is-full column">
+            <label className="label" htmlFor="inputObservacao">
+              Observação:
+            </label>
+            <div className="control">
+              <textarea
+                className="textarea"
+                id="inputObservacao"
+                name="observacao" 
+                value={formik.values.observacao} 
+                onChange={formik.handleChange} 
+                placeholder="Digite qualquer observação sobre a venda"
+              />
+            </div>
+          </div>
+        </div>
+
         {!vendaRealizada && <Button type="submit" label="Finalizar" />}
         {vendaRealizada && (
           <Button

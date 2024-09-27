@@ -24,13 +24,15 @@ public class VendaFormRequestDTO {
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate dataEntrega;
 
+	private String observacao;
+
 	// constructors
 	public VendaFormRequestDTO() {
 		super();
 	}
 
 	public VendaFormRequestDTO(Long id, Long idCliente, FormaPagamento formaPagamento, StatusPagamento statusPagamento, StatusPedido statusPedido,
-			List<ItemVendaFormRequestDTO> itens, BigDecimal total, LocalDate cadastro, LocalDate dataEntrega) {
+			List<ItemVendaFormRequestDTO> itens, BigDecimal total, LocalDate cadastro, LocalDate dataEntrega, String observacao) {
 		super();
 		this.id = id;
 		this.idCliente = idCliente;
@@ -41,6 +43,7 @@ public class VendaFormRequestDTO {
 		this.total = total;
 		this.cadastro = cadastro;
 		this.dataEntrega = dataEntrega;
+		this.observacao = observacao;
 	}
 
 	// get and set
@@ -116,10 +119,18 @@ public class VendaFormRequestDTO {
 		this.dataEntrega = dataEntrega;
 	}
 
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+
 	@Override
 	public String toString() {
 		return "VendaFormRequestDTO [id=" + id + ", idCliente=" + idCliente + ", formaPagamento=" + formaPagamento
-				+ ", itens=" + itens + ", total=" + total + ", cadastro=" + cadastro + ", dataEntrega=" + dataEntrega + "]";
+				+ ", itens=" + itens + ", total=" + total + ", cadastro=" + cadastro + ", dataEntrega=" + dataEntrega + ", observacao=" + observacao +"]";
 	}
 
 	@Override
@@ -133,6 +144,7 @@ public class VendaFormRequestDTO {
 		result = prime * result + ((total == null) ? 0 : total.hashCode());
 		result = prime * result + ((cadastro == null) ? 0 : cadastro.hashCode());
 		result = prime * result + ((dataEntrega == null) ? 0 : dataEntrega.hashCode());
+		result = prime * result + ((observacao == null) ? 0 : observacao.hashCode());
 		return result;
 	}
 
@@ -176,6 +188,11 @@ public class VendaFormRequestDTO {
 			if (other.dataEntrega != null)
 				return false;
 		} else if (!dataEntrega.equals(other.dataEntrega))
+			return false;
+		if (observacao == null) {
+			if (other.observacao != null)
+				return false;
+		} else if (!observacao.equals(other.observacao))
 			return false;
 		return true;
 	}
