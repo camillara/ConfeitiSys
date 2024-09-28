@@ -107,7 +107,7 @@ export const CadastroProdutos: React.FC = () => {
   };
 
   return (
-    <Layout titulo="Produtos" mensagens={messages}>
+    <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
       {id && (
         <div className="columns">
           <Input

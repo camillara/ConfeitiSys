@@ -129,7 +129,7 @@ export const ListagemClientes: React.FC = () => {
 
   // JSX para o componente principal
   return (
-    <Layout titulo="Clientes">
+    <Layout titulo="CLIENTES">
       {/* Formulário para filtrar clientes */}
       <form onSubmit={formikSubmit}>
         <div className="columns">

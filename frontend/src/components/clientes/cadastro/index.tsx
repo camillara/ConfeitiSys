@@ -47,7 +47,7 @@ export const CadastroCliente: React.FC = () => {
   };
 
   return (
-    <Layout titulo="Clientes" mensagens={messages}>
+    <Layout titulo="CADASTRO DE CLIENTE" mensagens={messages}>
       <ClienteForm cliente={cliente} onSubmit={handleSubmit} />
     </Layout>
   );

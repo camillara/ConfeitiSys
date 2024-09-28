@@ -36,7 +36,7 @@ export const Vendas: React.FC = () => {
   };
 
   return (
-    <Layout titulo="Vendas" mensagens={messages}>
+    <Layout titulo="VENDAS" mensagens={messages}>
       <VendasForm
         onSubmit={handleSubmit}
         onNovaVenda={handleNovaVenda}
