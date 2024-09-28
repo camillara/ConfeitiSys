@@ -11,10 +11,9 @@ CREATE TABLE produto (
 
 CREATE TABLE cliente (
     id bigserial NOT NULL PRIMARY KEY,
-    nascimento date NOT NULL,
+    nascimento date,
     nome varchar(100) NOT NULL,
-    endereco varchar(255) NOT NULL,
-    cpf varchar(14) NOT NULL,
+    endereco varchar(255),
     telefone varchar(14),
     email varchar(100),
     data_cadastro date

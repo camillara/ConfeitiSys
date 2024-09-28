@@ -54,9 +54,6 @@ export const InputMoney: React.FC<InputProps> = (props: InputProps) => {
   return <Input {...props} formatter={formatReal} />;
 };
 
-export const InputCPF: React.FC<InputProps> = (props: InputProps) => {
-  return <Input {...props} formatter={formatUtils.formatCPF} />;
-};
 
 export const InputTelefone: React.FC<InputProps> = (props: InputProps) => {
   return <Input {...props} formatter={formatUtils.formatPhone} />;

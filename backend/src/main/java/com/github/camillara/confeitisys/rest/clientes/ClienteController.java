@@ -66,9 +66,8 @@ public class ClienteController {
 	@GetMapping
 	public Page<ClienteFormRequestDTO> getLista(
 			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
-			@RequestParam(value = "cpf", required = false, defaultValue = "") String cpf, Pageable pageable) {
-		return repository.buscarPorNomeCpf("%" + nome + "%", "%" + cpf + "%", pageable)
+			Pageable pageable) {
+		return repository.buscarPorNome("%" + nome + "%", pageable)
 				.map(ClienteFormRequestDTO::fromModel);
-
 	}
 }

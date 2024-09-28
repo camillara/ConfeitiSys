@@ -5,7 +5,6 @@ export { Vendas } from "./vendas";
 export {
   Input,
   InputMoney,
-  InputCPF,
   InputTelefone,
   InputDate,
   Message,

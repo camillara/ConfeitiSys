@@ -22,7 +22,7 @@ O projeto possui duas entidades principais: `Cliente` e `Produto`. Cada entidade
 
 ### Cliente
 
-A classe `Cliente` representa um cliente e possui atributos como nome, CPF, endereço, etc. O controlador `ClienteController` oferece endpoints para operações CRUD.
+A classe `Cliente` representa um cliente e possui atributos como nome, endereço, etc. O controlador `ClienteController` oferece endpoints para operações CRUD.
 
 ### Produto
 
@@ -46,7 +46,7 @@ O aplicativo estará disponível em `http://localhost:8080`.
 - **PUT /api/clientes/{id}:** Atualiza um cliente existente.
 - **GET /api/clientes/{id}:** Retorna os detalhes de um cliente específico.
 - **DELETE /api/clientes/{id}:** Exclui um cliente específico.
-- **GET /api/clientes:** Retorna uma lista de clientes com opções de filtragem por nome e CPF.
+- **GET /api/clientes:** Retorna uma lista de clientes com opções de filtragem por nome.
 
 ### Produto Endpoints
 

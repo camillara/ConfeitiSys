@@ -2,7 +2,7 @@
 import { Cliente } from "app/models/clientes";
 import { Page } from "app/models/common/page";
 import { useClienteService } from "app/services";
-import { Input, InputCPF, Layout } from "components";
+import { Input, Layout } from "components";
 import { useFormik } from "formik";
 import Router from "next/router";
 import { Button } from "primereact/button";
@@ -15,7 +15,6 @@ import { useRef, useState } from "react";
 // Definindo a forma dos dados do formulário
 interface ConsultaClientesForm {
   nome?: string;
-  cpf?: string;
 }
 
 // Componente funcional React para listar clientes
@@ -43,14 +42,14 @@ export const ListagemClientes: React.FC = () => {
     handleChange,
   } = useFormik<ConsultaClientesForm>({
     onSubmit: handleSubmit,
-    initialValues: { nome: "", cpf: "" },
+    initialValues: { nome: ""},
   });
 
   // Lidando com a paginação
   const handlePage = (event: DataTablePageParams) => {
     setLoading(true);
     service
-      .find(filtro.nome, filtro.cpf, event?.page, event?.rows)
+      .find(filtro.nome, event?.page, event?.rows)
       .then((result) => {
         setClientes({ ...result, first: event?.first });
       })
@@ -144,16 +143,6 @@ export const ListagemClientes: React.FC = () => {
             name="nome"
             value={filtro.nome}
           />
-
-          {/* Input para o CPF do cliente */}
-          <InputCPF
-            label="CPF"
-            id="cpf"
-            columnClasses="is-half"
-            onChange={handleChange}
-            name="cpf"
-            value={filtro.cpf}
-          />
         </div>
 
         {/* Botões agrupados para enviar o formulário e adicionar um novo cliente */}
@@ -194,7 +183,6 @@ export const ListagemClientes: React.FC = () => {
             {/* Colunas para os dados do cliente */}
             <Column field="id" header="Código" />
             <Column field="nome" header="Nome" />
-            <Column field="cpf" header="CPF" />
             <Column field="email" header="Email" />
             {/* Coluna para os botões de ação */}
             <Column body={actionTemplate} />

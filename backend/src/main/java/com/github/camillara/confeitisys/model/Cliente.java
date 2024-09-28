@@ -26,24 +26,20 @@ public class Cliente {
 	private Long id;
 
 	@Column(name = "data_de_nascimento")
-	@NotNull(message = "A data de nascimento não pode ser nula")
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private LocalDate nascimento;
-
-	@Column(name = "cpf")
-	@Length(min = 14, max = 14, message = "CPF deve ter o formato 000.000.000-00")
-	private String cpf;
 
 	@Column(name = "nome")
 	@NotBlank(message = "O nome não pode estar em branco")
 	private String nome;
 
 	@Column(name = "endereco")
-	@NotBlank(message = "O endereço não pode estar em branco")
 	private String endereco;
 
-	@Column(name = "telefone")
-	@Pattern(regexp = "\\(\\d{2}\\)\\d{4,5}-\\d{4}", message = "Formato de telefone inválido. Use (00)1234-5678 ou (00)12345-6789")
+	@Pattern(
+			regexp = "^$|^\\(\\d{2}\\)\\d{4}-\\d{4}$|^\\(\\d{2}\\)\\d{5}-\\d{4}$",
+			message = "Formato de telefone inválido. Use (00)1234-5678 ou (00)12345-6789"
+	)
 	private String telefone;
 
 	@Column(name = "email")
@@ -64,12 +60,11 @@ public class Cliente {
 		super();
 	}
 
-	public Cliente(Long id, LocalDate nascimento, String cpf, String nome, String endereco, String telefone,
+	public Cliente(Long id, LocalDate nascimento, String nome, String endereco, String telefone,
 			String email, LocalDate dataCadastro) {
 		super();
 		this.id = id;
 		this.nascimento = nascimento;
-		this.cpf = cpf;
 		this.nome = nome;
 		this.endereco = endereco;
 		this.telefone = telefone;
@@ -78,10 +73,9 @@ public class Cliente {
 	}
 
 	// Construtor sem ID e Data_cadastro
-	public Cliente(LocalDate nascimento, String cpf, String nome, String endereco, String telefone, String email) {
+	public Cliente(LocalDate nascimento, String nome, String endereco, String telefone, String email) {
 		super();
 		this.nascimento = nascimento;
-		this.cpf = cpf;
 		this.nome = nome;
 		this.endereco = endereco;
 		this.telefone = telefone;
@@ -103,14 +97,6 @@ public class Cliente {
 
 	public void setNascimento(LocalDate nascimento) {
 		this.nascimento = nascimento;
-	}
-
-	public String getCpf() {
-		return cpf;
-	}
-
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
 	}
 
 	public String getNome() {
@@ -160,8 +146,6 @@ public class Cliente {
 		builder.append(id);
 		builder.append(", nascimento=");
 		builder.append(nascimento);
-		builder.append(", cpf=");
-		builder.append(cpf);
 		builder.append(", nome=");
 		builder.append(nome);
 		builder.append(", endereco=");
@@ -180,7 +164,6 @@ public class Cliente {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cpf == null) ? 0 : cpf.hashCode());
 		result = prime * result + ((dataCadastro == null) ? 0 : dataCadastro.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((endereco == null) ? 0 : endereco.hashCode());
@@ -200,11 +183,6 @@ public class Cliente {
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
-		if (cpf == null) {
-			if (other.cpf != null)
-				return false;
-		} else if (!cpf.equals(other.cpf))
-			return false;
 		if (dataCadastro == null) {
 			if (other.dataCadastro != null)
 				return false;

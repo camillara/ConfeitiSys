@@ -1,5 +1,5 @@
 import { Cliente } from "app/models/clientes";
-import { Input, InputCPF, InputDate, InputTelefone } from "components";
+import { Input, InputDate, InputTelefone } from "components";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { validationScheme } from "./validationSchema";
@@ -11,7 +11,6 @@ interface ClienteFormProps {
 
 const formScheme: Cliente = {
   cadastro: "",
-  cpf: "",
   dataNascimento: "",
   email: "",
   endereco: "",
@@ -72,21 +71,10 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
         />
       </div>
       <div className="columns">
-        <InputCPF
-          id="cpf"
-          name="cpf"
-          label="CPF: *"
-          autoComplete="off"
-          columnClasses="is-half"
-          onChange={formik.handleChange}
-          value={formik.values.cpf}
-          error={formik.errors.cpf}
-        />
-
         <InputDate
           id="dataNascimento"
           name="dataNascimento"
-          label="Data Nascimento: *"
+          label="Data Nascimento:"
           autoComplete="off"
           columnClasses="is-half"
           onChange={formik.handleChange}
@@ -98,7 +86,7 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
         <Input
           id="endereco"
           name="endereco"
-          label="Endereço: *"
+          label="Endereço:"
           autoComplete="off"
           columnClasses="is-full"
           onChange={formik.handleChange}
@@ -110,7 +98,7 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
         <Input
           id="email"
           name="email"
-          label="E-mail: *"
+          label="E-mail:"
           autoComplete="off"
           columnClasses="is-half"
           onChange={formik.handleChange}
@@ -121,7 +109,7 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
         <InputTelefone
           id="telefone"
           name="telefone"
-          label="Telefone: *"
+          label="Telefone:"
           autoComplete="off"
           columnClasses="is-half"
           onChange={formik.handleChange}
