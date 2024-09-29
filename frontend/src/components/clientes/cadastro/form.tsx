@@ -17,6 +17,7 @@ const formScheme: Cliente = {
   id: "",
   nome: "",
   telefone: "",
+  observacao: "",
 };
 
 export const ClienteForm: React.FC<ClienteFormProps> = ({
@@ -81,6 +82,17 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
           value={formik.values.dataNascimento}
           error={formik.errors.dataNascimento}
         />
+
+        <InputTelefone
+          id="telefone"
+          name="telefone"
+          label="Telefone:"
+          autoComplete="off"
+          columnClasses="is-half"
+          onChange={formik.handleChange}
+          value={formik.values.telefone}
+          error={formik.errors.telefone}
+        />
       </div>
       <div className="columns">
         <Input
@@ -100,23 +112,29 @@ export const ClienteForm: React.FC<ClienteFormProps> = ({
           name="email"
           label="E-mail:"
           autoComplete="off"
-          columnClasses="is-half"
+          columnClasses="is-full"
           onChange={formik.handleChange}
           value={formik.values.email}
           error={formik.errors.email}
         />
-
-        <InputTelefone
-          id="telefone"
-          name="telefone"
-          label="Telefone:"
-          autoComplete="off"
-          columnClasses="is-half"
-          onChange={formik.handleChange}
-          value={formik.values.telefone}
-          error={formik.errors.telefone}
-        />
       </div>
+      <div className="columns">
+          <div className="field is-full column">
+            <label className="label" htmlFor="inputObservacao">
+              Observação:
+            </label>
+            <div className="control">
+              <textarea
+                className="textarea"
+                id="inputObservacao"
+                name="observacao" 
+                value={formik.values.observacao} 
+                onChange={formik.handleChange} 
+                placeholder="Digite qualquer observação sobre o cliente"
+              />
+            </div>
+          </div>
+        </div>
       <div className="field is-grouped">
         <div className="control">
           <button className="button is-link" type="submit">

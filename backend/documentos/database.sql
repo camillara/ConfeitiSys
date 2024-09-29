@@ -16,7 +16,8 @@ CREATE TABLE cliente (
     endereco varchar(255),
     telefone varchar(14),
     email varchar(100),
-    data_cadastro date
+    data_cadastro date,
+    observacao varchar(255)
 );
 
 CREATE TABLE venda (
@@ -28,7 +29,7 @@ CREATE TABLE venda (
     total numeric(16,2) NOT NULL,
     data_cadastro date,
     data_entrega date,
-    observacao varchar(255),
+    observacao varchar(255)
 );
 
 CREATE TABLE item_venda (

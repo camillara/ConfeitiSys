@@ -20,9 +20,11 @@ public class ClienteFormRequestDTO {
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate cadastro;
 
+	private String observacao;
+
 	// Metodos
 	public Cliente toModel() {
-		return new Cliente(id, dataNascimento, nome, endereco, telefone, email, cadastro);
+		return new Cliente(id, dataNascimento, nome, endereco, telefone, email, cadastro, observacao);
 	}
 
 	public static ClienteFormRequestDTO fromModel(Cliente cliente) {
@@ -33,7 +35,9 @@ public class ClienteFormRequestDTO {
 				cliente.getEndereco(), 
 				cliente.getEmail(), 
 				cliente.getTelefone(), 
-				cliente.getDataCadastro());
+				cliente.getDataCadastro(),
+				cliente.getObservacao()
+		);
 	}
 
 	// Construtores
@@ -42,7 +46,7 @@ public class ClienteFormRequestDTO {
 	}
 
 	public ClienteFormRequestDTO(Long id, String nome, LocalDate dataNascimento, String endereco,
-			String email, String telefone, LocalDate cadastro) {
+			String email, String telefone, LocalDate cadastro, String observacao) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -51,6 +55,7 @@ public class ClienteFormRequestDTO {
 		this.email = email;
 		this.telefone = telefone;
 		this.cadastro = cadastro;
+		this.observacao = observacao;
 	}
 
 	// get e set
@@ -110,6 +115,14 @@ public class ClienteFormRequestDTO {
 		this.cadastro = cadastro;
 	}
 
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+
 	
 	
 	@Override
@@ -123,6 +136,7 @@ public class ClienteFormRequestDTO {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
 		result = prime * result + ((telefone == null) ? 0 : telefone.hashCode());
+		result = prime * result + ((observacao == null) ? 0 : observacao.hashCode());
 		return result;
 	}
 
@@ -170,6 +184,11 @@ public class ClienteFormRequestDTO {
 				return false;
 		} else if (!telefone.equals(other.telefone))
 			return false;
+		if (observacao == null) {
+			if (other.observacao != null)
+				return false;
+		} else if (!observacao.equals(other.observacao))
+			return false;
 		return true;
 	}
 
@@ -177,7 +196,7 @@ public class ClienteFormRequestDTO {
 	public String toString() {
 		return "ClienteFormRequestDTO [id=" + id + ", nome=" + nome + ", dataNascimento="
 				+ dataNascimento + ", endereco=" + endereco + ", email=" + email + ", telefone=" + telefone
-				+ ", cadastro=" + cadastro + "]";
+				+ ", cadastro=" + cadastro + ", observacao =" + observacao + " ]";
 	}
 
 	

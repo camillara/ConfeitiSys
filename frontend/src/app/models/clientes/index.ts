@@ -6,4 +6,5 @@ export interface Cliente {
   email?: string;
   telefone?: string;
   cadastro?: string;
+  observacao?: string;
 }

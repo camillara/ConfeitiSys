@@ -49,6 +49,10 @@ public class Cliente {
 	@Column(name = "data_de_cadastro")
 	private LocalDate dataCadastro;
 
+	@Column(name = "observacao", length = 255)
+	private String observacao;
+
+
 	// metodos
 	@PrePersist
 	public void prePersist() {
@@ -61,7 +65,7 @@ public class Cliente {
 	}
 
 	public Cliente(Long id, LocalDate nascimento, String nome, String endereco, String telefone,
-			String email, LocalDate dataCadastro) {
+			String email, LocalDate dataCadastro, String observacao) {
 		super();
 		this.id = id;
 		this.nascimento = nascimento;
@@ -70,16 +74,18 @@ public class Cliente {
 		this.telefone = telefone;
 		this.email = email;
 		this.dataCadastro = dataCadastro;
+		this.observacao = observacao;
 	}
 
 	// Construtor sem ID e Data_cadastro
-	public Cliente(LocalDate nascimento, String nome, String endereco, String telefone, String email) {
+	public Cliente(LocalDate nascimento, String nome, String endereco, String telefone, String email, String observacao) {
 		super();
 		this.nascimento = nascimento;
 		this.nome = nome;
 		this.endereco = endereco;
 		this.telefone = telefone;
 		this.email = email;
+		this.observacao = observacao;
 	}
 
 	// get e set
@@ -139,6 +145,14 @@ public class Cliente {
 		this.dataCadastro = dataCadastro;
 	}
 
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -156,6 +170,8 @@ public class Cliente {
 		builder.append(email);
 		builder.append(", dataCadastro=");
 		builder.append(dataCadastro);
+		builder.append(", observacao=");
+		builder.append(observacao);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -171,6 +187,7 @@ public class Cliente {
 		result = prime * result + ((nascimento == null) ? 0 : nascimento.hashCode());
 		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
 		result = prime * result + ((telefone == null) ? 0 : telefone.hashCode());
+		result = prime * result + ((observacao == null) ? 0 : observacao.hashCode());
 		return result;
 	}
 
@@ -217,6 +234,11 @@ public class Cliente {
 			if (other.telefone != null)
 				return false;
 		} else if (!telefone.equals(other.telefone))
+			return false;
+		if (observacao == null) {
+			if (other.observacao != null)
+				return false;
+		} else if (!observacao.equals(other.observacao))
 			return false;
 		return true;
 	}
