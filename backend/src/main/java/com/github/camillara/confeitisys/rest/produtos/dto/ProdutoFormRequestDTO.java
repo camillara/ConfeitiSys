@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.camillara.confeitisys.model.Produto;
+import com.github.camillara.confeitisys.model.enums.Categoria;
 import lombok.*;
 
 @Data
@@ -16,7 +17,7 @@ public class ProdutoFormRequestDTO {
 	private String descricao;
 	private String nome;
 	private BigDecimal preco;
-	private String categoria;
+	private Categoria categoria;
 
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate cadastro;

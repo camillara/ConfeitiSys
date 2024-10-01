@@ -3,6 +3,8 @@ package com.github.camillara.confeitisys.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.persistence.*;
+
+import com.github.camillara.confeitisys.model.enums.Categoria;
 import lombok.*;
 
 @Entity
@@ -29,8 +31,9 @@ public class Produto {
 	@Column(name = "preco", precision = 16, scale = 2)
 	private BigDecimal preco;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "categoria")
-	private String categoria;
+	private Categoria categoria;
 
 	@Column(name = "data_de_cadastro")
 	private LocalDate dataCadastro;

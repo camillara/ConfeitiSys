@@ -1,13 +1,26 @@
 CREATE DATABASE confeitisys;
 
 CREATE TABLE produto (
-    id bigserial NOT NULL PRIMARY KEY,
-    nome varchar(100) NOT NULL,
-    descricao varchar(255),
-    preco numeric(16,2),
-    categoria varchar(20),
-    data_cadastro date
+                         id bigserial NOT NULL PRIMARY KEY,
+                         nome varchar(100) NOT NULL,
+                         descricao varchar(255),
+                         preco numeric(16,2),
+                         categoria varchar(20) CHECK (categoria IN (
+                                                                    'MATERIA_PRIMA',
+                                                                    'BOLO',
+                                                                    'DOCE',
+                                                                    'QUITANDA',
+                                                                    'TORTA',
+                                                                    'SOBREMESA',
+                                                                    'BEBIDA',
+                                                                    'CUPCAKE_MUFFIN',
+                                                                    'SALGADO',
+                                                                    'RECHEIO_COBERTURA',
+                                                                    'UTENSILIO_EMBALAGEM'
+                             )) NOT NULL,
+                         data_cadastro date
 );
+
 
 CREATE TABLE cliente (
     id bigserial NOT NULL PRIMARY KEY,

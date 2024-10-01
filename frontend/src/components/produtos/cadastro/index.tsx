@@ -4,6 +4,7 @@ import { useProdutoService } from "app/services";
 import { Produto } from "app/models/produtos";
 import { converterEmBigDecimal, formatReal } from "app/util/money";
 import { Alert } from "components/common/message";
+import { Dropdown } from "primereact/dropdown"; // Importando o Dropdown
 import * as yup from "yup";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -106,6 +107,20 @@ export const CadastroProdutos: React.FC = () => {
       });
   };
 
+  const categorias = [
+    "MATERIA_PRIMA",
+    "BOLO",
+    "DOCE",
+    "QUITANDA",
+    "TORTA",
+    "SOBREMESA",
+    "BEBIDA",
+    "CUPCAKE_MUFFIN",
+    "SALGADO",
+    "RECHEIO_COBERTURA",
+    "UTENSILIO_EMBALAGEM",
+  ];
+
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
       {id && (
@@ -129,15 +144,23 @@ export const CadastroProdutos: React.FC = () => {
       )}
 
       <div className="columns">
-        <Input
-          label="Categoria: *"
-          columnClasses="is-half"
-          onChange={(e) => setCategoria(e.target.value)}
-          value={categoria}
-          id="inputCategoria"
-          placeholder="Digite a categoria do produto"
-          error={errors.categoria}
-        />
+        <div className="field column is-half">
+          <label className="label" htmlFor="inputCategoria">
+            Categoria: *
+          </label>
+          <div className="control">
+            <Dropdown
+              id="inputCategoria"
+              options={categorias}
+              value={categoria}
+              onChange={(e) => setCategoria(e.value)}
+              placeholder="Selecione a categoria"
+            />
+            {errors.categoria && (
+              <p className="help is-danger">{errors.categoria}</p>
+            )}
+          </div>
+        </div>
 
         <InputMoney
           label="Preço: *"
@@ -174,7 +197,7 @@ export const CadastroProdutos: React.FC = () => {
               id="inputDescricao"
               value={descricao}
               onChange={(event) => setDescricao(event.target.value)}
-              placeholder="Digite o Descrição detalhada do produto"
+              placeholder="Digite a Descrição detalhada do produto"
             />
             {errors.descricao && (
               <p className="help is-danger">{errors.descricao}</p>
