@@ -1,11 +1,11 @@
-package com.github.camillara.confeitisys.rest.produtos.dto;
+package com.github.camillara.confeitisys.rest.produtos;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.github.camillara.confeitisys.model.Produto;
-import com.github.camillara.confeitisys.rest.produtos.ProdutoFormRequestDTO;
+import com.github.camillara.confeitisys.rest.produtos.dto.ProdutoFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;

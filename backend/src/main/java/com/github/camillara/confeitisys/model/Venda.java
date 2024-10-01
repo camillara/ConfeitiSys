@@ -3,25 +3,21 @@ package com.github.camillara.confeitisys.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 import com.github.camillara.confeitisys.model.enums.FormaPagamento;
 import com.github.camillara.confeitisys.model.enums.StatusPagamento;
 import com.github.camillara.confeitisys.model.enums.StatusPedido;
+import lombok.*;
 
 @Entity
 @Table(name = "tb_venda")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+@ToString
 public class Venda {
 
 	@Id
@@ -59,184 +55,8 @@ public class Venda {
 	@Column(name = "observacao", length = 255)
 	private String observacao;
 
-	// constructors
-	public Venda() {
-		super();
+	@PrePersist
+	public void prePersist() {
+		setDataCadastro(LocalDate.now());
 	}
-
-	public Venda(Long id, Cliente cliente, FormaPagamento formaPagamento, StatusPagamento statusPagamento, StatusPedido statusPedido, List<ItemVenda> itens, BigDecimal total, LocalDate dataCadastro, LocalDate dataEntrega, String observacao) {
-		super();
-		this.id = id;
-		this.cliente = cliente;
-		this.formaPagamento = formaPagamento;
-		this.statusPagamento = statusPagamento;
-		this.statusPedido = statusPedido;
-		this.itens = itens;
-		this.total = total;
-		this.dataCadastro = dataCadastro;
-		this.dataEntrega = dataEntrega;
-		this.observacao = observacao;
-	}
-
-	// get and set
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Cliente getCliente() {
-		return cliente;
-	}
-
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
-
-	public FormaPagamento getFormaPagamento() {
-		return formaPagamento;
-	}
-
-	public void setFormaPagamento(FormaPagamento formaPagamento) {
-		this.formaPagamento = formaPagamento;
-	}
-
-	public StatusPagamento getStatusPagamento() {
-		return statusPagamento;
-	}
-
-	public void setStatusPagamento(StatusPagamento statusPagamento)  {
-		this.statusPagamento = statusPagamento;
-	}
-
-	public StatusPedido getStatusPedido() {
-		return statusPedido;
-	}
-
-	public void setStatusPedido(StatusPedido statusPedido)  {
-		this.statusPedido = statusPedido;
-	}
-	public List<ItemVenda> getItens() {
-		return itens;
-	}
-
-	public void setItens(List<ItemVenda> itens) {
-		this.itens = itens;
-	}
-
-	public BigDecimal getTotal() {
-		return total;
-	}
-
-	public void setTotal(BigDecimal total) {
-		this.total = total;
-	}
-
-	public LocalDate getDataCadastro() {
-		return dataCadastro;
-	}
-
-	public void setDataCadastro(LocalDate dataCadastro) {
-		this.dataCadastro = dataCadastro;
-	}
-
-	public LocalDate getDataEntrega() {
-		return dataEntrega;
-	}
-
-	public void setDataEntrega(LocalDate dataEntrega) {
-		this.dataEntrega = dataEntrega;
-	}
-
-	public String getObservacao() {
-		return observacao;
-	}
-
-	public void setObservacao(String observacao) {
-		this.observacao = observacao;
-	}
-
-	// toString
-	@Override
-	public String toString() {
-		return "Venda [id=" + id + ", cliente=" + cliente + ", formaPagamento=" + formaPagamento + " statusPagamento= " + statusPagamento + ", statusPedido=" + statusPedido + ", itens=" + itens
-				+ ", total=" + total + ", datacadstro =  " + dataCadastro + ", dataEntrega=" + dataEntrega + ", observacao= " + observacao + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((cliente == null) ? 0 : cliente.hashCode());
-		result = prime * result + ((formaPagamento == null) ? 0 : formaPagamento.hashCode());
-		result = prime * result + ((statusPagamento == null) ? 0 : statusPagamento.hashCode());
-		result = prime * result + ((statusPedido == null) ? 0 : statusPedido.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((itens == null) ? 0 : itens.hashCode());
-		result = prime * result + ((total == null) ? 0 : total.hashCode());
-		result = prime * result + ((dataCadastro == null) ? 0 : dataCadastro.hashCode());
-		result = prime * result + ((dataEntrega == null) ? 0 : dataEntrega.hashCode());
-		result = prime * result + ((observacao == null) ? 0 : observacao.hashCode());
-		return result;
-	}
-
-	public void cadastrarPedido() {
-		this.dataCadastro = LocalDate.now(); // Define a data atual como data de cadastro
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Venda other = (Venda) obj;
-		if (cliente == null) {
-			if (other.cliente != null)
-				return false;
-		} else if (!cliente.equals(other.cliente))
-			return false;
-		if (formaPagamento != other.formaPagamento)
-			return false;
-		if (statusPagamento != other.statusPagamento)
-			return false;
-		if (statusPedido != other.statusPedido)
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (itens == null) {
-			if (other.itens != null)
-				return false;
-		} else if (!itens.equals(other.itens))
-			return false;
-		if (total == null) {
-			if (other.total != null)
-				return false;
-		} else if (!total.equals(other.total))
-			return false;
-		if (dataCadastro == null) {
-			if (other.dataCadastro != null)
-				return false;
-		} else if (!dataCadastro.equals(other.dataCadastro))
-			return false;
-		if (dataEntrega == null) {
-			if (other.dataEntrega != null)
-				return false;
-		} else if (!dataEntrega.equals(other.dataEntrega))
-			return false;
-		if (observacao == null) {
-			if (other.observacao != null)
-				return false;
-		} else if (!observacao.equals(other.observacao))
-			return false;
-		return true;
-	}
-
 }
