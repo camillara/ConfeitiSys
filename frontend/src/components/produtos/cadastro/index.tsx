@@ -13,6 +13,7 @@ const msgCampoObrigatorio = "Campo Obrigatório";
 
 const validationSchema = yup.object().shape({
   categoria: yup.string().trim().required(msgCampoObrigatorio),
+  tipo: yup.string().trim().required(msgCampoObrigatorio),
   nome: yup.string().trim().required(msgCampoObrigatorio),
   descricao: yup
     .string()
@@ -27,6 +28,7 @@ const validationSchema = yup.object().shape({
 
 interface FormErrors {
   categoria?: string;
+  tipo?: string;
   nome?: string;
   preco?: string;
   descricao?: string;
@@ -37,6 +39,7 @@ export const CadastroProdutos: React.FC = () => {
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
   const [categoria, setCategoria] = useState<string>("");
+  const [tipo, setTipo] = useState<string>(""); // Estado para o tipo
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
@@ -51,6 +54,7 @@ export const CadastroProdutos: React.FC = () => {
       service.carregarProduto(queryId).then((produtoEncontrado: any) => {
         setId(produtoEncontrado.id);
         setCategoria(produtoEncontrado.categoria);
+        setTipo(produtoEncontrado.tipo);
         setNome(produtoEncontrado.nome);
         setDescricao(produtoEncontrado.descricao);
         setPreco(formatReal(`${produtoEncontrado.preco}`));
@@ -64,6 +68,7 @@ export const CadastroProdutos: React.FC = () => {
     const produto: Produto = {
       id,
       categoria,
+      tipo,
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
@@ -121,6 +126,20 @@ export const CadastroProdutos: React.FC = () => {
     "UTENSILIO_EMBALAGEM",
   ];
 
+  const tipos = [
+    "UN",          // Unidade
+    "GR",          // Gramas
+    "ML",          // Mililitros
+    "KG",          // Quilogramas
+    "L",           // Litros
+    "CX",          // Caixa
+    "PC",          // Pacote
+    "FT",          // Fatia
+    "DZ",          // Dúzia
+    "TBSP",        // Colher de sopa
+    "TSP"          // Colher de chá
+  ];
+
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
       {id && (
@@ -162,6 +181,26 @@ export const CadastroProdutos: React.FC = () => {
           </div>
         </div>
 
+        <div className="field column is-half">
+          <label className="label" htmlFor="inputTipo">
+            Tipo: *
+          </label>
+          <div className="control">
+            <Dropdown
+              id="inputTipo"
+              options={tipos}
+              value={tipo}
+              onChange={(e) => setTipo(e.value)}
+              placeholder="Selecione o tipo"
+            />
+            {errors.tipo && (
+              <p className="help is-danger">{errors.tipo}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="columns">
         <InputMoney
           label="Preço: *"
           columnClasses="is-half"

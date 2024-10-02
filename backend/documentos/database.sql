@@ -18,8 +18,22 @@ CREATE TABLE produto (
                                                                     'RECHEIO_COBERTURA',
                                                                     'UTENSILIO_EMBALAGEM'
                              )) NOT NULL,
+                         tipo varchar(10) CHECK (tipo IN (
+                                                          'UN',          -- Unidade
+                                                          'GR',          -- Gramas
+                                                          'ML',          -- Mililitros
+                                                          'KG',          -- Quilogramas
+                                                          'L',           -- Litros
+                                                          'CX',          -- Caixa
+                                                          'PC',          -- Pacote
+                                                          'FT',          -- Fatia
+                                                          'DZ',          -- Dúzia
+                                                          'TBSP',        -- Colher de sopa
+                                                          'TSP'          -- Colher de chá
+                             )) NOT NULL,
                          data_cadastro date
 );
+
 
 
 CREATE TABLE cliente (

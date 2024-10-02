@@ -284,6 +284,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <Column field="produto.id" header="Código" />
               <Column field="produto.categoria" header="Categoria" />
               <Column field="produto.nome" header="Produto" />
+              <Column field="produto.tipo" header="Tipo" />
               <Column field="produto.preco" header="Preço Unitário" />
               <Column field="quantidade" header="QTD" />
               <Column

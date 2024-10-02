@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import javax.persistence.*;
 
 import com.github.camillara.confeitisys.model.enums.Categoria;
+import com.github.camillara.confeitisys.model.enums.Tipo;
 import lombok.*;
 
 @Entity
@@ -34,6 +35,10 @@ public class Produto {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "categoria")
 	private Categoria categoria;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo")
+	private Tipo tipo;
 
 	@Column(name = "data_de_cadastro")
 	private LocalDate dataCadastro;

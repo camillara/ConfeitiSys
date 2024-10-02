@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.camillara.confeitisys.model.Produto;
 import com.github.camillara.confeitisys.model.enums.Categoria;
+import com.github.camillara.confeitisys.model.enums.Tipo;
 import lombok.*;
 
 @Data
@@ -18,6 +19,7 @@ public class ProdutoFormRequestDTO {
 	private String nome;
 	private BigDecimal preco;
 	private Categoria categoria;
+	private Tipo tipo;
 
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate cadastro;
@@ -29,6 +31,7 @@ public class ProdutoFormRequestDTO {
 				.descricao(descricao)
 				.preco(preco)
 				.categoria(categoria)
+				.tipo(tipo)
 				.build();
 		produto.setDataCadastro(cadastro != null ? cadastro : produto.getDataCadastro());
 		return produto;
@@ -41,6 +44,7 @@ public class ProdutoFormRequestDTO {
 				.nome(produto.getNome())
 				.preco(produto.getPreco())
 				.categoria(produto.getCategoria())
+				.tipo(produto.getTipo())
 				.cadastro(produto.getDataCadastro())
 				.build();
 	}
