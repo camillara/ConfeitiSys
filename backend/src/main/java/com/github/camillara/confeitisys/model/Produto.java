@@ -2,6 +2,7 @@ package com.github.camillara.confeitisys.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import javax.persistence.*;
 
 import com.github.camillara.confeitisys.model.enums.Categoria;
@@ -42,6 +43,9 @@ public class Produto {
 
 	@Column(name = "data_de_cadastro")
 	private LocalDate dataCadastro;
+
+	@OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ItemProduto> itensProduto;
 
 	@PrePersist
 	public void prePersist() {

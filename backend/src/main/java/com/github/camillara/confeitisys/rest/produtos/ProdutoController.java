@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.github.camillara.confeitisys.model.ItemProduto;
 import com.github.camillara.confeitisys.model.Produto;
 import com.github.camillara.confeitisys.rest.produtos.dto.ProdutoFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +49,21 @@ public class ProdutoController {
 
 	@PostMapping
 	public ProdutoFormRequestDTO salvar(@RequestBody ProdutoFormRequestDTO produtoDTO) {
-
+		// Primeiro, salvar o produto sem os itensProduto
 		Produto entidadeProduto = produtoDTO.toModel();
-		repository.save(entidadeProduto);
+		entidadeProduto.setItensProduto(null); // Evitar salvar itensProduto neste momento
+		Produto produtoSalvo = repository.save(entidadeProduto);
 
-		return ProdutoFormRequestDTO.fromModel(entidadeProduto);
+		// Agora, salvar os itensProduto com o produto salvo
+		if (produtoDTO.getItensProduto() != null) {
+			List<ItemProduto> itensProduto = produtoDTO.getItensProduto().stream()
+					.map(dto -> dto.toModel(produtoSalvo, repository))
+					.collect(Collectors.toList());
+			produtoSalvo.setItensProduto(itensProduto);
+			repository.save(produtoSalvo); // Salvar novamente o produto com os itensProduto
+		}
+
+		return ProdutoFormRequestDTO.fromModel(produtoSalvo);
 	}
 
 	@PutMapping("{id}")
