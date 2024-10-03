@@ -65,3 +65,10 @@ CREATE TABLE item_venda (
     id_produto bigint REFERENCES produto (id) NOT NULL,
     quantidade integer NOT NULL
 );
+
+CREATE TABLE item_produto (
+                            id bigserial NOT NULL PRIMARY KEY,
+                            produto_id bigint REFERENCES produto (id) NOT NULL,
+                            itemProduto bigint REFERENCES produto (id) NOT NULL,
+                            quantidade integer NOT NULL
+);
