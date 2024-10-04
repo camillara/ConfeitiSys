@@ -17,6 +17,7 @@ import {
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { InputNumber } from "primereact/inputnumber";
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
@@ -241,6 +242,11 @@ export const CadastroProdutos: React.FC = () => {
               value={categoria}
               onChange={(e) => setCategoria(e.value)}
               placeholder="Selecione a categoria"
+              style={{
+                width: "100%",
+                height: "38px",
+                boxSizing: "border-box",
+              }}
             />
             {errors.categoria && (
               <p className="help is-danger">{errors.categoria}</p>
@@ -259,6 +265,11 @@ export const CadastroProdutos: React.FC = () => {
               value={tipo}
               onChange={(e) => setTipo(e.value)}
               placeholder="Selecione o tipo"
+              style={{
+                width: "100%",
+                height: "38px",
+                boxSizing: "border-box",
+              }}
             />
             {errors.tipo && (
               <p className="help is-danger">{errors.tipo}</p>
@@ -302,6 +313,10 @@ export const CadastroProdutos: React.FC = () => {
               value={descricao}
               onChange={(event) => setDescricao(event.target.value)}
               placeholder="Digite a Descrição detalhada do produto"
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+              }}
             />
           </div>
         </div>
@@ -314,7 +329,7 @@ export const CadastroProdutos: React.FC = () => {
               <label className="label" htmlFor="produtoAutocomplete">
                 Insumos / Matéria Prima
               </label>
-              <div className="control" style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="control" style={{ width: "100%" }}>
                 <AutoComplete
                   id="produtoAutocomplete"
                   suggestions={listaFiltradaProdutos}
@@ -322,6 +337,12 @@ export const CadastroProdutos: React.FC = () => {
                   value={produtoSelecionado}
                   field="nome"
                   onChange={handleProdutoChange}
+                  placeholder="Digite o nome do produto"
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
             </div>
@@ -330,13 +351,18 @@ export const CadastroProdutos: React.FC = () => {
               <label className="label" htmlFor="inputQuantidade">
                 Qtd
               </label>
-              <div className="control">
-                <Input
+              <div className="control" style={{ width: "100%" }}>
+                <InputNumber
                   id="inputQuantidade"
-                  type="number"
                   value={quantidade}
-                  onChange={(e) => setQuantidade(Number(e.target.value))}
-                  label={""}
+                  onValueChange={(e) => setQuantidade(e.value || 1)}
+                  min={1}
+                  placeholder="Quantidade"
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
             </div>
