@@ -213,61 +213,59 @@ export const CadastroProdutos: React.FC = () => {
 
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
-      {id && (
-        <div className="columns">
-          <Input
-            label="Código:"
-            columnClasses="is-3"
-            value={id}
-            id="inputId"
-            disabled={true}
-          />
+      <div className="columns">
+        <Input
+          label="Código:"
+          columnClasses="is-3"
+          value={id || ""}
+          id="inputId"
+          disabled={true}
+        />
 
-          <Input
-            label="Data do Cadastro:"
-            columnClasses="is-3"
-            value={cadastro}
-            id="inputDataCadastro"
-            disabled={true}
-          />
+        <Input
+          label="Data do Cadastro:"
+          columnClasses="is-3"
+          value={cadastro || ""}
+          id="inputDataCadastro"
+          disabled={true}
+        />
 
-          <div className="field column is-3">
-            <label className="label" htmlFor="inputCategoria">
-              Categoria: *
-            </label>
-            <div className="control">
-              <Dropdown
-                id="inputCategoria"
-                options={categorias}
-                value={categoria}
-                onChange={(e) => setCategoria(e.value)}
-                placeholder="Selecione a categoria"
-              />
-              {errors.categoria && (
-                <p className="help is-danger">{errors.categoria}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="field column is-3">
-            <label className="label" htmlFor="inputTipo">
-              Tipo: *
-            </label>
-            <div className="control">
-              <Dropdown
-                id="inputTipo"
-                options={tipos}
-                value={tipo}
-                onChange={(e) => setTipo(e.value)}
-                placeholder="Selecione o tipo"
-              />
-              {errors.tipo && (
-                <p className="help is-danger">{errors.tipo}</p>
-              )}
-            </div>
+        <div className="field column is-3">
+          <label className="label" htmlFor="inputCategoria">
+            Categoria: *
+          </label>
+          <div className="control">
+            <Dropdown
+              id="inputCategoria"
+              options={categorias}
+              value={categoria}
+              onChange={(e) => setCategoria(e.value)}
+              placeholder="Selecione a categoria"
+            />
+            {errors.categoria && (
+              <p className="help is-danger">{errors.categoria}</p>
+            )}
           </div>
         </div>
-      )}
+
+        <div className="field column is-3">
+          <label className="label" htmlFor="inputTipo">
+            Tipo: *
+          </label>
+          <div className="control">
+            <Dropdown
+              id="inputTipo"
+              options={tipos}
+              value={tipo}
+              onChange={(e) => setTipo(e.value)}
+              placeholder="Selecione o tipo"
+            />
+            {errors.tipo && (
+              <p className="help is-danger">{errors.tipo}</p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="columns">
         <Input
@@ -309,96 +307,100 @@ export const CadastroProdutos: React.FC = () => {
         </div>
       </div>
 
-      <div className="columns">
-        <div className="field column is-7">
-          <label className="label" htmlFor="produtoAutocomplete">
-            Insumos / Matéria Prima
-          </label>
-          <div className="control" style={{ display: 'flex', alignItems: 'center' }}>
-            <AutoComplete
-              id="produtoAutocomplete"
-              suggestions={listaFiltradaProdutos}
-              completeMethod={handleProdutoAutoComplete}
-              value={produtoSelecionado}
-              field="nome"
-              onChange={handleProdutoChange}
-            />
+      {categoria !== "MATERIA_PRIMA" && (
+        <>
+          <div className="columns">
+            <div className="field column is-7">
+              <label className="label" htmlFor="produtoAutocomplete">
+                Insumos / Matéria Prima
+              </label>
+              <div className="control" style={{ display: 'flex', alignItems: 'center' }}>
+                <AutoComplete
+                  id="produtoAutocomplete"
+                  suggestions={listaFiltradaProdutos}
+                  completeMethod={handleProdutoAutoComplete}
+                  value={produtoSelecionado}
+                  field="nome"
+                  onChange={handleProdutoChange}
+                />
+              </div>
+            </div>
+
+            <div className="field column is-3">
+              <label className="label" htmlFor="inputQuantidade">
+                Qtd
+              </label>
+              <div className="control">
+                <Input
+                  id="inputQuantidade"
+                  type="number"
+                  value={quantidade}
+                  onChange={(e) => setQuantidade(Number(e.target.value))}
+                  label={""}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="field column is-3">
-          <label className="label" htmlFor="inputQuantidade">
-            Qtd
-          </label>
-          <div className="control">
-            <Input
-              id="inputQuantidade"
-              type="number"
-              value={quantidade}
-              onChange={(e) => setQuantidade(Number(e.target.value))}
-              label={""}
-            />
+          <div className="field">
+            <div className="control">
+              <Button type="button" className="button is-link" onClick={adicionarItemProduto}>
+                Adicionar Item Produto
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="field">
-        <div className="control">
-          <Button type="button" className="button is-link" onClick={adicionarItemProduto}>
-            Adicionar Item Produto
-          </Button>
-        </div>
-      </div>
-
-      <div className="field">
-        <h3>Insumos Utilizados na Produção</h3>
-        <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
-          <Column
-            field="itemProdutoId"
-            header="Produto"
-            body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
-              return item ? item.nome : "N/A";
-            }}
-          />
-          <Column field="quantidade" header="Qtd" />
-          <Column
-            header="Tipo"
-            body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
-              return item ? item.tipo : "N/A";
-            }}
-          />
-          <Column
-            header="Valor Unitário"
-            body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
-              return item ? formatReal(item.preco || 0) : "0,00";
-            }}
-          />
-          <Column
-            header="Valor Total"
-            body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
-              return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
-            }}
-          />
-          <Column
-            header="Ações"
-            body={(rowData: ItensProduto) => (
-              <Button
-                type="button"
-                icon="pi pi-trash"
-                className="p-button-danger"
-                onClick={() => removerItemProduto(rowData.itemProdutoId!)}
+          <div className="field">
+            <h3>Insumos Utilizados na Produção</h3>
+            <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
+              <Column
+                field="itemProdutoId"
+                header="Produto"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  return item ? item.nome : "N/A";
+                }}
               />
-            )}
-          />
-        </DataTable>
-        <div className="columns is-justify-content-flex-end mt-2">
-          <strong>Total Geral: {formatReal(calcularSomatorioTotal())}</strong>
-        </div>
-      </div>
+              <Column field="quantidade" header="Qtd" />
+              <Column
+                header="Tipo"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  return item ? item.tipo : "N/A";
+                }}
+              />
+              <Column
+                header="Vl. Unit"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  return item ? formatReal(item.preco || 0) : "0,00";
+                }}
+              />
+              <Column
+                header="Vl. Total"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
+                }}
+              />
+              <Column
+                header="Ações"
+                body={(rowData: ItensProduto) => (
+                  <Button
+                    type="button"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={() => removerItemProduto(rowData.itemProdutoId!)}
+                  />
+                )}
+              />
+            </DataTable>
+            <div className="columns is-justify-content-flex-end mt-2">
+              <strong>Total Geral: {formatReal(calcularSomatorioTotal())}</strong>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="field is-grouped">
         <div className="control">
