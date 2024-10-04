@@ -40,21 +40,13 @@ export const CadastroProdutos: React.FC = () => {
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
-  const [categoria, setCategoria] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-  const [tipo, setTipo] = useState<{ value: string; label: string } | null>(
-    null
-  );
+  const [categoria, setCategoria] = useState<{ value: string; label: string } | null>(null);
+  const [tipo, setTipo] = useState<{ value: string; label: string } | null>(null);
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [itensProduto, setItensProduto] = useState<ItensProduto[]>([]);
-  const [produtoSelecionado, setProdutoSelecionado] = useState<{
-    value: number;
-    label: string;
-  } | null>(null);
+  const [produtoSelecionado, setProdutoSelecionado] = useState<{ value: number; label: string } | null>(null);
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
   const [quantidade, setQuantidade] = useState<number>(1);
   const [messages, setMessages] = useState<Array<Alert>>([]);
@@ -105,8 +97,7 @@ export const CadastroProdutos: React.FC = () => {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
         setId(produtoEncontrado.id);
         setCategoria(
-          categorias.find((cat) => cat.value === produtoEncontrado.categoria) ||
-            null
+          categorias.find((cat) => cat.value === produtoEncontrado.categoria) || null
         );
         setTipo(
           tipos.find((tipo) => tipo.value === produtoEncontrado.tipo) || null
@@ -219,121 +210,113 @@ export const CadastroProdutos: React.FC = () => {
 
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
-      <div className="columns">
-        <Input
-          label="Código:"
-          columnClasses="is-3"
-          value={id || ""}
-          id="inputId"
-          disabled={true}
-        />
+      <div className="columns" style={{ gap: "1rem" }}>
+        <div className="column is-3">
+          <Input
+            label="Código:"
+            value={id || ""}
+            id="inputId"
+            disabled={true}
+          />
+        </div>
 
-        <Input
-          label="Data do Cadastro:"
-          columnClasses="is-3"
-          value={cadastro || ""}
-          id="inputDataCadastro"
-          disabled={true}
-        />
+        <div className="column is-3">
+          <Input
+            label="Data do Cadastro:"
+            value={cadastro || ""}
+            id="inputDataCadastro"
+            disabled={true}
+          />
+        </div>
 
-        <div className="field column is-3">
+        <div className="column is-3">
           <label className="label" htmlFor="inputCategoria">
             Categoria: *
           </label>
-          <div className="control">
-            <Select
-              id="inputCategoria"
-              options={categorias}
-              value={categoria}
-              onChange={(selectedOption) => setCategoria(selectedOption)}
-              placeholder="Selecione a categoria"
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "100%",
-                }),
-              }}
-            />
-            {errors.categoria && (
-              <p className="help is-danger">{errors.categoria}</p>
-            )}
-          </div>
+          <Select
+            id="inputCategoria"
+            options={categorias}
+            value={categoria}
+            onChange={(selectedOption) => setCategoria(selectedOption)}
+            placeholder="Selecione a categoria"
+            styles={{
+              container: (provided) => ({
+                ...provided,
+                width: "100%",
+              }),
+            }}
+          />
+          {errors.categoria && <p className="help is-danger">{errors.categoria}</p>}
         </div>
 
-        <div className="field column is-3">
+        <div className="column is-3">
           <label className="label" htmlFor="inputTipo">
             Tipo: *
           </label>
-          <div className="control">
-            <Select
-              id="inputTipo"
-              options={tipos}
-              value={tipo}
-              onChange={(selectedOption) => setTipo(selectedOption)}
-              placeholder="Selecione o tipo"
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "100%",
-                }),
-              }}
-            />
-            {errors.tipo && <p className="help is-danger">{errors.tipo}</p>}
-          </div>
+          <Select
+            id="inputTipo"
+            options={tipos}
+            value={tipo}
+            onChange={(selectedOption) => setTipo(selectedOption)}
+            placeholder="Selecione o tipo"
+            styles={{
+              container: (provided) => ({
+                ...provided,
+                width: "100%",
+              }),
+            }}
+          />
+          {errors.tipo && <p className="help is-danger">{errors.tipo}</p>}
+        </div>
+      </div>
+
+      <div className="columns is-flex" style={{ gap: "1rem" }}>
+        <div className="column is-8">
+          <Input
+            label="Nome: *"
+            value={nome}
+            id="inputNome"
+            onChange={(e) => setNome(e.target.value)}
+            placeholder="Digite o Nome do produto"
+            error={errors.nome}
+          />
+        </div>
+
+        <div className="column is-4">
+          <InputMoney
+            label="Preço: *"
+            value={preco}
+            id="inputPreco"
+            onChange={(e) => setPreco(e.target.value)}
+            placeholder="Digite o Preço do produto"
+            maxLength={16}
+            error={errors.preco}
+          />
         </div>
       </div>
 
       <div className="columns">
-        <Input
-          label="Nome: *"
-          columnClasses="is-7"
-          onChange={(e) => setNome(e.target.value)}
-          value={nome}
-          id="inputNome"
-          placeholder="Digite o Nome do produto"
-          error={errors.nome}
-        />
-
-        <InputMoney
-          label="Preço: *"
-          columnClasses="is-3"
-          onChange={(e) => setPreco(e.target.value)}
-          value={preco}
-          id="inputPreco"
-          placeholder="Digite o Preço do produto"
-          maxLength={16}
-          error={errors.preco}
-        />
-      </div>
-
-      <div className="columns">
-        <div className="field is-full column">
+        <div className="column is-full">
           <label className="label" htmlFor="inputDescricao">
             Descrição
           </label>
-          <div className="control">
-            <textarea
-              className="textarea descricao-textarea"
-              id="inputDescricao"
-              value={descricao}
-              onChange={(event) => setDescricao(event.target.value)}
-              placeholder="Digite a Descrição detalhada do produto"
-            />
-          </div>
+          <textarea
+            className="textarea descricao-textarea"
+            id="inputDescricao"
+            value={descricao}
+            onChange={(event) => setDescricao(event.target.value)}
+            placeholder="Digite a Descrição detalhada do produto"
+          />
         </div>
       </div>
 
       {categoria?.value !== "MATERIA_PRIMA" && (
         <>
-          <div
-            className="columns is-flex"
-            style={{ display: "flex", alignItems: "center", gap: "1rem" }}
-          >
-            <div className="field column" style={{ flexGrow: 1 }}>
+          <div className="columns is-flex" style={{ gap: "1rem", alignItems: "center" }}>
+            <div className="column is-8">
               <label className="label" htmlFor="produtoSelect">
                 Insumos / Matéria Prima
               </label>
-
               <Select
                 id="produtoSelect"
                 options={listaProdutos
@@ -343,9 +326,7 @@ export const CadastroProdutos: React.FC = () => {
                     label: produto.nome,
                   }))}
                 value={produtoSelecionado}
-                onChange={(selectedOption) =>
-                  setProdutoSelecionado(selectedOption)
-                }
+                onChange={(selectedOption) => setProdutoSelecionado(selectedOption)}
                 placeholder="Digite o nome do produto"
                 styles={{
                   container: (provided) => ({
@@ -356,11 +337,10 @@ export const CadastroProdutos: React.FC = () => {
               />
             </div>
 
-            <div className="field column">
+            <div className="column is-2">
               <label className="label" htmlFor="inputQuantidade">
                 Qtd
               </label>
-
               <InputNumber
                 id="inputQuantidade"
                 value={quantidade}
@@ -375,13 +355,16 @@ export const CadastroProdutos: React.FC = () => {
               />
             </div>
 
-            <div className="control" style={{ marginTop: "30px" }}>
+            <div className="column is-2" style={{ textAlign: "center" }}>
+              <label className="label" style={{ visibility: "hidden" }}>
+                Botão Adicionar
+              </label>
               <Button
                 type="button"
                 className="button is-link"
                 onClick={adicionarItemProduto}
                 style={{
-                  width: "100%",
+                  width: "70%",
                   height: "38px",
                   boxSizing: "border-box",
                 }}
