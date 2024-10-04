@@ -145,8 +145,12 @@ export const CadastroProdutos: React.FC = () => {
       const produtosEncontrados = await service.listar();
       setListaProdutos(produtosEncontrados);
     }
-    const produtosFiltrados = listaProdutos.filter((produto) =>
-      produto.nome && produto.nome.toUpperCase().includes(event.query.toUpperCase())
+    // Filtrar produtos pela categoria MATERIA_PRIMA
+    const produtosFiltrados = listaProdutos.filter(
+      (produto) =>
+        produto.categoria === "MATERIA_PRIMA" &&
+        produto.nome &&
+        produto.nome.toUpperCase().includes(event.query.toUpperCase())
     );
     setListaFiltradaProdutos(produtosFiltrados);
   };
@@ -336,7 +340,14 @@ export const CadastroProdutos: React.FC = () => {
       <div className="field">
         <h3>Itens do Produto</h3>
         <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
-          <Column field="produtoId" header="ID do Produto" />
+          <Column
+            field="produtoId"
+            header="Nome do Produto"
+            body={(rowData: ItensProduto) => {
+              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              return item ? item.nome : "N/A";
+            }}
+          />
           <Column field="quantidade" header="Quantidade" />
           <Column
             header="Valor Unitário"
