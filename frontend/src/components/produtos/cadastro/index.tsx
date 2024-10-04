@@ -60,6 +60,14 @@ export const CadastroProdutos: React.FC = () => {
 
   const { id: queryId } = router.query;
 
+  // Carregar todos os produtos uma vez
+  useEffect(() => {
+    service.listar().then((produtosEncontrados) => {
+      setListaProdutos(produtosEncontrados);
+    });
+  }, []);
+
+  // Carregar o produto específico pelo ID (e os seus itens) quando o ID for fornecido
   useEffect(() => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
