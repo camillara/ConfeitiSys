@@ -128,7 +128,7 @@ export const CadastroProdutos: React.FC = () => {
     if (produtoSelecionado) {
       // Verificar se o item já está na lista
       const indexExistente = itensProduto.findIndex(
-        (item) => item.produtoId === produtoSelecionado.id
+        (item) => item.itemProdutoId === produtoSelecionado.id
       );
 
       if (indexExistente >= 0) {
@@ -139,8 +139,8 @@ export const CadastroProdutos: React.FC = () => {
       } else {
         // Adicionar novo item
         const itemProduto: ItensProduto = {
-          produtoId: Number(produtoSelecionado.id),
-          itemProdutoId: Number(produtoSelecionado.id),
+          produtoId: Number(id), // ID do produto principal
+          itemProdutoId: Number(produtoSelecionado.id), // ID do itemProduto que está sendo adicionado
           quantidade: quantidade,
         };
         setItensProduto([...itensProduto, itemProduto]);
@@ -179,14 +179,14 @@ export const CadastroProdutos: React.FC = () => {
 
   const calcularSomatorioTotal = () => {
     return itensProduto.reduce((total, item) => {
-      const produto = listaProdutos.find((p) => p.id === item.produtoId);
+      const produto = listaProdutos.find((p) => p.id === item.itemProdutoId);
       const valorUnitario = produto ? produto.preco || 0 : 0;
       return total + calcularValorTotal(item.quantidade, valorUnitario);
     }, 0);
   };
 
-  const removerItemProduto = (produtoId: number) => {
-    const novaLista = itensProduto.filter((item) => item.produtoId !== produtoId);
+  const removerItemProduto = (itemProdutoId: number) => {
+    const novaLista = itensProduto.filter((item) => item.itemProdutoId !== itemProdutoId);
     setItensProduto(novaLista);
   };
 
@@ -326,7 +326,7 @@ export const CadastroProdutos: React.FC = () => {
       <div className="columns">
         <div className="field column is-half">
           <label className="label" htmlFor="produtoAutocomplete">
-            Nome do Item Produto
+            Insumos / Matéria Prima
           </label>
           <div className="control">
             <AutoComplete
@@ -342,7 +342,7 @@ export const CadastroProdutos: React.FC = () => {
 
         <div className="field column is-half">
           <label className="label" htmlFor="inputQuantidade">
-            Quantidade
+            Qtd
           </label>
           <div className="control">
             <Input
@@ -365,28 +365,35 @@ export const CadastroProdutos: React.FC = () => {
       </div>
 
       <div className="field">
-        <h3>Itens do Produto</h3>
+        <h3>Insumos Utilizados na Produção</h3>
         <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
           <Column
-            field="produtoId"
-            header="Nome do Produto"
+            field="itemProdutoId"
+            header="Produto"
             body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
               return item ? item.nome : "N/A";
             }}
           />
           <Column field="quantidade" header="Quantidade" />
           <Column
+            header="Tipo"
+            body={(rowData: ItensProduto) => {
+              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+              return item ? item.tipo : "N/A";
+            }}
+          />
+          <Column
             header="Valor Unitário"
             body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
               return item ? formatReal(item.preco || 0) : "0,00";
             }}
           />
           <Column
             header="Valor Total"
             body={(rowData: ItensProduto) => {
-              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
               return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
             }}
           />
@@ -397,7 +404,7 @@ export const CadastroProdutos: React.FC = () => {
                 type="button"
                 icon="pi pi-trash"
                 className="p-button-danger"
-                onClick={() => removerItemProduto(rowData.produtoId)}
+                onClick={() => removerItemProduto(rowData.itemProdutoId!)}
               />
             )}
           />
