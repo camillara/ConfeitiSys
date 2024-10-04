@@ -23,15 +23,11 @@ const validationSchema = yup.object().shape({
   categoria: yup.string().trim().required(msgCampoObrigatorio),
   tipo: yup.string().trim().required(msgCampoObrigatorio),
   nome: yup.string().trim().required(msgCampoObrigatorio),
-  descricao: yup
-    .string()
-    .trim()
-    .required(msgCampoObrigatorio)
-    .min(10, "Deve possuir pelo menos 10 caracteres."),
   preco: yup
     .number()
     .required(msgCampoObrigatorio)
     .moreThan(0, "Valor deve ser maior que 0,00 Zero"),
+  descricao: yup.string().trim(),
 });
 
 interface FormErrors {
@@ -224,7 +220,7 @@ export const CadastroProdutos: React.FC = () => {
         <div className="columns">
           <Input
             label="Código:"
-            columnClasses="is-half"
+            columnClasses="is-7"
             value={id}
             id="inputId"
             disabled={true}
@@ -232,7 +228,7 @@ export const CadastroProdutos: React.FC = () => {
 
           <Input
             label="Data do Cadastro:"
-            columnClasses="is-half"
+            columnClasses="is-3"
             value={cadastro}
             id="inputDataCadastro"
             disabled={true}
@@ -241,7 +237,7 @@ export const CadastroProdutos: React.FC = () => {
       )}
 
       <div className="columns">
-        <div className="field column is-half">
+        <div className="field column is-7">
           <label className="label" htmlFor="inputCategoria">
             Categoria: *
           </label>
@@ -259,7 +255,7 @@ export const CadastroProdutos: React.FC = () => {
           </div>
         </div>
 
-        <div className="field column is-half">
+        <div className="field column is-3">
           <label className="label" htmlFor="inputTipo">
             Tipo: *
           </label>
@@ -279,9 +275,19 @@ export const CadastroProdutos: React.FC = () => {
       </div>
 
       <div className="columns">
+        <Input
+          label="Nome: *"
+          columnClasses="is-7"
+          onChange={(e) => setNome(e.target.value)}
+          value={nome}
+          id="inputNome"
+          placeholder="Digite o Nome do produto"
+          error={errors.nome}
+        />
+
         <InputMoney
           label="Preço: *"
-          columnClasses="is-half"
+          columnClasses="is-3"
           onChange={(e) => setPreco(e.target.value)}
           value={preco}
           id="inputPreco"
@@ -292,21 +298,9 @@ export const CadastroProdutos: React.FC = () => {
       </div>
 
       <div className="columns">
-        <Input
-          label="Nome: *"
-          columnClasses="is-full"
-          onChange={(e) => setNome(e.target.value)}
-          value={nome}
-          id="inputNome"
-          placeholder="Digite o Nome do produto"
-          error={errors.nome}
-        />
-      </div>
-
-      <div className="columns">
         <div className="field is-full column">
           <label className="label" htmlFor="inputDescricao">
-            Descrição: *
+            Descrição
           </label>
           <div className="control">
             <textarea
@@ -316,15 +310,12 @@ export const CadastroProdutos: React.FC = () => {
               onChange={(event) => setDescricao(event.target.value)}
               placeholder="Digite a Descrição detalhada do produto"
             />
-            {errors.descricao && (
-              <p className="help is-danger">{errors.descricao}</p>
-            )}
           </div>
         </div>
       </div>
 
       <div className="columns">
-        <div className="field column is-half">
+        <div className="field column is-7">
           <label className="label" htmlFor="produtoAutocomplete">
             Insumos / Matéria Prima
           </label>
@@ -340,7 +331,7 @@ export const CadastroProdutos: React.FC = () => {
           </div>
         </div>
 
-        <div className="field column is-half">
+        <div className="field column is-3">
           <label className="label" htmlFor="inputQuantidade">
             Qtd
           </label>
