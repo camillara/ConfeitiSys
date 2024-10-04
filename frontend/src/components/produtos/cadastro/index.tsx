@@ -18,6 +18,7 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
+import styles from "./style.module.css"; // Importando o CSS Module
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
@@ -50,15 +51,48 @@ export const CadastroProdutos: React.FC = () => {
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [itensProduto, setItensProduto] = useState<ItensProduto[]>([]);
-  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
+    null
+  );
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
-  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>([]);
+  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>(
+    []
+  );
   const [quantidade, setQuantidade] = useState<number>(1);
   const [messages, setMessages] = useState<Array<Alert>>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const router = useRouter();
 
   const { id: queryId } = router.query;
+
+  // Definição das constantes categorias e tipos
+  const categorias = [
+    "MATERIA_PRIMA",
+    "BOLO",
+    "DOCE",
+    "QUITANDA",
+    "TORTA",
+    "SOBREMESA",
+    "BEBIDA",
+    "CUPCAKE_MUFFIN",
+    "SALGADO",
+    "RECHEIO_COBERTURA",
+    "UTENSILIO_EMBALAGEM",
+  ];
+
+  const tipos = [
+    "UN", // Unidade
+    "GR", // Gramas
+    "ML", // Mililitros
+    "KG", // Quilogramas
+    "L", // Litros
+    "CX", // Caixa
+    "PC", // Pacote
+    "FT", // Fatia
+    "DZ", // Dúzia
+    "TBSP", // Colher de sopa
+    "TSP", // Colher de chá
+  ];
 
   // Carregar todos os produtos uma vez
   useEffect(() => {
@@ -176,7 +210,10 @@ export const CadastroProdutos: React.FC = () => {
     setProdutoSelecionado(e.value);
   };
 
-  const calcularValorTotal = (quantidade: number, valorUnitario: number = 0) => {
+  const calcularValorTotal = (
+    quantidade: number,
+    valorUnitario: number = 0
+  ) => {
     return quantidade * (valorUnitario !== undefined ? valorUnitario : 0);
   };
 
@@ -189,37 +226,11 @@ export const CadastroProdutos: React.FC = () => {
   };
 
   const removerItemProduto = (itemProdutoId: number) => {
-    const novaLista = itensProduto.filter((item) => item.itemProdutoId !== itemProdutoId);
+    const novaLista = itensProduto.filter(
+      (item) => item.itemProdutoId !== itemProdutoId
+    );
     setItensProduto(novaLista);
   };
-
-  const categorias = [
-    "MATERIA_PRIMA",
-    "BOLO",
-    "DOCE",
-    "QUITANDA",
-    "TORTA",
-    "SOBREMESA",
-    "BEBIDA",
-    "CUPCAKE_MUFFIN",
-    "SALGADO",
-    "RECHEIO_COBERTURA",
-    "UTENSILIO_EMBALAGEM",
-  ];
-
-  const tipos = [
-    "UN", // Unidade
-    "GR", // Gramas
-    "ML", // Mililitros
-    "KG", // Quilogramas
-    "L", // Litros
-    "CX", // Caixa
-    "PC", // Pacote
-    "FT", // Fatia
-    "DZ", // Dúzia
-    "TBSP", // Colher de sopa
-    "TSP", // Colher de chá
-  ];
 
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
@@ -251,11 +262,7 @@ export const CadastroProdutos: React.FC = () => {
               value={categoria}
               onChange={(e) => setCategoria(e.value)}
               placeholder="Selecione a categoria"
-              style={{
-                width: "100%",
-                height: "38px",
-                boxSizing: "border-box",
-              }}
+              className={styles.dropdownInput}
             />
             {errors.categoria && (
               <p className="help is-danger">{errors.categoria}</p>
@@ -274,15 +281,9 @@ export const CadastroProdutos: React.FC = () => {
               value={tipo}
               onChange={(e) => setTipo(e.value)}
               placeholder="Selecione o tipo"
-              style={{
-                width: "100%",
-                height: "38px",
-                boxSizing: "border-box",
-              }}
+              className={styles.dropdownInput}
             />
-            {errors.tipo && (
-              <p className="help is-danger">{errors.tipo}</p>
-            )}
+            {errors.tipo && <p className="help is-danger">{errors.tipo}</p>}
           </div>
         </div>
       </div>
@@ -317,15 +318,11 @@ export const CadastroProdutos: React.FC = () => {
           </label>
           <div className="control">
             <textarea
-              className="textarea"
+              className="textarea descricao-textarea"
               id="inputDescricao"
               value={descricao}
               onChange={(event) => setDescricao(event.target.value)}
               placeholder="Digite a Descrição detalhada do produto"
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-              }}
             />
           </div>
         </div>
@@ -391,12 +388,17 @@ export const CadastroProdutos: React.FC = () => {
 
           <div className="field">
             <h3>Insumos Utilizados na Produção</h3>
-            <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
+            <DataTable
+              value={itensProduto}
+              emptyMessage="Nenhum item adicionado."
+            >
               <Column
                 field="itemProdutoId"
                 header="Produto"
                 body={(rowData: ItensProduto) => {
-                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
                   return item ? item.nome : "N/A";
                 }}
               />
@@ -404,22 +406,32 @@ export const CadastroProdutos: React.FC = () => {
               <Column
                 header="Tipo"
                 body={(rowData: ItensProduto) => {
-                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
                   return item ? item.tipo : "N/A";
                 }}
               />
               <Column
                 header="Vl. Unit"
                 body={(rowData: ItensProduto) => {
-                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
                   return item ? formatReal(item.preco || 0) : "0,00";
                 }}
               />
               <Column
                 header="Vl. Total"
                 body={(rowData: ItensProduto) => {
-                  const item = listaProdutos.find((p) => p.id === rowData.itemProdutoId);
-                  return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
+                  return item
+                    ? formatReal(
+                        calcularValorTotal(rowData.quantidade, item.preco || 0)
+                      )
+                    : "0,00";
                 }}
               />
               <Column
@@ -435,7 +447,9 @@ export const CadastroProdutos: React.FC = () => {
               />
             </DataTable>
             <div className="columns is-justify-content-flex-end mt-2">
-              <strong>Total Geral: {formatReal(calcularSomatorioTotal())}</strong>
+              <strong>
+                Total Geral: {formatReal(calcularSomatorioTotal())}
+              </strong>
             </div>
           </div>
         </>
