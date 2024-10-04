@@ -33,18 +33,17 @@ public class ProdutoController {
 	public List<ProdutoFormRequestDTO> getLista() {
 		return repository.findAll().stream().map(ProdutoFormRequestDTO::fromModel).collect(Collectors.toList());
 	}
-	
+
 	@GetMapping("{id}")
 	public ResponseEntity<ProdutoFormRequestDTO> getById(@PathVariable Long id) {
-		Optional<Produto> produtoExistente =  repository.findById(id);
-		
+		Optional<Produto> produtoExistente = repository.findById(id);
+
 		if (produtoExistente.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		var produto = produtoExistente.map(ProdutoFormRequestDTO::fromModel).get();
 		return ResponseEntity.ok(produto);
-		
 	}
 
 	@PostMapping
@@ -54,7 +53,56 @@ public class ProdutoController {
 		entidadeProduto.setItensProduto(null); // Evitar salvar itensProduto neste momento
 		Produto produtoSalvo = repository.save(entidadeProduto);
 
-		// Agora, salvar os itensProduto com o produto salvo
+		// Salvar os itensProduto
+		salvarItensProduto(produtoDTO, produtoSalvo);
+
+		return ProdutoFormRequestDTO.fromModel(produtoSalvo);
+	}
+
+	@PutMapping("{id}")
+	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ProdutoFormRequestDTO produtoDTO) {
+		Optional<Produto> produtoExistenteOptional = repository.findById(id);
+
+		if (produtoExistenteOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		Produto produtoExistente = produtoExistenteOptional.get();
+
+		// Atualizar apenas os campos necessários
+		produtoExistente.setNome(produtoDTO.getNome());
+		produtoExistente.setDescricao(produtoDTO.getDescricao());
+		produtoExistente.setPreco(produtoDTO.getPreco());
+		produtoExistente.setCategoria(produtoDTO.getCategoria());
+
+		// Atualizar os itensProduto
+		produtoExistente.getItensProduto().clear(); // Limpar itens antigos
+		if (produtoDTO.getItensProduto() != null) {
+			List<ItemProduto> novosItens = produtoDTO.getItensProduto().stream()
+					.map(dto -> dto.toModel(produtoExistente, repository))
+					.collect(Collectors.toList());
+			produtoExistente.getItensProduto().addAll(novosItens);
+		}
+
+		// Salvar a entidade atualizada
+		repository.save(produtoExistente);
+
+		return ResponseEntity.ok().build();
+	}
+
+	@DeleteMapping("{id}")
+	public ResponseEntity<Void> deletar(@PathVariable Long id) {
+		Optional<Produto> produtoExistente = repository.findById(id);
+
+		if (produtoExistente.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		repository.delete(produtoExistente.get());
+		return ResponseEntity.noContent().build();
+	}
+
+	private void salvarItensProduto(ProdutoFormRequestDTO produtoDTO, Produto produtoSalvo) {
 		if (produtoDTO.getItensProduto() != null) {
 			List<ItemProduto> itensProduto = produtoDTO.getItensProduto().stream()
 					.map(dto -> dto.toModel(produtoSalvo, repository))
@@ -62,43 +110,5 @@ public class ProdutoController {
 			produtoSalvo.setItensProduto(itensProduto);
 			repository.save(produtoSalvo); // Salvar novamente o produto com os itensProduto
 		}
-
-		return ProdutoFormRequestDTO.fromModel(produtoSalvo);
 	}
-
-	@PutMapping("{id}")
-	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ProdutoFormRequestDTO produtoDTO) {
-	    Optional<Produto> produtoExistenteOptional = repository.findById(id);
-
-	    if (produtoExistenteOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build();
-	    }
-
-	    Produto produtoExistente = produtoExistenteOptional.get();
-	    
-	    // Atualizar apenas os campos necessários
-	    produtoExistente.setNome(produtoDTO.getNome());
-	    produtoExistente.setDescricao(produtoDTO.getDescricao());
-	    produtoExistente.setPreco(produtoDTO.getPreco());
-	    produtoExistente.setCategoria(produtoDTO.getCategoria());
-
-	    // Salvar a entidade atualizada
-	    repository.save(produtoExistente);
-
-	    return ResponseEntity.ok().build();
-	}
-
-	
-	@DeleteMapping("{id}")
-	public ResponseEntity<Void> deletar( @PathVariable Long id ){
-		Optional<Produto> produtoExistente = repository.findById(id);
-
-		if(produtoExistente.isEmpty()) {
-			return ResponseEntity.notFound().build();
-		}
-
-		repository.delete(produtoExistente.get());
-		return ResponseEntity.noContent().build();
-	}
-	
 }

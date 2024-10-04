@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useState, useEffect } from "react";
 import { Layout, Input, InputMoney } from "components";
 import { useProdutoService } from "app/services";
@@ -83,7 +83,7 @@ export const CadastroProdutos: React.FC = () => {
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
-      itensProduto,
+      itensProduto: itensProduto.length > 0 ? itensProduto : [], // Enviar a lista sempre
     };
 
     validationSchema
@@ -106,7 +106,7 @@ export const CadastroProdutos: React.FC = () => {
             setMessages([
               {
                 tipo: "success",
-                texto: "Produto Salvo com sucesso!",
+                texto: "Produto salvo com sucesso!",
               },
             ]);
           });
@@ -117,6 +117,7 @@ export const CadastroProdutos: React.FC = () => {
         const message = error.message;
 
         setErrors({
+          ...errors,
           [field]: message,
         });
       });
