@@ -1,13 +1,21 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { Layout, Input, InputMoney } from "components";
 import { useProdutoService } from "app/services";
-import { Produto } from "app/models/produtos";
+import { Produto, ItensProduto } from "app/models/produtos";
 import { converterEmBigDecimal, formatReal } from "app/util/money";
 import { Alert } from "components/common/message";
-import { Dropdown } from "primereact/dropdown"; // Importando o Dropdown
+import { Dropdown } from "primereact/dropdown";
 import * as yup from "yup";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import {
+  AutoComplete,
+  AutoCompleteCompleteMethodParams,
+} from "primereact/autocomplete";
+import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
@@ -43,6 +51,11 @@ export const CadastroProdutos: React.FC = () => {
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
+  const [itensProduto, setItensProduto] = useState<ItensProduto[]>([]);
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
+  const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
+  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>([]);
+  const [quantidade, setQuantidade] = useState<number>(1);
   const [messages, setMessages] = useState<Array<Alert>>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const router = useRouter();
@@ -51,17 +64,17 @@ export const CadastroProdutos: React.FC = () => {
 
   useEffect(() => {
     if (queryId) {
-      service.carregarProduto(queryId).then((produtoEncontrado: any) => {
+      service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
         setId(produtoEncontrado.id);
-        setCategoria(produtoEncontrado.categoria);
-        setTipo(produtoEncontrado.tipo);
-        setNome(produtoEncontrado.nome);
-        setDescricao(produtoEncontrado.descricao);
+        setCategoria(produtoEncontrado.categoria ?? "");
+        setTipo(produtoEncontrado.tipo ?? "");
+        setNome(produtoEncontrado.nome ?? "");
+        setDescricao(produtoEncontrado.descricao ?? "");
         setPreco(formatReal(`${produtoEncontrado.preco}`));
         setCadastro(produtoEncontrado.cadastro || ``);
+        setItensProduto(produtoEncontrado.itensProduto || []);
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryId]);
 
   const submit = () => {
@@ -72,14 +85,15 @@ export const CadastroProdutos: React.FC = () => {
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
+      itensProduto,
     };
 
     validationSchema
       .validate(produto)
-      .then((obj) => {
+      .then(() => {
         setErrors({});
         if (id) {
-          service.atualizar(produto).then((response) => {
+          service.atualizar(produto).then(() => {
             setMessages([
               {
                 tipo: "success",
@@ -107,9 +121,42 @@ export const CadastroProdutos: React.FC = () => {
         setErrors({
           [field]: message,
         });
-
-        // console.log(JSON.parse(JSON.stringify(error)));
       });
+  };
+
+  const adicionarItemProduto = () => {
+    if (produtoSelecionado) {
+      const itemProduto: ItensProduto = {
+        produtoId: Number(produtoSelecionado.id),
+        itemProdutoId: Number(produtoSelecionado.id),
+        quantidade: quantidade,
+      };
+      setItensProduto([...itensProduto, itemProduto]);
+      // Limpar os campos após adicionar
+      setProdutoSelecionado(null);
+      setQuantidade(1);
+    }
+  };
+
+  const handleProdutoAutoComplete = async (
+    event: AutoCompleteCompleteMethodParams
+  ) => {
+    if (!listaProdutos.length) {
+      const produtosEncontrados = await service.listar();
+      setListaProdutos(produtosEncontrados);
+    }
+    const produtosFiltrados = listaProdutos.filter((produto) =>
+      produto.nome && produto.nome.toUpperCase().includes(event.query.toUpperCase())
+    );
+    setListaFiltradaProdutos(produtosFiltrados);
+  };
+
+  const handleProdutoChange = (e: any) => {
+    setProdutoSelecionado(e.value);
+  };
+
+  const calcularValorTotal = (quantidade: number, valorUnitario: number = 0) => {
+    return quantidade * (valorUnitario !== undefined ? valorUnitario : 0);
   };
 
   const categorias = [
@@ -127,17 +174,17 @@ export const CadastroProdutos: React.FC = () => {
   ];
 
   const tipos = [
-    "UN",          // Unidade
-    "GR",          // Gramas
-    "ML",          // Mililitros
-    "KG",          // Quilogramas
-    "L",           // Litros
-    "CX",          // Caixa
-    "PC",          // Pacote
-    "FT",          // Fatia
-    "DZ",          // Dúzia
-    "TBSP",        // Colher de sopa
-    "TSP"          // Colher de chá
+    "UN", // Unidade
+    "GR", // Gramas
+    "ML", // Mililitros
+    "KG", // Quilogramas
+    "L", // Litros
+    "CX", // Caixa
+    "PC", // Pacote
+    "FT", // Fatia
+    "DZ", // Dúzia
+    "TBSP", // Colher de sopa
+    "TSP", // Colher de chá
   ];
 
   return (
@@ -243,6 +290,69 @@ export const CadastroProdutos: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="columns">
+        <div className="field column is-half">
+          <label className="label" htmlFor="produtoAutocomplete">
+            Nome do Item Produto
+          </label>
+          <div className="control">
+            <AutoComplete
+              id="produtoAutocomplete"
+              value={produtoSelecionado}
+              suggestions={listaFiltradaProdutos}
+              completeMethod={handleProdutoAutoComplete}
+              field="nome"
+              onChange={handleProdutoChange}
+            />
+          </div>
+        </div>
+
+        <div className="field column is-half">
+          <label className="label" htmlFor="inputQuantidade">
+            Quantidade
+          </label>
+          <div className="control">
+            <Input
+              id="inputQuantidade"
+              type="number"
+              value={quantidade}
+              onChange={(e) => setQuantidade(Number(e.target.value))}
+              label={""}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="field">
+        <div className="control">
+          <Button type="button" className="button is-link" onClick={adicionarItemProduto}>
+            Adicionar Item Produto
+          </Button>
+        </div>
+      </div>
+
+      <div className="field">
+        <h3>Itens do Produto</h3>
+        <DataTable value={itensProduto} emptyMessage="Nenhum item adicionado.">
+          <Column field="produtoId" header="ID do Produto" />
+          <Column field="quantidade" header="Quantidade" />
+          <Column
+            header="Valor Unitário"
+            body={(rowData: ItensProduto) => {
+              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              return item ? formatReal(item.preco || 0) : "0,00";
+            }}
+          />
+          <Column
+            header="Valor Total"
+            body={(rowData: ItensProduto) => {
+              const item = listaProdutos.find((p) => p.id === rowData.produtoId);
+              return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
+            }}
+          />
+        </DataTable>
       </div>
 
       <div className="field is-grouped">

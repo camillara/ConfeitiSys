@@ -6,4 +6,12 @@ export interface Produto {
   categoria?: string;
   tipo?: string;
   cadastro?: string;
+  itensProduto?: ItensProduto[];
+}
+
+export interface ItensProduto {
+  id?: number;
+  quantidade?: number;
+  produtoId?: number;
+  itemProdutoId?: number;
 }

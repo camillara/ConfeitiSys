@@ -31,10 +31,7 @@ export const useClienteService = () => {
   };
 
   const find = async (
-    nome: string = "",
-    page: number = 0,
-    size: number = 10
-  ): Promise<Page<Cliente>> => {
+nome: string = "", p0: string, page: number = 0, size: number = 10  ): Promise<Page<Cliente>> => {
     const url = `${resourceURL}?nome=${nome}&page=${page}&size=${size}`;
     const response: AxiosResponse<Page<Cliente>> = await httpClient.get(url);
     return response.data;

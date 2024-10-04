@@ -14,6 +14,10 @@ export const converterEmBigDecimal = (value: any): number => {
 };
 
 export const formatReal = (valor: any) => {
+  if (typeof valor === "number") {
+    valor = valor.toFixed(2).toString();
+  }
+
   const cleanedValue = valor.replace(/\D/g, "");
 
   // Verificar se cleanedValue tem pelo menos 3 dígitos
