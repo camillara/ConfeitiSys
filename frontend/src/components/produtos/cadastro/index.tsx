@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   AutoComplete,
+  AutoCompleteChangeParams,
   AutoCompleteCompleteMethodParams,
 } from "primereact/autocomplete";
 import { Button } from "primereact/button";
@@ -43,7 +44,7 @@ export const CadastroProdutos: React.FC = () => {
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
   const [categoria, setCategoria] = useState<string>("");
-  const [tipo, setTipo] = useState<string>(""); // Estado para o tipo
+  const [tipo, setTipo] = useState<string>("");
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
@@ -122,27 +123,23 @@ export const CadastroProdutos: React.FC = () => {
 
   const adicionarItemProduto = () => {
     if (produtoSelecionado) {
-      // Verificar se o item já está na lista
       const indexExistente = itensProduto.findIndex(
         (item) => item.itemProdutoId === produtoSelecionado.id
       );
 
       if (indexExistente >= 0) {
-        // Atualizar a quantidade do item existente
         const itensAtualizados = [...itensProduto];
         itensAtualizados[indexExistente].quantidade = quantidade;
         setItensProduto(itensAtualizados);
       } else {
-        // Adicionar novo item
         const itemProduto: ItensProduto = {
-          produtoId: Number(id), // ID do produto principal
-          itemProdutoId: Number(produtoSelecionado.id), // ID do itemProduto que está sendo adicionado
+          produtoId: Number(id),
+          itemProdutoId: Number(produtoSelecionado.id),
           quantidade: quantidade,
         };
         setItensProduto([...itensProduto, itemProduto]);
       }
 
-      // Limpar os campos após adicionar
       setProdutoSelecionado(null);
       setQuantidade(1);
     }
@@ -155,7 +152,7 @@ export const CadastroProdutos: React.FC = () => {
       const produtosEncontrados = await service.listar();
       setListaProdutos(produtosEncontrados);
     }
-    // Filtrar produtos pela categoria MATERIA_PRIMA
+
     const produtosFiltrados = listaProdutos.filter(
       (produto) =>
         produto.categoria === "MATERIA_PRIMA" &&
@@ -165,7 +162,7 @@ export const CadastroProdutos: React.FC = () => {
     setListaFiltradaProdutos(produtosFiltrados);
   };
 
-  const handleProdutoChange = (e: any) => {
+  const handleProdutoChange = (e: AutoCompleteChangeParams) => {
     setProdutoSelecionado(e.value);
   };
 
@@ -220,7 +217,7 @@ export const CadastroProdutos: React.FC = () => {
         <div className="columns">
           <Input
             label="Código:"
-            columnClasses="is-7"
+            columnClasses="is-3"
             value={id}
             id="inputId"
             disabled={true}
@@ -233,46 +230,44 @@ export const CadastroProdutos: React.FC = () => {
             id="inputDataCadastro"
             disabled={true}
           />
+
+          <div className="field column is-3">
+            <label className="label" htmlFor="inputCategoria">
+              Categoria: *
+            </label>
+            <div className="control">
+              <Dropdown
+                id="inputCategoria"
+                options={categorias}
+                value={categoria}
+                onChange={(e) => setCategoria(e.value)}
+                placeholder="Selecione a categoria"
+              />
+              {errors.categoria && (
+                <p className="help is-danger">{errors.categoria}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="field column is-3">
+            <label className="label" htmlFor="inputTipo">
+              Tipo: *
+            </label>
+            <div className="control">
+              <Dropdown
+                id="inputTipo"
+                options={tipos}
+                value={tipo}
+                onChange={(e) => setTipo(e.value)}
+                placeholder="Selecione o tipo"
+              />
+              {errors.tipo && (
+                <p className="help is-danger">{errors.tipo}</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="columns">
-        <div className="field column is-7">
-          <label className="label" htmlFor="inputCategoria">
-            Categoria: *
-          </label>
-          <div className="control">
-            <Dropdown
-              id="inputCategoria"
-              options={categorias}
-              value={categoria}
-              onChange={(e) => setCategoria(e.value)}
-              placeholder="Selecione a categoria"
-            />
-            {errors.categoria && (
-              <p className="help is-danger">{errors.categoria}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="field column is-3">
-          <label className="label" htmlFor="inputTipo">
-            Tipo: *
-          </label>
-          <div className="control">
-            <Dropdown
-              id="inputTipo"
-              options={tipos}
-              value={tipo}
-              onChange={(e) => setTipo(e.value)}
-              placeholder="Selecione o tipo"
-            />
-            {errors.tipo && (
-              <p className="help is-danger">{errors.tipo}</p>
-            )}
-          </div>
-        </div>
-      </div>
 
       <div className="columns">
         <Input
@@ -319,12 +314,12 @@ export const CadastroProdutos: React.FC = () => {
           <label className="label" htmlFor="produtoAutocomplete">
             Insumos / Matéria Prima
           </label>
-          <div className="control">
+          <div className="control" style={{ display: 'flex', alignItems: 'center' }}>
             <AutoComplete
               id="produtoAutocomplete"
-              value={produtoSelecionado}
               suggestions={listaFiltradaProdutos}
               completeMethod={handleProdutoAutoComplete}
+              value={produtoSelecionado}
               field="nome"
               onChange={handleProdutoChange}
             />
@@ -366,7 +361,7 @@ export const CadastroProdutos: React.FC = () => {
               return item ? item.nome : "N/A";
             }}
           />
-          <Column field="quantidade" header="Quantidade" />
+          <Column field="quantidade" header="Qtd" />
           <Column
             header="Tipo"
             body={(rowData: ItensProduto) => {
