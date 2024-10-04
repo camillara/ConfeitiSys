@@ -34,4 +34,15 @@
   cursor: pointer;
 }
 
+.autoCompleteInput, .inputNumber {
+  width: 25%;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.adicionarButton {
+  margin-top: 10px;
+}
+
+
 

@@ -5,26 +5,21 @@ import { useProdutoService } from "app/services";
 import { Produto, ItensProduto } from "app/models/produtos";
 import { converterEmBigDecimal, formatReal } from "app/util/money";
 import { Alert } from "components/common/message";
-import { Dropdown } from "primereact/dropdown";
 import * as yup from "yup";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import {
-  AutoComplete,
-  AutoCompleteChangeParams,
-  AutoCompleteCompleteMethodParams,
-} from "primereact/autocomplete";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
 import styles from "./style.module.css"; // Importando o CSS Module
+import Select from "react-select";
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
 const validationSchema = yup.object().shape({
-  categoria: yup.string().trim().required(msgCampoObrigatorio),
-  tipo: yup.string().trim().required(msgCampoObrigatorio),
+  categoria: yup.object().required(msgCampoObrigatorio),
+  tipo: yup.object().required(msgCampoObrigatorio),
   nome: yup.string().trim().required(msgCampoObrigatorio),
   preco: yup
     .number()
@@ -45,19 +40,22 @@ export const CadastroProdutos: React.FC = () => {
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
-  const [categoria, setCategoria] = useState<string>("");
-  const [tipo, setTipo] = useState<string>("");
+  const [categoria, setCategoria] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
+  const [tipo, setTipo] = useState<{ value: string; label: string } | null>(
+    null
+  );
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [itensProduto, setItensProduto] = useState<ItensProduto[]>([]);
-  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
-    null
-  );
+  const [produtoSelecionado, setProdutoSelecionado] = useState<{
+    value: number;
+    label: string;
+  } | null>(null);
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
-  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>(
-    []
-  );
   const [quantidade, setQuantidade] = useState<number>(1);
   const [messages, setMessages] = useState<Array<Alert>>([]);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -67,31 +65,31 @@ export const CadastroProdutos: React.FC = () => {
 
   // Definição das constantes categorias e tipos
   const categorias = [
-    "MATERIA_PRIMA",
-    "BOLO",
-    "DOCE",
-    "QUITANDA",
-    "TORTA",
-    "SOBREMESA",
-    "BEBIDA",
-    "CUPCAKE_MUFFIN",
-    "SALGADO",
-    "RECHEIO_COBERTURA",
-    "UTENSILIO_EMBALAGEM",
+    { value: "MATERIA_PRIMA", label: "Matéria Prima" },
+    { value: "BOLO", label: "Bolo" },
+    { value: "DOCE", label: "Doce" },
+    { value: "QUITANDA", label: "Quitanda" },
+    { value: "TORTA", label: "Torta" },
+    { value: "SOBREMESA", label: "Sobremesa" },
+    { value: "BEBIDA", label: "Bebida" },
+    { value: "CUPCAKE_MUFFIN", label: "Cupcake/Muffin" },
+    { value: "SALGADO", label: "Salgado" },
+    { value: "RECHEIO_COBERTURA", label: "Recheio/Cobertura" },
+    { value: "UTENSILIO_EMBALAGEM", label: "Utensílio/Embalagem" },
   ];
 
   const tipos = [
-    "UN", // Unidade
-    "GR", // Gramas
-    "ML", // Mililitros
-    "KG", // Quilogramas
-    "L", // Litros
-    "CX", // Caixa
-    "PC", // Pacote
-    "FT", // Fatia
-    "DZ", // Dúzia
-    "TBSP", // Colher de sopa
-    "TSP", // Colher de chá
+    { value: "UN", label: "Unidade" },
+    { value: "GR", label: "Gramas" },
+    { value: "ML", label: "Mililitros" },
+    { value: "KG", label: "Quilogramas" },
+    { value: "L", label: "Litros" },
+    { value: "CX", label: "Caixa" },
+    { value: "PC", label: "Pacote" },
+    { value: "FT", label: "Fatia" },
+    { value: "DZ", label: "Dúzia" },
+    { value: "TBSP", label: "Colher de sopa" },
+    { value: "TSP", label: "Colher de chá" },
   ];
 
   // Carregar todos os produtos uma vez
@@ -106,8 +104,13 @@ export const CadastroProdutos: React.FC = () => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
         setId(produtoEncontrado.id);
-        setCategoria(produtoEncontrado.categoria ?? "");
-        setTipo(produtoEncontrado.tipo ?? "");
+        setCategoria(
+          categorias.find((cat) => cat.value === produtoEncontrado.categoria) ||
+            null
+        );
+        setTipo(
+          tipos.find((tipo) => tipo.value === produtoEncontrado.tipo) || null
+        );
         setNome(produtoEncontrado.nome ?? "");
         setDescricao(produtoEncontrado.descricao ?? "");
         setPreco(formatReal(`${produtoEncontrado.preco}`));
@@ -120,8 +123,8 @@ export const CadastroProdutos: React.FC = () => {
   const submit = () => {
     const produto: Produto = {
       id,
-      categoria,
-      tipo,
+      categoria: categoria?.value || "",
+      tipo: tipo?.value || "",
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
@@ -168,46 +171,28 @@ export const CadastroProdutos: React.FC = () => {
   const adicionarItemProduto = () => {
     if (produtoSelecionado) {
       const indexExistente = itensProduto.findIndex(
-        (item) => item.itemProdutoId === produtoSelecionado.id
+        (item) => item.itemProdutoId === produtoSelecionado.value
       );
 
       if (indexExistente >= 0) {
+        // Atualizar a quantidade do item já existente
         const itensAtualizados = [...itensProduto];
         itensAtualizados[indexExistente].quantidade = quantidade;
         setItensProduto(itensAtualizados);
       } else {
+        // Adicionar um novo item
         const itemProduto: ItensProduto = {
           produtoId: Number(id),
-          itemProdutoId: Number(produtoSelecionado.id),
+          itemProdutoId: produtoSelecionado.value,
           quantidade: quantidade,
         };
         setItensProduto([...itensProduto, itemProduto]);
       }
 
+      // Limpar a seleção e resetar quantidade
       setProdutoSelecionado(null);
       setQuantidade(1);
     }
-  };
-
-  const handleProdutoAutoComplete = async (
-    event: AutoCompleteCompleteMethodParams
-  ) => {
-    if (!listaProdutos.length) {
-      const produtosEncontrados = await service.listar();
-      setListaProdutos(produtosEncontrados);
-    }
-
-    const produtosFiltrados = listaProdutos.filter(
-      (produto) =>
-        produto.categoria === "MATERIA_PRIMA" &&
-        produto.nome &&
-        produto.nome.toUpperCase().includes(event.query.toUpperCase())
-    );
-    setListaFiltradaProdutos(produtosFiltrados);
-  };
-
-  const handleProdutoChange = (e: AutoCompleteChangeParams) => {
-    setProdutoSelecionado(e.value);
   };
 
   const calcularValorTotal = (
@@ -256,13 +241,18 @@ export const CadastroProdutos: React.FC = () => {
             Categoria: *
           </label>
           <div className="control">
-            <Dropdown
+            <Select
               id="inputCategoria"
               options={categorias}
               value={categoria}
-              onChange={(e) => setCategoria(e.value)}
+              onChange={(selectedOption) => setCategoria(selectedOption)}
               placeholder="Selecione a categoria"
-              className={styles.dropdownInput}
+              styles={{
+                container: (provided) => ({
+                  ...provided,
+                  width: "100%",
+                }),
+              }}
             />
             {errors.categoria && (
               <p className="help is-danger">{errors.categoria}</p>
@@ -275,13 +265,18 @@ export const CadastroProdutos: React.FC = () => {
             Tipo: *
           </label>
           <div className="control">
-            <Dropdown
+            <Select
               id="inputTipo"
               options={tipos}
               value={tipo}
-              onChange={(e) => setTipo(e.value)}
+              onChange={(selectedOption) => setTipo(selectedOption)}
               placeholder="Selecione o tipo"
-              className={styles.dropdownInput}
+              styles={{
+                container: (provided) => ({
+                  ...provided,
+                  width: "100%",
+                }),
+              }}
             />
             {errors.tipo && <p className="help is-danger">{errors.tipo}</p>}
           </div>
@@ -328,61 +323,71 @@ export const CadastroProdutos: React.FC = () => {
         </div>
       </div>
 
-      {categoria !== "MATERIA_PRIMA" && (
+      {categoria?.value !== "MATERIA_PRIMA" && (
         <>
-          <div className="columns">
-            <div className="field column is-4">
-              <label className="label" htmlFor="produtoAutocomplete">
+          <div
+            className="columns is-flex"
+            style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+          >
+            <div className="field column" style={{ flexGrow: 1 }}>
+              <label className="label" htmlFor="produtoSelect">
                 Insumos / Matéria Prima
               </label>
-              <div className="control" style={{ width: "100%" }}>
-                <AutoComplete
-                  id="produtoAutocomplete"
-                  suggestions={listaFiltradaProdutos}
-                  completeMethod={handleProdutoAutoComplete}
-                  value={produtoSelecionado}
-                  field="nome"
-                  onChange={handleProdutoChange}
-                  placeholder="Digite o nome do produto"
-                  style={{
+
+              <Select
+                id="produtoSelect"
+                options={listaProdutos
+                  .filter((produto) => produto.categoria === "MATERIA_PRIMA")
+                  .map((produto) => ({
+                    value: produto.id,
+                    label: produto.nome,
+                  }))}
+                value={produtoSelecionado}
+                onChange={(selectedOption) =>
+                  setProdutoSelecionado(selectedOption)
+                }
+                placeholder="Digite o nome do produto"
+                styles={{
+                  container: (provided) => ({
+                    ...provided,
                     width: "100%",
-                    height: "38px",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
+                  }),
+                }}
+              />
             </div>
 
-            <div className="field column is-4">
+            <div className="field column">
               <label className="label" htmlFor="inputQuantidade">
                 Qtd
               </label>
-              <div className="control" style={{ width: "10%" }}>
-                <InputNumber
-                  id="inputQuantidade"
-                  value={quantidade}
-                  onValueChange={(e) => setQuantidade(e.value || 1)}
-                  min={1}
-                  placeholder="Quantidade"
-                  style={{
-                    width: "100%",
-                    height: "38px",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
+
+              <InputNumber
+                id="inputQuantidade"
+                value={quantidade}
+                onValueChange={(e) => setQuantidade(e.value || 1)}
+                min={1}
+                placeholder="Quantidade"
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  boxSizing: "border-box",
+                }}
+              />
             </div>
 
-            <div className="field column is-2">
-              <div className="control" style={{ marginTop: "30px" }}>
-                <Button
-                  type="button"
-                  className="button is-link"
-                  onClick={adicionarItemProduto}
-                >
-                  Adicionar
-                </Button>
-              </div>
+            <div className="control" style={{ marginTop: "30px" }}>
+              <Button
+                type="button"
+                className="button is-link"
+                onClick={adicionarItemProduto}
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  boxSizing: "border-box",
+                }}
+              >
+                Adicionar
+              </Button>
             </div>
           </div>
 
