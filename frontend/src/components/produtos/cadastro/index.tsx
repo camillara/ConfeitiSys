@@ -126,12 +126,26 @@ export const CadastroProdutos: React.FC = () => {
 
   const adicionarItemProduto = () => {
     if (produtoSelecionado) {
-      const itemProduto: ItensProduto = {
-        produtoId: Number(produtoSelecionado.id),
-        itemProdutoId: Number(produtoSelecionado.id),
-        quantidade: quantidade,
-      };
-      setItensProduto([...itensProduto, itemProduto]);
+      // Verificar se o item já está na lista
+      const indexExistente = itensProduto.findIndex(
+        (item) => item.produtoId === produtoSelecionado.id
+      );
+
+      if (indexExistente >= 0) {
+        // Atualizar a quantidade do item existente
+        const itensAtualizados = [...itensProduto];
+        itensAtualizados[indexExistente].quantidade = quantidade;
+        setItensProduto(itensAtualizados);
+      } else {
+        // Adicionar novo item
+        const itemProduto: ItensProduto = {
+          produtoId: Number(produtoSelecionado.id),
+          itemProdutoId: Number(produtoSelecionado.id),
+          quantidade: quantidade,
+        };
+        setItensProduto([...itensProduto, itemProduto]);
+      }
+
       // Limpar os campos após adicionar
       setProdutoSelecionado(null);
       setQuantidade(1);
@@ -161,6 +175,19 @@ export const CadastroProdutos: React.FC = () => {
 
   const calcularValorTotal = (quantidade: number, valorUnitario: number = 0) => {
     return quantidade * (valorUnitario !== undefined ? valorUnitario : 0);
+  };
+
+  const calcularSomatorioTotal = () => {
+    return itensProduto.reduce((total, item) => {
+      const produto = listaProdutos.find((p) => p.id === item.produtoId);
+      const valorUnitario = produto ? produto.preco || 0 : 0;
+      return total + calcularValorTotal(item.quantidade, valorUnitario);
+    }, 0);
+  };
+
+  const removerItemProduto = (produtoId: number) => {
+    const novaLista = itensProduto.filter((item) => item.produtoId !== produtoId);
+    setItensProduto(novaLista);
   };
 
   const categorias = [
@@ -363,7 +390,21 @@ export const CadastroProdutos: React.FC = () => {
               return item ? formatReal(calcularValorTotal(rowData.quantidade, item.preco || 0)) : "0,00";
             }}
           />
+          <Column
+            header="Ações"
+            body={(rowData: ItensProduto) => (
+              <Button
+                type="button"
+                icon="pi pi-trash"
+                className="p-button-danger"
+                onClick={() => removerItemProduto(rowData.produtoId)}
+              />
+            )}
+          />
         </DataTable>
+        <div className="columns is-justify-content-flex-end mt-2">
+          <strong>Total Geral: {formatReal(calcularSomatorioTotal())}</strong>
+        </div>
       </div>
 
       <div className="field is-grouped">
