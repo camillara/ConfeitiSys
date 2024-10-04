@@ -325,7 +325,7 @@ export const CadastroProdutos: React.FC = () => {
       {categoria !== "MATERIA_PRIMA" && (
         <>
           <div className="columns">
-            <div className="field column is-7">
+            <div className="field column is-4">
               <label className="label" htmlFor="produtoAutocomplete">
                 Insumos / Matéria Prima
               </label>
@@ -347,11 +347,11 @@ export const CadastroProdutos: React.FC = () => {
               </div>
             </div>
 
-            <div className="field column is-3">
+            <div className="field column is-4">
               <label className="label" htmlFor="inputQuantidade">
                 Qtd
               </label>
-              <div className="control" style={{ width: "100%" }}>
+              <div className="control" style={{ width: "10%" }}>
                 <InputNumber
                   id="inputQuantidade"
                   value={quantidade}
@@ -366,13 +366,17 @@ export const CadastroProdutos: React.FC = () => {
                 />
               </div>
             </div>
-          </div>
 
-          <div className="field">
-            <div className="control">
-              <Button type="button" className="button is-link" onClick={adicionarItemProduto}>
-                Adicionar Item Produto
-              </Button>
+            <div className="field column is-2">
+              <div className="control" style={{ marginTop: "30px" }}>
+                <Button
+                  type="button"
+                  className="button is-link"
+                  onClick={adicionarItemProduto}
+                >
+                  Adicionar
+                </Button>
+              </div>
             </div>
           </div>
 
