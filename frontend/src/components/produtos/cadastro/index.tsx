@@ -12,14 +12,15 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
-import styles from "./style.module.css"; // Importando o CSS Module
 import Select from "react-select";
 
+// Mensagem de campo obrigatório
 const msgCampoObrigatorio = "Campo Obrigatório";
 
+// Validação com yup
 const validationSchema = yup.object().shape({
-  categoria: yup.object().required(msgCampoObrigatorio),
-  tipo: yup.object().required(msgCampoObrigatorio),
+  categoria: yup.string().required(msgCampoObrigatorio),
+  tipo: yup.string().required(msgCampoObrigatorio),
   nome: yup.string().trim().required(msgCampoObrigatorio),
   preco: yup
     .number()
@@ -28,6 +29,7 @@ const validationSchema = yup.object().shape({
   descricao: yup.string().trim(),
 });
 
+// Tipos de erros do formulário
 interface FormErrors {
   categoria?: string;
   tipo?: string;
@@ -40,8 +42,8 @@ export const CadastroProdutos: React.FC = () => {
   const [id, setId] = useState<string>();
   const [cadastro, setCadastro] = useState<string>();
   const service = useProdutoService();
-  const [categoria, setCategoria] = useState<{ value: string; label: string } | null>(null);
-  const [tipo, setTipo] = useState<{ value: string; label: string } | null>(null);
+  const [categoria, setCategoria] = useState<string | null>(null); // Mudando para string
+  const [tipo, setTipo] = useState<string | null>(null); // Mudando para string
   const [preco, setPreco] = useState<string>("");
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
@@ -96,12 +98,8 @@ export const CadastroProdutos: React.FC = () => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
         setId(produtoEncontrado.id);
-        setCategoria(
-          categorias.find((cat) => cat.value === produtoEncontrado.categoria) || null
-        );
-        setTipo(
-          tipos.find((tipo) => tipo.value === produtoEncontrado.tipo) || null
-        );
+        setCategoria(produtoEncontrado.categoria || "");
+        setTipo(produtoEncontrado.tipo || "");
         setNome(produtoEncontrado.nome ?? "");
         setDescricao(produtoEncontrado.descricao ?? "");
         setPreco(formatReal(`${produtoEncontrado.preco}`));
@@ -114,8 +112,8 @@ export const CadastroProdutos: React.FC = () => {
   const submit = () => {
     const produto: Produto = {
       id,
-      categoria: categoria?.value || "",
-      tipo: tipo?.value || "",
+      categoria: categoria || "", // Garantir que sempre seja string
+      tipo: tipo || "", // Garantir que sempre seja string
       preco: converterEmBigDecimal(preco),
       nome,
       descricao,
@@ -236,8 +234,8 @@ export const CadastroProdutos: React.FC = () => {
           <Select
             id="inputCategoria"
             options={categorias}
-            value={categoria}
-            onChange={(selectedOption) => setCategoria(selectedOption)}
+            value={categorias.find((cat) => cat.value === categoria)} // Usando string
+            onChange={(selectedOption) => setCategoria(selectedOption?.value || "")} // Passando apenas string
             placeholder="Selecione a categoria"
             styles={{
               container: (provided) => ({
@@ -256,8 +254,8 @@ export const CadastroProdutos: React.FC = () => {
           <Select
             id="inputTipo"
             options={tipos}
-            value={tipo}
-            onChange={(selectedOption) => setTipo(selectedOption)}
+            value={tipos.find((t) => t.value === tipo)} // Usando string
+            onChange={(selectedOption) => setTipo(selectedOption?.value || "")} // Passando apenas string
             placeholder="Selecione o tipo"
             styles={{
               container: (provided) => ({
@@ -270,6 +268,7 @@ export const CadastroProdutos: React.FC = () => {
         </div>
       </div>
 
+      {/* Resto do componente permanece o mesmo */}
       <div className="columns is-flex" style={{ gap: "1rem" }}>
         <div className="column is-8">
           <Input
