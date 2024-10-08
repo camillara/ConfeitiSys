@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
 
 @RestController
@@ -136,6 +139,23 @@ public class ProdutoController {
 				throw new OperacaoNaoPermitidaException("Não é possível alterar ou deletar um produto do tipo 'Matéria Prima' que está sendo utilizado em outros produtos.");
 			}
 		}
+	}
+
+	// Endpoint para listar produtos que utilizam determinado itemProduto
+	@GetMapping("/por-item/{itemProdutoId}")
+	public ResponseEntity<List<ProdutoFormRequestDTO>> getProdutosByItemProdutoId(@PathVariable Long itemProdutoId) {
+		List<Produto> produtos = repository.findProdutosByItemProdutoId(itemProdutoId);
+
+		if (produtos.isEmpty()) {
+			return ResponseEntity.noContent().build(); // Retorna 204 No Content se não houver produtos
+		}
+
+		// Converte os produtos para DTO e retorna no ResponseEntity
+		List<ProdutoFormRequestDTO> produtoDTOs = produtos.stream()
+				.map(ProdutoFormRequestDTO::fromModel)
+				.collect(Collectors.toList());
+
+		return ResponseEntity.ok(produtoDTOs);
 	}
 
 
