@@ -1,61 +1,124 @@
-import { Layout, Loader } from "components";
-import Link from "next/link";
+import { Layout } from "components";
 import Router from "next/router";
 import { TabelaProdutos } from "./tabela";
 import { Produto } from "app/models/produtos";
-import useSWR from "swr";
-import { httpClient } from "app/http";
-import { AxiosResponse } from "axios";
 import { useProdutoService } from "app/services";
-import { Alert } from "components/common/message";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Input } from "components";
+import { useFormik } from "formik";
+import { DataTablePageParams } from "primereact/datatable";
+import { Button } from "primereact/button";
+import { Page } from "app/models/common/page"; // Certifique-se de que a interface Page está importada
+
+// Definimos a interface do formulário de consulta
+interface ConsultaProdutosForm {
+  nome?: string;
+}
 
 export const ListagemProdutos: React.FC = () => {
   const service = useProdutoService();
-  const [messages, setMessages] = useState<Array<Alert>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [produtos, setProdutos] = useState<Page<Produto>>({
+    content: [],
+    first: 0,
+    number: 0,
+    size: 10,
+    totalElements: 0,
+  });
 
-  const { data: result, error } = useSWR<AxiosResponse<Produto[]>>(
-    "/api/produtos",
-    (url) => httpClient.get(url)
-  );
+  // Função chamada quando o formulário de busca é submetido
+  const handleSubmit = (filtro: ConsultaProdutosForm) => {
+    handlePage(null!);
+  };
 
-  const [lista, setLista] = useState<Produto[]>([]);
+  // Configuração do Formik para lidar com o formulário
+  const {
+    handleSubmit: formikSubmit,
+    values: filtro,
+    handleChange,
+  } = useFormik<ConsultaProdutosForm>({
+    onSubmit: handleSubmit,
+    initialValues: { nome: "" },
+  });
 
-  useEffect(() => {
-    setLista(result?.data || []);
-  }, [result]);
+  // Função para carregar produtos com paginação
+  const handlePage = (event: DataTablePageParams) => {
+    setLoading(true);
+    service
+      .find(filtro.nome, event?.page, event?.rows) // Chama o método find no service com filtro e paginação
+      .then((result) => {
+        setProdutos({ ...result, first: event?.first });
+      })
+      .finally(() => setLoading(false));
+  };
 
+  // Função para editar um produto
   const editar = (produto: Produto) => {
     const url = `/cadastros/produtos?id=${produto.id}`;
     Router.push(url);
   };
 
+  // Função para deletar um produto
   const deletar = async (produto: Produto) => {
     try {
       await service.deletar(produto.id);
-      const listaAlterada: Produto[] = lista?.filter((p) => p.id !== produto.id);
-      setLista(listaAlterada);
+      handlePage(null!); // Recarrega a lista de produtos após a exclusão
     } catch (error) {
-      throw error;
+      // Pode exibir um erro aqui, se necessário
     }
   };
 
-  useEffect(() => {
-    if (messages.length > 0) {
-      const timer = setTimeout(() => setMessages([]), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [messages]);
-
   return (
-    <Layout titulo="PRODUTOS" mensagens={messages}>
-      <Link href="/cadastros/produtos">
-        <button className="button is-warning">Novo</button>
-      </Link>
+    <Layout titulo="PRODUTOS">
+      {/* Formulário de consulta por nome */}
+      <form onSubmit={formikSubmit}>
+        <div className="columns">
+          <Input
+            label="Nome"
+            id="nome"
+            columnClasses="is-half"
+            autoComplete="off"
+            onChange={handleChange}
+            name="nome"
+            value={filtro.nome}
+          />
+        </div>
+
+        <div className="field is-grouped">
+          <div className="control">
+            <button type="submit" className="button is-link">
+              Consultar
+            </button>
+          </div>
+          <div className="control">
+            <Button
+              label="Novo"
+              className="p-button-success"
+              onClick={() => Router.push("/cadastros/produtos")}
+            />
+          </div>
+        </div>
+      </form>
+
       <br />
-      <br />
-      <Loader show={!result} />
-      <TabelaProdutos onEdit={editar} onDelete={deletar} produtos={lista} />
+
+      {/* Tabela de produtos */}
+      <div className="columns">
+        <div className="is-full">
+          <TabelaProdutos
+            produtos={produtos.content}
+            onEdit={editar}
+            onDelete={deletar}
+            totalRecords={produtos.totalElements}
+            lazy
+            paginator
+            first={produtos.first}
+            rows={produtos.size}
+            onPage={handlePage}
+            loading={loading}
+          />
+        </div>
+      </div>
     </Layout>
   );
 };
