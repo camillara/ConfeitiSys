@@ -208,6 +208,7 @@ export const CadastroProdutos: React.FC = () => {
     setItensProduto(novaLista);
   };
 
+
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
       <Toast ref={toast} /> {/* Adicionando o componente Toast */}
@@ -313,138 +314,173 @@ export const CadastroProdutos: React.FC = () => {
       </div>
 
       {categoria !== "MATERIA_PRIMA" && (
-  <>
-    <div className="columns is-flex" style={{ gap: "1rem", alignItems: "center" }}>
-      <div className="column is-8">
-        <label className="label" htmlFor="produtoSelect">
-          Insumos / Matéria Prima
-        </label>
-        <Select
-          id="produtoSelect"
-          options={listaProdutos
-            .filter((produto) => produto.categoria === "MATERIA_PRIMA")
-            .map((produto) => ({
-              value: produto.id,
-              label: produto.nome,
-            }))}
-          value={produtoSelecionado}
-          onChange={(selectedOption) => setProdutoSelecionado(selectedOption)}
-          placeholder="Digite o nome do produto"
-          styles={{
-            container: (provided) => ({
-              ...provided,
-              width: "100%",
-            }),
-          }}
-        />
-      </div>
+        <>
+          <div className="columns is-flex" style={{ gap: "1rem", alignItems: "center" }}>
+            <div className="column is-8">
+              <label className="label" htmlFor="produtoSelect">
+                Insumos / Matéria Prima
+              </label>
+              <Select
+                id="produtoSelect"
+                options={listaProdutos
+                  .filter((produto) => produto.categoria === "MATERIA_PRIMA")
+                  .map((produto) => ({
+                    value: produto.id,
+                    label: produto.nome,
+                  }))}
+                value={produtoSelecionado}
+                onChange={(selectedOption) => setProdutoSelecionado(selectedOption)}
+                placeholder="Digite o nome do produto"
+                styles={{
+                  container: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                }}
+              />
+            </div>
 
-      <div className="column is-2">
-        <label className="label" htmlFor="inputQuantidade">
-          Qtd
-        </label>
-        <InputNumber
-          id="inputQuantidade"
-          value={quantidade}
-          onValueChange={(e) => setQuantidade(e.value || 1)}
-          min={1}
-          placeholder="Quantidade"
-          style={{
-            width: "100%",
-            height: "38px",
-            boxSizing: "border-box",
-          }}
-        />
-      </div>
+            <div className="column is-2">
+              <label className="label" htmlFor="inputQuantidade">
+                Qtd
+              </label>
+              <InputNumber
+                id="inputQuantidade"
+                value={quantidade}
+                onValueChange={(e) => setQuantidade(e.value || 1)}
+                min={1}
+                placeholder="Quantidade"
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
 
-      <div className="column is-2" style={{ textAlign: "center" }}>
-        <label className="label" style={{ visibility: "hidden" }}>
-          Botão Adicionar
-        </label>
-        <Button
-          type="button"
-          className="button is-link"
-          onClick={adicionarItemProduto}
-          style={{
-            width: "70%",
-            height: "38px",
-            boxSizing: "border-box",
-          }}
-        >
-          Adicionar
-        </Button>
-      </div>
-    </div>
+            <div className="column is-2" style={{ textAlign: "center" }}>
+              <label className="label" style={{ visibility: "hidden" }}>
+                Botão Adicionar
+              </label>
+              <Button
+                type="button"
+                className="button is-link"
+                onClick={adicionarItemProduto}
+                style={{
+                  width: "70%",
+                  height: "38px",
+                  boxSizing: "border-box",
+                }}
+              >
+                Adicionar
+              </Button>
+            </div>
+          </div>
 
-    <div className="field">
-      <h3>Insumos Utilizados na Produção</h3>
-      <DataTable
-        value={itensProduto}
-        emptyMessage="Nenhum item adicionado."
-      >
-        <Column
-          field="itemProdutoId"
-          header="Produto"
-          body={(rowData: ItensProduto) => {
-            const item = listaProdutos.find(
-              (p) => p.id === rowData.itemProdutoId
-            );
-            return item ? item.nome : "N/A";
-          }}
-        />
-        <Column field="quantidade" header="Qtd" />
-        <Column
-          header="Tipo"
-          body={(rowData: ItensProduto) => {
-            const item = listaProdutos.find(
-              (p) => p.id === rowData.itemProdutoId
-            );
-            return item ? item.tipo : "N/A";
-          }}
-        />
-        <Column
-          header="Vl. Unit"
-          body={(rowData: ItensProduto) => {
-            const item = listaProdutos.find(
-              (p) => p.id === rowData.itemProdutoId
-            );
-            return item ? formatReal(item.preco || 0) : "0,00";
-          }}
-        />
-        <Column
-          header="Vl. Total"
-          body={(rowData: ItensProduto) => {
-            const item = listaProdutos.find(
-              (p) => p.id === rowData.itemProdutoId
-            );
-            return item
-              ? formatReal(
-                  calcularValorTotal(rowData.quantidade, item.preco || 0)
-                )
-              : "0,00";
-          }}
-        />
-        <Column
-          header="Ações"
-          body={(rowData: ItensProduto) => (
-            <Button
-              type="button"
-              icon="pi pi-trash"
-              className="p-button-danger"
-              onClick={() => removerItemProduto(rowData.itemProdutoId!)}
+          <div className="field">
+            <h3>Insumos Utilizados na Produção</h3>
+            <DataTable
+              value={itensProduto}
+              emptyMessage="Nenhum item adicionado."
+            >
+              <Column
+                field="itemProdutoId"
+                header="Produto"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
+                  return item ? item.nome : "N/A";
+                }}
+              />
+              <Column field="quantidade" header="Qtd" />
+              <Column
+                header="Tipo"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
+                  return item ? item.tipo : "N/A";
+                }}
+              />
+              <Column
+                header="Vl. Unit"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
+                  return item ? formatReal(item.preco || 0) : "0,00";
+                }}
+              />
+              <Column
+                header="Vl. Total"
+                body={(rowData: ItensProduto) => {
+                  const item = listaProdutos.find(
+                    (p) => p.id === rowData.itemProdutoId
+                  );
+                  return item
+                    ? formatReal(
+                        calcularValorTotal(rowData.quantidade, item.preco || 0)
+                      )
+                    : "0,00";
+                }}
+              />
+              <Column
+                header="Ações"
+                body={(rowData: ItensProduto) => (
+                  <Button
+                    type="button"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={() => removerItemProduto(rowData.itemProdutoId!)}
+                  />
+                )}
+              />
+            </DataTable>
+            <div className="columns is-justify-content-flex-end mt-2">
+              <strong>
+                Total Geral: {formatReal(calcularSomatorioTotal())}
+              </strong>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Parte para exibir produtos que utilizam este item como matéria prima */}
+      {categoria === "MATERIA_PRIMA" && (
+        <div className="field">
+          <h3>Produtos que utilizam este item</h3>
+          <DataTable
+            value={listaProdutos.filter(produto => 
+              produto.itensProduto.some(item => item.itemProdutoId === Number(id))
+            )}
+            emptyMessage="Nenhum produto utiliza este item."
+          >
+            <Column field="id" header="Código" />
+            <Column field="nome" header="Nome do Produto" />
+            <Column
+              header="Quantidade Utilizada"
+              body={(rowData: Produto) => {
+                const itemProduto = rowData.itensProduto.find(
+                  (item) => item.itemProdutoId === Number(id)
+                );
+                return itemProduto ? itemProduto.quantidade : "N/A";
+              }}
             />
-          )}
-        />
-      </DataTable>
-      <div className="columns is-justify-content-flex-end mt-2">
-        <strong>
-          Total Geral: {formatReal(calcularSomatorioTotal())}
-        </strong>
-      </div>
-    </div>
-  </>
-)}
-
+            <Column
+              header="Ações"
+              body={(rowData: Produto) => (
+                <Button
+                  type="button"
+                  label="Ver Produto"
+                  className="p-button-info"
+                  onClick={() => router.push(`/cadastros/produtos?id=${rowData.id}`)}
+                />
+              )}
+            />
+          </DataTable>
+        </div>
+      )}
 
       <div className="field is-grouped">
         <div className="control">
@@ -461,3 +497,4 @@ export const CadastroProdutos: React.FC = () => {
     </Layout>
   );
 };
+
