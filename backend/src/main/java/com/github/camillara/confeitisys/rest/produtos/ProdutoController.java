@@ -156,10 +156,14 @@ public class ProdutoController {
 	@GetMapping("/filtrar")
 	public Page<ProdutoFormRequestDTO> getLista(
 			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
+			@RequestParam(value = "categoria", required = false) String categoria, // Adicionando o parâmetro de categoria
 			Pageable pageable) {
-		return repository.buscarPorNome("%" + nome + "%", pageable)
+
+		// Chama o repositório para buscar com filtro de nome e categoria
+		return repository.buscarPorNomeECategoria("%" + nome + "%", categoria, pageable)
 				.map(ProdutoFormRequestDTO::fromModel);
 	}
+
 
 
 

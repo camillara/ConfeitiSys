@@ -13,8 +13,9 @@ import java.util.List;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    @Query("SELECT p FROM Produto p WHERE upper(p.nome) like upper(:nome)")
-    Page<Produto> buscarPorNome(@Param("nome") String nome, Pageable pageable);
+    @Query("SELECT p FROM Produto p WHERE upper(p.nome) like upper(:nome) " +
+            "AND (:categoria IS NULL OR p.categoria = :categoria)")
+    Page<Produto> buscarPorNomeECategoria(@Param("nome") String nome, @Param("categoria") String categoria, Pageable pageable);
 
     @Query("SELECT COUNT(ip) > 0 FROM ItemProduto ip WHERE ip.itemProduto.id = :produtoId")
     boolean isProdutoUsadoComoItem(@Param("produtoId") Long produtoId);
