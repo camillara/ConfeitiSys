@@ -41,6 +41,7 @@ export const ListagemProdutos: React.FC = () => {
     size: 5,
     totalElements: 0,
   });
+  const [produtosFiltrados, setProdutosFiltrados] = useState<Array<Produto>>([]); // Lista filtrada no frontend
   const toast = useRef<Toast>(null); // Referência para o Toast
 
   // Carregamento inicial de todos os produtos
@@ -54,6 +55,7 @@ export const ListagemProdutos: React.FC = () => {
       .find(nome, page, rows, categoria) // Chamada para a API com nome, página, tamanho e categoria
       .then((result) => {
         setProdutos(result); // Atualiza os produtos no estado
+        setProdutosFiltrados(result.content); // Inicializa a lista filtrada com todos os produtos
       })
       .catch((error) => {
         if (toast.current) {
@@ -88,7 +90,23 @@ export const ListagemProdutos: React.FC = () => {
   const limparFiltro = () => {
     setFieldValue("nome", "");
     setFieldValue("categoria", "");
-    carregarProdutos("", 0, produtos.size, ""); // Recarrega a lista completa sem filtros
+    setProdutosFiltrados(produtos.content); // Restaura a lista completa
+  };
+
+  // Função para filtrar os produtos localmente pela categoria no frontend
+  const handleCategoriaChange = (selectedOption: any) => {
+    const categoriaSelecionada = selectedOption?.value || "";
+    setFieldValue("categoria", categoriaSelecionada);
+
+    // Filtrar localmente com base na categoria selecionada
+    if (categoriaSelecionada) {
+      const produtosFiltradosPorCategoria = produtos.content.filter(
+        (produto) => produto.categoria === categoriaSelecionada
+      );
+      setProdutosFiltrados(produtosFiltradosPorCategoria);
+    } else {
+      setProdutosFiltrados(produtos.content); // Se não houver categoria, mostra todos os produtos
+    }
   };
 
   const editar = (produto: Produto) => {
@@ -142,7 +160,7 @@ export const ListagemProdutos: React.FC = () => {
               id="categoria"
               options={categorias}
               value={categorias.find((cat) => cat.value === filtro.categoria)}
-              onChange={(selectedOption) => setFieldValue("categoria", selectedOption?.value || "")}
+              onChange={handleCategoriaChange} // Filtro local por categoria
               placeholder="Selecione a categoria"
               isClearable
               styles={{ container: (provided) => ({ ...provided, width: "100%" }) }}
@@ -178,10 +196,10 @@ export const ListagemProdutos: React.FC = () => {
       <div className="columns">
         <div className="is-full" style={{ width: "100%" }}>
           <TabelaProdutos
-            produtos={produtos.content}
+            produtos={produtosFiltrados} // Agora exibe os produtos filtrados localmente
             onEdit={editar}
             onDelete={deletar}
-            totalRecords={produtos.totalElements}
+            totalRecords={produtosFiltrados.length} // Total de registros é baseado nos produtos filtrados
             lazy
             paginator
             first={produtos.first}
