@@ -3,13 +3,13 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Toast } from "primereact/toast";
 
 interface TabelaProdutosProps {
   produtos: Array<Produto>;
   onEdit: (produto: Produto) => void;
-  onDelete: (produto: Produto) => Promise<void>; // Alterado para retornar uma Promise
+  onDelete: (produto: Produto) => Promise<void>;
 }
 
 export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
@@ -22,9 +22,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   const actionTemplate = (registro: Produto) => {
     const accept = async () => {
       try {
-        // Espera a execução do onDelete
         await onDelete(registro);
-        // Mostra o toast de sucesso apenas se não houver erros
         toast.current.show({
           severity: "success",
           summary: "Sucesso",
@@ -32,7 +30,6 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
           life: 3000,
         });
       } catch (error) {
-        // Captura a mensagem de erro e mostra no toast
         const mensagemErro = (error as any).response?.data || "Erro ao excluir o produto!";
         toast.current.show({
           severity: "error",
@@ -42,8 +39,6 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
         });
       }
     };
-    
-    
 
     const reject = () => {
       toast.current.show({
@@ -68,22 +63,36 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
     };
 
     return (
-      <div className="field is-grouped">
+      <div className="field is-grouped" style={{ justifyContent: "center" }}>
         <Toast ref={toast} />
-
         <ConfirmPopup />
-        <div className="control">
+
+        <div className="control" style={{ marginRight: "8px" }}>
           <Button
-            onClick={(e) => onEdit(registro)}
+            onClick={() => onEdit(registro)}
+            icon="pi pi-pencil"
             label="Editar"
-            className="p-button-rounded p-button-info"
+            className="p-button-text"
+            style={{
+              width: "120px", 
+              backgroundColor: "#2196F3", 
+              color: "#ffffff", 
+              borderRadius: "4px", 
+            }}
           />
         </div>
         <div className="control">
           <Button
             onClick={confirmacaoDeletar}
+            icon="pi pi-trash"
             label="Deletar"
-            className="p-button-rounded p-button-danger"
+            className="p-button-text"
+            style={{
+              width: "120px", 
+              backgroundColor: "#f70202", 
+              color: "#ffffff", 
+              borderRadius: "4px", 
+            }}
           />
         </div>
       </div>
@@ -91,13 +100,13 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   };
 
   return (
-    <DataTable value={produtos} paginator rows={5}>
+    <DataTable value={produtos} paginator rows={5} responsiveLayout="scroll">
       <Column field="id" header="Código" />
       <Column field="categoria" header="Categoria" />
       <Column field="nome" header="Nome" />
       <Column field="tipo" header="Tipo" />
       <Column field="preco" header="Preço" />
-      <Column body={actionTemplate} />
+      <Column body={actionTemplate} header="Ações" />
     </DataTable>
   );
 };
