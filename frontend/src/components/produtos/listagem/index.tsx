@@ -90,7 +90,7 @@ export const ListagemProdutos: React.FC = () => {
   const limparFiltro = () => {
     setFieldValue("nome", "");
     setFieldValue("categoria", "");
-    setProdutosFiltrados(produtos.content); // Restaura a lista completa
+    carregarProdutos("", 0, produtos.size, ""); // Recarrega a lista completa sem filtros
   };
 
   // Função para filtrar os produtos localmente pela categoria no frontend
@@ -127,6 +127,7 @@ export const ListagemProdutos: React.FC = () => {
         });
       }
     } catch (error: any) {
+      // Corrigido para não exibir a mensagem de sucesso quando há um erro
       if (toast.current) {
         toast.current.show({
           severity: "error",
@@ -199,7 +200,7 @@ export const ListagemProdutos: React.FC = () => {
             produtos={produtosFiltrados} // Agora exibe os produtos filtrados localmente
             onEdit={editar}
             onDelete={deletar}
-            totalRecords={produtosFiltrados.length} // Total de registros é baseado nos produtos filtrados
+            totalRecords={produtos.totalElements} // Total de registros agora é o total real
             lazy
             paginator
             first={produtos.first}
