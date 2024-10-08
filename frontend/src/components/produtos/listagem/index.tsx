@@ -30,17 +30,25 @@ export const ListagemProdutos: React.FC = () => {
     Router.push(url);
   };
 
-  const deletar = (produto: Produto) => {
-    service.deletar(produto.id).then((response) => {
-      setMessages([
-        { tipo: "success", texto: "Produto excluido com sucesso!" },
-      ]);
-      const listaAlterada: Produto[] = lista?.filter(
-        (p) => p.id !== produto.id
-      );
+  const deletar = async (produto: Produto) => {
+    try {
+      await service.deletar(produto.id);
+      // Se não houve erro, atualiza a lista
+      const listaAlterada: Produto[] = lista?.filter((p) => p.id !== produto.id);
       setLista(listaAlterada);
-    });
+    } catch (error) {
+      // Lança a exceção para que o toast de erro a capture
+      throw error;
+    }
   };
+  
+  
+  useEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => setMessages([]), 5000); // Limpa as mensagens após 5 segundos
+      return () => clearTimeout(timer); // Limpa o timer caso o componente seja desmontado
+    }
+  }, [messages]);
 
   return (
     <Layout titulo="PRODUTOS" mensagens={messages}>

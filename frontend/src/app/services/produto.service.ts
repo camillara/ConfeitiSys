@@ -10,19 +10,12 @@ export const useProdutoService = () => {
       resourceURL,
       produto
     );
-    console.log(response.data);
     return response.data;
   };
 
   const atualizar = async (produto: Produto): Promise<void> => {
     const url: string = `${resourceURL}/${produto.id}`;
     await httpClient.put<Produto>(url, produto);
-    // try {
-    //   const response = await httpClient.put<Produto>(url, produto);
-    //   console.log("Produto atualizado com sucesso:", response.data);
-    // } catch (error) {
-    //   console.error("Erro ao atualizar o produto:", error);
-    // }
   };
 
   const carregarProduto = async (id: any): Promise<Produto> => {
@@ -33,7 +26,7 @@ export const useProdutoService = () => {
 
   const deletar = async (id: any): Promise<void> => {
     const url: string = `${resourceURL}/${id}`;
-    await httpClient.delete(url);
+    return await httpClient.delete(url); // Certifique-se de retornar a Promise aqui
   };
 
   const listar = async (): Promise<Produto[]> => {

@@ -9,7 +9,7 @@ import { Toast } from "primereact/toast";
 interface TabelaProdutosProps {
   produtos: Array<Produto>;
   onEdit: (produto: Produto) => void;
-  onDelete: (produto: Produto) => void;
+  onDelete: (produto: Produto) => Promise<void>; // Alterado para retornar uma Promise
 }
 
 export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
@@ -17,27 +17,39 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   onDelete,
   onEdit,
 }: TabelaProdutosProps) => {
-  const [visible, setVisible] = useState<boolean>(false);
   const toast = useRef<any>(null);
 
   const actionTemplate = (registro: Produto) => {
-    const url = `/cadastros/produtos?id=${registro.id}`;
-
-    const accept = () => {
-      toast.current.show({
-        severity: "info",
-        summary: "Mensagem",
-        detail: "Produto DELETADO com sucesso!",
-        life: 10000,
-      });
-      onDelete(registro);
+    const accept = async () => {
+      try {
+        // Espera a execução do onDelete
+        await onDelete(registro);
+        // Mostra o toast de sucesso apenas se não houver erros
+        toast.current.show({
+          severity: "success",
+          summary: "Sucesso",
+          detail: "Produto DELETADO com sucesso!",
+          life: 3000,
+        });
+      } catch (error) {
+        // Captura a mensagem de erro e mostra no toast
+        const mensagemErro = (error as any).response?.data || "Erro ao excluir o produto!";
+        toast.current.show({
+          severity: "error",
+          summary: "Erro",
+          detail: mensagemErro,
+          life: 5000,
+        });
+      }
     };
+    
+    
 
     const reject = () => {
       toast.current.show({
         severity: "warn",
-        summary: "Mensagem",
-        detail: "Produto NÃO Deletado!",
+        summary: "Cancelado",
+        detail: "Ação de exclusão cancelada",
         life: 10000,
       });
     };
@@ -70,7 +82,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
         <div className="control">
           <Button
             onClick={confirmacaoDeletar}
-            label="Delete"
+            label="Deletar"
             className="p-button-rounded p-button-danger"
           />
         </div>
