@@ -11,18 +11,13 @@ import com.github.camillara.confeitisys.model.enums.Categoria;
 import com.github.camillara.confeitisys.rest.produtos.dto.ProdutoFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
 
@@ -156,6 +151,14 @@ public class ProdutoController {
 				.collect(Collectors.toList());
 
 		return ResponseEntity.ok(produtoDTOs);
+	}
+
+	@GetMapping("/filtrar")
+	public Page<ProdutoFormRequestDTO> getLista(
+			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
+			Pageable pageable) {
+		return repository.buscarPorNome("%" + nome + "%", pageable)
+				.map(ProdutoFormRequestDTO::fromModel);
 	}
 
 
