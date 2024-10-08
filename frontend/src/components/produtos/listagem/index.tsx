@@ -86,11 +86,9 @@ export const ListagemProdutos: React.FC = () => {
     carregarProdutos(filtro.nome || "", event.page, event.rows, filtro.categoria || "");
   };
 
-  // Função para limpar os filtros e recarregar todos os produtos
+  // Função para limpar os filtros e recarregar a página inicial
   const limparFiltro = () => {
-    setFieldValue("nome", "");
-    setFieldValue("categoria", "");
-    carregarProdutos("", 0, produtos.size, ""); // Recarrega a lista completa sem filtros
+    window.location.reload(); // Faz um refresh na página, voltando ao estado inicial
   };
 
   // Função para filtrar os produtos localmente pela categoria no frontend
