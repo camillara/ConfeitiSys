@@ -25,38 +25,44 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   rows,
   first,
   onPage,
-  loading
+  loading,
 }: TabelaProdutosProps) => {
-  const toast = useRef<any>(null);
+  const toast = useRef<Toast>(null); // Referência do Toast
 
   const actionTemplate = (registro: Produto) => {
     const accept = async () => {
       try {
         await onDelete(registro);
-        toast.current.show({
-          severity: "success",
-          summary: "Sucesso",
-          detail: "Produto DELETADO com sucesso!",
-          life: 3000,
-        });
+        if (toast.current) { // Verificação se o toast está disponível
+          toast.current.show({
+            severity: "success",
+            summary: "Sucesso",
+            detail: "Produto DELETADO com sucesso!",
+            life: 3000,
+          });
+        }
       } catch (error) {
         const mensagemErro = (error as any).response?.data || "Erro ao excluir o produto!";
-        toast.current.show({
-          severity: "error",
-          summary: "Erro",
-          detail: mensagemErro,
-          life: 5000,
-        });
+        if (toast.current) { // Verificação se o toast está disponível
+          toast.current.show({
+            severity: "error",
+            summary: "Erro",
+            detail: mensagemErro,
+            life: 5000,
+          });
+        }
       }
     };
 
     const reject = () => {
-      toast.current.show({
-        severity: "warn",
-        summary: "Cancelado",
-        detail: "Ação de exclusão cancelada",
-        life: 10000,
-      });
+      if (toast.current) { // Verificação se o toast está disponível
+        toast.current.show({
+          severity: "warn",
+          summary: "Cancelado",
+          detail: "Ação de exclusão cancelada",
+          life: 10000,
+        });
+      }
     };
 
     const confirmacaoDeletar = (event: { currentTarget: any }) => {
@@ -74,9 +80,9 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
 
     return (
       <div className="field is-grouped" style={{ justifyContent: "center" }}>
+        {/* O Toast deve ser renderizado no mesmo nível que os botões para que ele sempre esteja acessível */}
         <Toast ref={toast} />
         <ConfirmPopup />
-
         <div className="control" style={{ marginRight: "8px" }}>
           <Button
             onClick={() => onEdit(registro)}
@@ -84,10 +90,10 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
             label="Editar"
             className="p-button-text"
             style={{
-              width: "120px", 
-              backgroundColor: "#2196F3", 
-              color: "#ffffff", 
-              borderRadius: "4px", 
+              width: "120px",
+              backgroundColor: "#2196F3",
+              color: "#ffffff",
+              borderRadius: "4px",
             }}
           />
         </div>
@@ -98,10 +104,10 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
             label="Deletar"
             className="p-button-text"
             style={{
-              width: "120px", 
-              backgroundColor: "#f70202", 
-              color: "#ffffff", 
-              borderRadius: "4px", 
+              width: "120px",
+              backgroundColor: "#f70202",
+              color: "#ffffff",
+              borderRadius: "4px",
             }}
           />
         </div>
@@ -110,14 +116,14 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   };
 
   return (
-    <DataTable 
-      value={produtos} 
-      paginator 
-      rows={rows} 
+    <DataTable
+      value={produtos}
+      paginator
+      rows={rows}
       totalRecords={totalRecords}
       first={first}
-      onPage={onPage} 
-      loading={loading} 
+      onPage={onPage}
+      loading={loading}
       responsiveLayout="scroll"
       lazy
     >
