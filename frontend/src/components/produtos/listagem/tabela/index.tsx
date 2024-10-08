@@ -10,12 +10,22 @@ interface TabelaProdutosProps {
   produtos: Array<Produto>;
   onEdit: (produto: Produto) => void;
   onDelete: (produto: Produto) => Promise<void>;
+  totalRecords: number;
+  rows: number;
+  first: number;
+  onPage: (event: any) => void;
+  loading: boolean;
 }
 
 export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   produtos,
   onDelete,
   onEdit,
+  totalRecords,
+  rows,
+  first,
+  onPage,
+  loading
 }: TabelaProdutosProps) => {
   const toast = useRef<any>(null);
 
@@ -100,7 +110,17 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   };
 
   return (
-    <DataTable value={produtos} paginator rows={5} responsiveLayout="scroll">
+    <DataTable 
+      value={produtos} 
+      paginator 
+      rows={rows} 
+      totalRecords={totalRecords}
+      first={first}
+      onPage={onPage} 
+      loading={loading} 
+      responsiveLayout="scroll"
+      lazy
+    >
       <Column field="id" header="Código" />
       <Column field="categoria" header="Categoria" />
       <Column field="nome" header="Nome" />

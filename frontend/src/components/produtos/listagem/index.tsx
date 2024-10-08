@@ -8,9 +8,8 @@ import { Input } from "components";
 import { useFormik } from "formik";
 import { DataTablePageParams } from "primereact/datatable";
 import { Button } from "primereact/button";
-import { Page } from "app/models/common/page"; // Certifique-se de que a interface Page está importada
+import { Page } from "app/models/common/page"; 
 
-// Definimos a interface do formulário de consulta
 interface ConsultaProdutosForm {
   nome?: string;
 }
@@ -22,66 +21,55 @@ export const ListagemProdutos: React.FC = () => {
     content: [],
     first: 0,
     number: 0,
-    size: 10,
+    size: 5, // Definido como 5 para manter a paginação em 5 itens por página
     totalElements: 0,
   });
 
-  // Carregamento inicial de todos os produtos
   useEffect(() => {
     setLoading(true);
     service
-      .find("", 0, 10) // Carrega todos os produtos inicialmente
+      .find("", 0, 5) // Carrega 5 produtos por página inicialmente
       .then((result) => {
-        setProdutos(result);
+        setProdutos(result); // Não altere o tamanho da página dinamicamente
       })
       .finally(() => setLoading(false));
   }, []);
 
-  // Função chamada quando o formulário de busca é submetido
   const handleSubmit = (filtro: ConsultaProdutosForm) => {
-    handlePage(null!);
+    handlePage({ first: 0, page: 0, rows: produtos.size });
   };
 
-  // Configuração do Formik para lidar com o formulário
-  const {
-    handleSubmit: formikSubmit,
-    values: filtro,
-    handleChange,
-  } = useFormik<ConsultaProdutosForm>({
+  const { handleSubmit: formikSubmit, values: filtro, handleChange } = useFormik<ConsultaProdutosForm>({
     onSubmit: handleSubmit,
     initialValues: { nome: "" },
   });
 
-  // Função para carregar produtos com paginação
   const handlePage = (event: DataTablePageParams) => {
     setLoading(true);
     service
-      .find(filtro.nome || "", event?.page, event?.rows) // Se o filtro nome estiver vazio, busca todos
+      .find(filtro.nome || "", event.page, event.rows) // Sempre busca com paginação, respeitando o filtro e número de linhas por página
       .then((result) => {
-        setProdutos({ ...result, first: event?.first });
+        setProdutos({ ...result, first: event.first });
       })
       .finally(() => setLoading(false));
   };
 
-  // Função para editar um produto
   const editar = (produto: Produto) => {
     const url = `/cadastros/produtos?id=${produto.id}`;
     Router.push(url);
   };
 
-  // Função para deletar um produto
   const deletar = async (produto: Produto) => {
     try {
       await service.deletar(produto.id);
-      handlePage(null!); // Recarrega a lista de produtos após a exclusão
+      handlePage({ first: produtos.first, page: produtos.number, rows: produtos.size });
     } catch (error) {
-      // Pode exibir um erro aqui, se necessário
+      // Erro ao deletar
     }
   };
 
   return (
     <Layout titulo="PRODUTOS">
-      {/* Formulário de consulta por nome */}
       <form onSubmit={formikSubmit}>
         <div className="columns">
           <Input
@@ -94,7 +82,6 @@ export const ListagemProdutos: React.FC = () => {
             value={filtro.nome}
           />
         </div>
-
         <div className="field is-grouped">
           <div className="control">
             <button type="submit" className="button is-link">
@@ -113,9 +100,8 @@ export const ListagemProdutos: React.FC = () => {
 
       <br />
 
-      {/* Tabela de produtos */}
       <div className="columns">
-        <div className="is-full" style={{ width: "100%" }}> {/* Ajuste de estilo para ocupar a tela */}
+        <div className="is-full" style={{ width: "100%" }}>
           <TabelaProdutos
             produtos={produtos.content}
             onEdit={editar}
@@ -124,7 +110,7 @@ export const ListagemProdutos: React.FC = () => {
             lazy
             paginator
             first={produtos.first}
-            rows={produtos.size}
+            rows={produtos.size} // Mantém 5 registros por página
             onPage={handlePage}
             loading={loading}
           />
