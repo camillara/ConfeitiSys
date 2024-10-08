@@ -106,7 +106,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
       <Column field="nome" header="Nome" />
       <Column field="tipo" header="Tipo" />
       <Column field="preco" header="Preço" />
-      <Column body={actionTemplate} header="Ações" />
+      <Column body={actionTemplate} header="" />
     </DataTable>
   );
 };
