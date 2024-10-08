@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Layout, Input, InputMoney } from "components";
 import { useProdutoService } from "app/services";
 import { Produto, ItensProduto } from "app/models/produtos";
@@ -13,6 +12,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
 import Select from "react-select";
+import { Toast } from "primereact/toast";
 
 // Mensagem de campo obrigatório
 const msgCampoObrigatorio = "Campo Obrigatório";
@@ -54,6 +54,7 @@ export const CadastroProdutos: React.FC = () => {
   const [messages, setMessages] = useState<Array<Alert>>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const router = useRouter();
+  const toast = useRef<Toast>(null); // Adicionando o toast
 
   const { id: queryId } = router.query;
 
@@ -86,14 +87,12 @@ export const CadastroProdutos: React.FC = () => {
     { value: "TSP", label: "Colher de chá" },
   ];
 
-  // Carregar todos os produtos uma vez
   useEffect(() => {
     service.listar().then((produtosEncontrados) => {
       setListaProdutos(produtosEncontrados);
     });
   }, []);
 
-  // Carregar o produto específico pelo ID (e os seus itens) quando o ID for fornecido
   useEffect(() => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
@@ -125,25 +124,35 @@ export const CadastroProdutos: React.FC = () => {
       .then(() => {
         setErrors({});
         if (id) {
-          service.atualizar(produto).then(() => {
-            setMessages([
-              {
-                tipo: "success",
-                texto: "Produto atualizado com sucesso!",
-              },
-            ]);
-          });
+          service.atualizar(produto)
+            .then(() => {
+              setMessages([
+                {
+                  tipo: "success",
+                  texto: "Produto atualizado com sucesso!",
+                },
+              ]);
+              toast.current?.show({ severity: "success", summary: "Sucesso", detail: "Produto atualizado com sucesso!" });
+            })
+            .catch((error) => {
+              toast.current?.show({ severity: "error", summary: "Erro", detail: error.response?.data || "Erro ao atualizar o produto!" });
+            });
         } else {
-          service.salvar(produto).then((produtoResposta) => {
-            setId(produtoResposta.id);
-            setCadastro(produtoResposta.cadastro);
-            setMessages([
-              {
-                tipo: "success",
-                texto: "Produto salvo com sucesso!",
-              },
-            ]);
-          });
+          service.salvar(produto)
+            .then((produtoResposta) => {
+              setId(produtoResposta.id);
+              setCadastro(produtoResposta.cadastro);
+              setMessages([
+                {
+                  tipo: "success",
+                  texto: "Produto salvo com sucesso!",
+                },
+              ]);
+              toast.current?.show({ severity: "success", summary: "Sucesso", detail: "Produto salvo com sucesso!" });
+            })
+            .catch((error) => {
+              toast.current?.show({ severity: "error", summary: "Erro", detail: error.response?.data || "Erro ao salvar o produto!" });
+            });
         }
       })
       .catch((error) => {
@@ -184,10 +193,7 @@ export const CadastroProdutos: React.FC = () => {
     }
   };
 
-  const calcularValorTotal = (
-    quantidade: number,
-    valorUnitario: number = 0
-  ) => {
+  const calcularValorTotal = (quantidade: number, valorUnitario: number = 0) => {
     return quantidade * (valorUnitario !== undefined ? valorUnitario : 0);
   };
 
@@ -200,14 +206,13 @@ export const CadastroProdutos: React.FC = () => {
   };
 
   const removerItemProduto = (itemProdutoId: number) => {
-    const novaLista = itensProduto.filter(
-      (item) => item.itemProdutoId !== itemProdutoId
-    );
+    const novaLista = itensProduto.filter((item) => item.itemProdutoId !== itemProdutoId);
     setItensProduto(novaLista);
   };
 
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
+      <Toast ref={toast} /> {/* Adicionando o componente Toast */}
       <div className="columns" style={{ gap: "1rem" }}>
         <div className="column is-3">
           <Input
