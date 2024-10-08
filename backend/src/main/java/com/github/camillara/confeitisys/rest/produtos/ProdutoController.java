@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.github.camillara.confeitisys.exception.OperacaoNaoPermitidaException;
 import com.github.camillara.confeitisys.model.ItemProduto;
 import com.github.camillara.confeitisys.model.Produto;
+import com.github.camillara.confeitisys.model.enums.Categoria;
 import com.github.camillara.confeitisys.rest.produtos.dto.ProdutoFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,11 +71,15 @@ public class ProdutoController {
 
 		Produto produtoExistente = produtoExistenteOptional.get();
 
-		// Atualizar apenas os campos necessários
+		// Verificar se o produto é do tipo "MATERIA_PRIMA" e está sendo usado em outro produto
+		verificarUsoDeMateriaPrima(produtoExistente);
+
+		// Atualizar os dados do produto
 		produtoExistente.setNome(produtoDTO.getNome());
 		produtoExistente.setDescricao(produtoDTO.getDescricao());
 		produtoExistente.setPreco(produtoDTO.getPreco());
 		produtoExistente.setCategoria(produtoDTO.getCategoria());
+		produtoExistente.setTipo(produtoDTO.getTipo());
 
 		// Atualizar os itensProduto
 		produtoExistente.getItensProduto().clear(); // Limpar itens antigos
@@ -90,6 +96,8 @@ public class ProdutoController {
 		return ResponseEntity.ok().build();
 	}
 
+
+
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deletar(@PathVariable Long id) {
 		Optional<Produto> produtoExistente = repository.findById(id);
@@ -98,7 +106,12 @@ public class ProdutoController {
 			return ResponseEntity.notFound().build();
 		}
 
-		repository.delete(produtoExistente.get());
+		Produto produto = produtoExistente.get();
+
+		// Verificar se o produto é do tipo "MATERIA_PRIMA" e está sendo usado em outro produto
+		verificarUsoDeMateriaPrima(produto);
+
+		repository.delete(produto);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -111,4 +124,20 @@ public class ProdutoController {
 			repository.save(produtoSalvo); // Salvar novamente o produto com os itensProduto
 		}
 	}
+
+	// Método para verificar se um produto do tipo "MATERIA_PRIMA" está sendo usado como item em outro produto
+	private void verificarUsoDeMateriaPrima(Produto produto) {
+		// Comparar diretamente com o enum Categoria.MATERIA_PRIMA
+		if (produto.getCategoria() == Categoria.MATERIA_PRIMA) {
+			// Consultar se o produto está sendo usado como item em outros produtos
+			boolean estaSendoUsado = repository.isProdutoUsadoComoItem(produto.getId());
+
+			if (estaSendoUsado) {
+				throw new OperacaoNaoPermitidaException("Não é possível alterar ou deletar um produto do tipo 'Matéria Prima' que está sendo utilizado em outros produtos.");
+			}
+		}
+	}
+
+
+
 }
