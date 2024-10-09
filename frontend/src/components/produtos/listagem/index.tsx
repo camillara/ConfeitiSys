@@ -153,57 +153,64 @@ export const ListagemProdutos: React.FC = () => {
     <Layout titulo="PRODUTOS">
       <Toast ref={toast} />
       <form onSubmit={formikSubmit}>
-      <div className="columns" style={{ marginBottom: "1rem", display: "flex", alignItems: "center" }}>
-  <div style={{ flex: 2, marginRight: "1rem" }}>
-    <Input
-      label="Nome"
-      id="nome"
-      columnClasses="is-full"
-      autoComplete="on"
-      onChange={handleChange}
-      name="nome"
-      value={filtro.nome}
-      placeholder="Digite o nome do produto"
-    />
-  </div>
+        <div
+          className="columns"
+          style={{
+            marginBottom: "1rem",
+            display: "flex",
+            flexWrap: "wrap", 
+            alignItems: "center",
+          }}
+        >
+          <div style={{ flex: 2, marginRight: "1rem", minWidth: "250px" }}>
+            <Input
+              label="Nome"
+              id="nome"
+              columnClasses="is-full"
+              autoComplete="on"
+              onChange={handleChange}
+              name="nome"
+              value={filtro.nome}
+              placeholder="Digite o nome do produto"
+            />
+          </div>
 
-  <div style={{ flex: 1 }}>
-    <label className="label">Categoria</label>
-    <Select
-      id="categoria"
-      options={categorias}
-      value={categorias.find((cat) => cat.value === filtro.categoria)}
-      onChange={(option) =>
-        setFieldValue("categoria", option?.value || "")
-      }
-      placeholder="Selecione uma categoria"
-      isClearable
-    />
-  </div>
-</div>
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Categoria</label>
+            <Select
+              id="categoria"
+              options={categorias}
+              value={categorias.find((cat) => cat.value === filtro.categoria)}
+              onChange={(option) =>
+                setFieldValue("categoria", option?.value || "")
+              }
+              placeholder="Selecione uma categoria"
+              isClearable
+            />
+          </div>
+        </div>
 
-<div className="field is-grouped">
-  <div className="control">
-    <button type="submit" className="button is-link">
-      Consultar
-    </button>
-  </div>
-  <div className="control">
-    <Button
-      label="Novo"
-      className="p-button-success"
-      onClick={() => Router.push("/cadastros/produtos")}
-    />
-  </div>
-  <div className="control">
-    <Button
-      label="Limpar Filtro"
-      className="p-button-secondary"
-      onClick={limparFiltro}
-    />
-  </div>
-</div>
-
+        <div className="field is-grouped">
+          <div className="control">
+            <button type="submit" className="button is-link">
+              Consultar
+            </button>
+          </div>
+          <div className="control">
+            <Button
+              label="Novo"
+              className="p-button-success"
+              onClick={() => Router.push("/cadastros/produtos")}
+            />
+          </div>
+          <div className="control">
+            <Button
+              label="Limpar Filtro"
+              className="p-button-secondary"
+              onClick={limparFiltro}
+            />
+          </div>
+        </div>
       </form>
 
       <br />
