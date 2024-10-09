@@ -5,6 +5,33 @@ import { DataTable } from "primereact/datatable";
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
 import React from "react";
 
+const categoriaMap: Record<string, string> = {
+  MATERIA_PRIMA: "Matéria Prima",
+  BOLO: "Bolo",
+  DOCE: "Doce",
+  QUITANDA: "Quitanda",
+  TORTA: "Torta",
+  SOBREMESA: "Sobremesa",
+  BEBIDA: "Bebida",
+  CUPCAKE_MUFFIN: "Cupcake/Muffin",
+  SALGADO: "Salgado",
+  RECHEIO_COBERTURA: "Recheio/Cobertura",
+  UTENSILIO_EMBALAGEM: "Utensílio/Embalagem",
+};
+
+// Função para formatar a categoria
+const formatCategoria = (categoria: string) => {
+  return categoriaMap[categoria] || categoria;
+};
+
+// Função para formatar o número com separador de vírgula
+const formatNumber = (value: number) => {
+  return value.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 interface TabelaProdutosProps {
   produtos: Array<Produto>;
   onEdit: (produto: Produto) => void;
@@ -29,7 +56,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   const actionTemplate = (registro: Produto) => {
     const accept = async () => {
       try {
-        await onDelete(registro); // Função de deletar sem o Toast
+        await onDelete(registro);
       } catch (error) {
         console.error("Erro ao excluir o produto:", error);
       }
@@ -87,6 +114,24 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
     );
   };
 
+  // Template para o campo de preço, com R$ à esquerda e valor alinhado à direita
+  const precoTemplate = (rowData: Produto) => {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span>R$</span>
+        <span style={{ marginLeft: "auto", textAlign: "right", width: "100%" }}>
+          {formatNumber(rowData.preco)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <DataTable
       value={produtos}
@@ -100,10 +145,20 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
       lazy
     >
       <Column field="id" header="Código" />
-      <Column field="categoria" header="Categoria" />
+
       <Column field="nome" header="Nome" />
+      <Column
+        field="categoria"
+        header="Categoria"
+        body={(rowData: Produto) => formatCategoria(rowData.categoria)}
+      />
       <Column field="tipo" header="Tipo" />
-      <Column field="preco" header="Preço" />
+      <Column
+        field="preco"
+        header="Preço"
+        body={precoTemplate}
+        style={{ textAlign: "right" }}
+      />
       <Column body={actionTemplate} header="" />
     </DataTable>
   );

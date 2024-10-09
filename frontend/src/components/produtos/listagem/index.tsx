@@ -27,9 +27,7 @@ export const ListagemProdutos: React.FC = () => {
     size: 5,
     totalElements: 0,
   });
-  const [produtosFiltrados, setProdutosFiltrados] = useState<Array<Produto>>(
-    []
-  );
+  const [produtosFiltrados, setProdutosFiltrados] = useState<Array<Produto>>([]);
   const toast = useRef<Toast>(null);
 
   // Opções de categoria
@@ -149,6 +147,16 @@ export const ListagemProdutos: React.FC = () => {
     }
   };
 
+
+  const buttonStyle = {
+    width: "150px",
+    height: "38px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "4px",
+  };
+
   return (
     <Layout titulo="PRODUTOS">
       <Toast ref={toast} />
@@ -158,7 +166,7 @@ export const ListagemProdutos: React.FC = () => {
           style={{
             marginBottom: "1rem",
             display: "flex",
-            flexWrap: "wrap", 
+            flexWrap: "wrap",
             alignItems: "center",
           }}
         >
@@ -192,21 +200,27 @@ export const ListagemProdutos: React.FC = () => {
 
         <div className="field is-grouped">
           <div className="control">
-            <button type="submit" className="button is-link">
-              Consultar
-            </button>
-          </div>
-          <div className="control">
             <Button
               label="Novo"
+              icon="pi pi-plus"
               className="p-button-success"
+              style={buttonStyle}
               onClick={() => Router.push("/cadastros/produtos")}
             />
           </div>
           <div className="control">
+            <button type="submit" className="button is-link" style={buttonStyle}>
+              <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
+              Consultar
+            </button>
+          </div>
+
+          <div className="control">
             <Button
               label="Limpar Filtro"
+              icon="pi pi-filter-slash"
               className="p-button-secondary"
+              style={buttonStyle}
               onClick={limparFiltro}
             />
           </div>
