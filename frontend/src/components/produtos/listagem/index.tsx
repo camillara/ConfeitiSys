@@ -14,7 +14,7 @@ import Select from "react-select"; // Importar o componente de Select
 
 interface ConsultaProdutosForm {
   nome?: string;
-  categoria?: string; // Adicionar o campo categoria ao formulário
+  categoria?: string;
 }
 
 export const ListagemProdutos: React.FC = () => {
@@ -30,7 +30,6 @@ export const ListagemProdutos: React.FC = () => {
   const [produtosFiltrados, setProdutosFiltrados] = useState<Array<Produto>>([]);
   const toast = useRef<Toast>(null);
 
-  // Opções de categoria
   const categorias = [
     { value: "MATERIA_PRIMA", label: "Matéria Prima" },
     { value: "BOLO", label: "Bolo" },
@@ -46,18 +45,13 @@ export const ListagemProdutos: React.FC = () => {
   ];
 
   useEffect(() => {
-    carregarProdutos("", "", 0, 5); // Chamada inicial sem filtro de nome e categoria
+    carregarProdutos("", "", 0, 5);
   }, []);
 
-  const carregarProdutos = (
-    nome: string,
-    categoria: string,
-    page: number,
-    rows: number
-  ) => {
+  const carregarProdutos = (nome: string, categoria: string, page: number, rows: number) => {
     setLoading(true);
     service
-      .find(nome, categoria, page, rows) // Adicionar o filtro de categoria na API
+      .find(nome, categoria, page, rows)
       .then((result) => {
         setProdutos(result);
         setProdutosFiltrados(result.content);
@@ -77,31 +71,16 @@ export const ListagemProdutos: React.FC = () => {
   };
 
   const handleSubmit = (filtro: ConsultaProdutosForm) => {
-    carregarProdutos(
-      filtro.nome || "",
-      filtro.categoria || "",
-      0,
-      produtos.size
-    );
+    carregarProdutos(filtro.nome || "", filtro.categoria || "", 0, produtos.size);
   };
 
-  const {
-    handleSubmit: formikSubmit,
-    values: filtro,
-    handleChange,
-    setFieldValue,
-  } = useFormik<ConsultaProdutosForm>({
+  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue } = useFormik<ConsultaProdutosForm>({
     onSubmit: handleSubmit,
     initialValues: { nome: "", categoria: "" },
   });
 
   const handlePage = (event: DataTablePageParams) => {
-    carregarProdutos(
-      filtro.nome || "",
-      filtro.categoria || "",
-      event.page,
-      event.rows
-    );
+    carregarProdutos(filtro.nome || "", filtro.categoria || "", event.page, event.rows);
   };
 
   const limparFiltro = () => {
@@ -117,12 +96,7 @@ export const ListagemProdutos: React.FC = () => {
     try {
       const response = await service.deletar(produto.id);
       if (response.status >= 200 && response.status < 300) {
-        carregarProdutos(
-          filtro.nome || "",
-          filtro.categoria || "",
-          produtos.number,
-          produtos.size
-        );
+        carregarProdutos(filtro.nome || "", filtro.categoria || "", produtos.number, produtos.size);
         if (toast.current) {
           toast.current.clear();
           toast.current.show({
@@ -147,14 +121,16 @@ export const ListagemProdutos: React.FC = () => {
     }
   };
 
-
   const buttonStyle = {
-    width: "150px",
-    height: "38px",
+    fontSize: "14px", 
+    fontWeight: "bold", 
+    width: "150px", 
+    height: "38px", 
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: "4px",
+    color: "#FFFFFF", 
   };
 
   return (
@@ -189,16 +165,21 @@ export const ListagemProdutos: React.FC = () => {
               id="categoria"
               options={categorias}
               value={categorias.find((cat) => cat.value === filtro.categoria)}
-              onChange={(option) =>
-                setFieldValue("categoria", option?.value || "")
-              }
+              onChange={(option) => setFieldValue("categoria", option?.value || "")}
               placeholder="Selecione uma categoria"
               isClearable
             />
           </div>
         </div>
 
-        <div className="field is-grouped">
+        <div
+          className="field is-grouped"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px", // Espaçamento entre os botões
+          }}
+        >
           <div className="control">
             <Button
               label="Novo"
@@ -209,7 +190,13 @@ export const ListagemProdutos: React.FC = () => {
             />
           </div>
           <div className="control">
-            <button type="submit" className="button is-link" style={buttonStyle}>
+            <button
+              type="submit"
+              className="button is-link"
+              style={{
+                ...buttonStyle,
+              }}
+            >
               <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
               Consultar
             </button>
@@ -220,7 +207,11 @@ export const ListagemProdutos: React.FC = () => {
               label="Limpar Filtro"
               icon="pi pi-filter-slash"
               className="p-button-secondary"
-              style={buttonStyle}
+              style={{
+                ...buttonStyle, 
+                backgroundColor: "#6c757d", 
+                border: "none",
+              }}
               onClick={limparFiltro}
             />
           </div>
