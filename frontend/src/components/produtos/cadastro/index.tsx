@@ -104,9 +104,33 @@ export const CadastroProdutos: React.FC = () => {
         setTipo(produtoEncontrado.tipo || "");
         setNome(produtoEncontrado.nome ?? "");
         setDescricao(produtoEncontrado.descricao ?? "");
-        setPreco(formatReal(`${produtoEncontrado.preco}`));
+
+        // Apenas atribuir o preço recebido
+        const precoRecebido = produtoEncontrado.preco;
+        setPreco(produtoEncontrado.preco.toString()); // Apenas converte o número para string
+
         setCadastro(produtoEncontrado.cadastro || ``);
         setItensProduto(produtoEncontrado.itensProduto || []);
+      });
+    }
+  }, [queryId]);
+
+  useEffect(() => {
+    if (queryId) {
+      service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
+        console.log("Produto encontrado:", produtoEncontrado);
+
+        // Verifique o valor do preço
+        const precoRecebido = produtoEncontrado.preco;
+        console.log("Preço recebido do backend:", precoRecebido);
+
+        const precoFormatado = precoRecebido
+          ? formatReal(precoRecebido.toString())
+          : "0,00";
+
+        console.log("Preço formatado:", precoFormatado);
+
+        setPreco(precoFormatado); // Certifique-se de definir o preço corretamente
       });
     }
   }, [queryId]);
@@ -488,7 +512,7 @@ export const CadastroProdutos: React.FC = () => {
           </div>
         </>
       )}
-      
+
       {categoria === "MATERIA_PRIMA" && (
         <div className="field">
           <h3>Produtos que utilizam este item</h3>
