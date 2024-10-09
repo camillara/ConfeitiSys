@@ -82,18 +82,22 @@ export const ListagemProdutos: React.FC = () => {
 
   const deletar = async (produto: Produto) => {
     try {
-      await service.deletar(produto.id);
-      carregarProdutos(filtro.nome || "", produtos.number, produtos.size);
-      if (toast.current) {
-        toast.current.show({
-          severity: "success",
-          summary: "Sucesso",
-          detail: "Produto deletado com sucesso.",
-          life: 3000,
-        });
+      const response = await service.deletar(produto.id);
+      if (response.status >= 200 && response.status < 300) {
+        carregarProdutos(filtro.nome || "", produtos.number, produtos.size);
+        if (toast.current) {
+          toast.current.clear();
+          toast.current.show({
+            severity: "success",
+            summary: "Sucesso",
+            detail: "Produto deletado com sucesso.",
+            life: 3000,
+          });
+        }
       }
     } catch (error: any) {
       if (toast.current) {
+        toast.current.clear();
         toast.current.show({
           severity: "error",
           summary: "Erro ao deletar",
@@ -104,6 +108,8 @@ export const ListagemProdutos: React.FC = () => {
       console.error("Erro ao deletar produto:", error);
     }
   };
+  
+  
 
   return (
     <Layout titulo="PRODUTOS">

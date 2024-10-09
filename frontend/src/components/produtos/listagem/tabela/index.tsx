@@ -3,8 +3,7 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
-import React, { useRef } from "react";
-import { Toast } from "primereact/toast";
+import React from "react";
 
 interface TabelaProdutosProps {
   produtos: Array<Produto>;
@@ -27,42 +26,17 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   onPage,
   loading,
 }: TabelaProdutosProps) => {
-  const toast = useRef<Toast>(null); // Referência do Toast
-
   const actionTemplate = (registro: Produto) => {
     const accept = async () => {
       try {
-        await onDelete(registro);
-        if (toast.current) { // Verificação se o toast está disponível
-          toast.current.show({
-            severity: "success",
-            summary: "Sucesso",
-            detail: "Produto DELETADO com sucesso!",
-            life: 3000,
-          });
-        }
+        await onDelete(registro); // Função de deletar sem o Toast
       } catch (error) {
-        const mensagemErro = (error as any).response?.data || "Erro ao excluir o produto!";
-        if (toast.current) { // Verificação se o toast está disponível
-          toast.current.show({
-            severity: "error",
-            summary: "Erro",
-            detail: mensagemErro,
-            life: 5000,
-          });
-        }
+        console.error("Erro ao excluir o produto:", error);
       }
     };
 
     const reject = () => {
-      if (toast.current) { // Verificação se o toast está disponível
-        toast.current.show({
-          severity: "warn",
-          summary: "Cancelado",
-          detail: "Ação de exclusão cancelada",
-          life: 10000,
-        });
-      }
+      console.log("Ação de exclusão cancelada");
     };
 
     const confirmacaoDeletar = (event: { currentTarget: any }) => {
@@ -80,8 +54,6 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
 
     return (
       <div className="field is-grouped" style={{ justifyContent: "center" }}>
-        {/* O Toast deve ser renderizado no mesmo nível que os botões para que ele sempre esteja acessível */}
-        <Toast ref={toast} />
         <ConfirmPopup />
         <div className="control" style={{ marginRight: "8px" }}>
           <Button
