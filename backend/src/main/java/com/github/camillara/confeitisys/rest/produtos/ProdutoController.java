@@ -70,13 +70,13 @@ public class ProdutoController {
 		Produto produtoExistente = produtoExistenteOptional.get();
 
 		// Verificar se o produto é do tipo "MATERIA_PRIMA" e está sendo usado em outro produto
-		verificarUsoDeMateriaPrima(produtoExistente);
+		verificarAlteracaoDeCategoria(produtoExistente, produtoDTO.getCategoria());
 
 		// Atualizar os dados do produto
 		produtoExistente.setNome(produtoDTO.getNome());
 		produtoExistente.setDescricao(produtoDTO.getDescricao());
 		produtoExistente.setPreco(produtoDTO.getPreco());
-		produtoExistente.setCategoria(produtoDTO.getCategoria());
+		produtoExistente.setCategoria(produtoDTO.getCategoria());  // Categoria será validada na função
 		produtoExistente.setTipo(produtoDTO.getTipo());
 
 		// Atualizar os itensProduto
@@ -93,8 +93,6 @@ public class ProdutoController {
 
 		return ResponseEntity.ok().build();
 	}
-
-
 
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -131,10 +129,23 @@ public class ProdutoController {
 			boolean estaSendoUsado = repository.isProdutoUsadoComoItem(produto.getId());
 
 			if (estaSendoUsado) {
-				throw new OperacaoNaoPermitidaException("Não é possível alterar ou deletar um produto do tipo 'Matéria Prima' que está sendo utilizado em outros produtos.");
+				throw new OperacaoNaoPermitidaException("Não é possível deletar um produto cadastrado como 'Matéria Prima' que está sendo utilizado em outros produtos.");
 			}
 		}
 	}
+
+	private void verificarAlteracaoDeCategoria(Produto produtoExistente, Categoria novaCategoria) {
+		// Verificar se o produto é MATERIA_PRIMA e está sendo usado em outros produtos
+		if (produtoExistente.getCategoria() == Categoria.MATERIA_PRIMA) {
+			boolean estaSendoUsado = repository.isProdutoUsadoComoItem(produtoExistente.getId());
+
+			// Se o produto está sendo usado e houve tentativa de mudança de categoria, lançar exceção
+			if (estaSendoUsado && !produtoExistente.getCategoria().equals(novaCategoria)) {
+				throw new OperacaoNaoPermitidaException("Não é permitido alterar a categoria de um produto cadastrado como 'Matéria Prima' que está sendo utilizado em outros produtos.");
+			}
+		}
+	}
+
 
 	// Endpoint para listar produtos que utilizam determinado itemProduto
 	@GetMapping("/por-item/{itemProdutoId}")
