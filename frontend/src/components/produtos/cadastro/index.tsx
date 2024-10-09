@@ -48,7 +48,10 @@ export const CadastroProdutos: React.FC = () => {
   const [nome, setNome] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
   const [itensProduto, setItensProduto] = useState<ItensProduto[]>([]);
-  const [produtoSelecionado, setProdutoSelecionado] = useState<{ value: number; label: string } | null>(null);
+  const [produtoSelecionado, setProdutoSelecionado] = useState<{
+    value: number;
+    label: string;
+  } | null>(null);
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
   const [quantidade, setQuantidade] = useState<number>(1);
   const [messages, setMessages] = useState<Array<Alert>>([]);
@@ -124,7 +127,8 @@ export const CadastroProdutos: React.FC = () => {
       .then(() => {
         setErrors({});
         if (id) {
-          service.atualizar(produto)
+          service
+            .atualizar(produto)
             .then(() => {
               setMessages([
                 {
@@ -134,10 +138,15 @@ export const CadastroProdutos: React.FC = () => {
               ]);
             })
             .catch((error) => {
-              toast.current?.show({ severity: "error", summary: "Erro", detail: error.response?.data || "Erro ao atualizar o produto!" });
+              toast.current?.show({
+                severity: "error",
+                summary: "Erro",
+                detail: error.response?.data || "Erro ao atualizar o produto!",
+              });
             });
         } else {
-          service.salvar(produto)
+          service
+            .salvar(produto)
             .then((produtoResposta) => {
               setId(produtoResposta.id);
               setCadastro(produtoResposta.cadastro);
@@ -149,7 +158,11 @@ export const CadastroProdutos: React.FC = () => {
               ]);
             })
             .catch((error) => {
-              toast.current?.show({ severity: "error", summary: "Erro", detail: error.response?.data || "Erro ao salvar o produto!" });
+              toast.current?.show({
+                severity: "error",
+                summary: "Erro",
+                detail: error.response?.data || "Erro ao salvar o produto!",
+              });
             });
         }
       })
@@ -191,7 +204,10 @@ export const CadastroProdutos: React.FC = () => {
     }
   };
 
-  const calcularValorTotal = (quantidade: number, valorUnitario: number = 0) => {
+  const calcularValorTotal = (
+    quantidade: number,
+    valorUnitario: number = 0
+  ) => {
     return quantidade * (valorUnitario !== undefined ? valorUnitario : 0);
   };
 
@@ -204,33 +220,38 @@ export const CadastroProdutos: React.FC = () => {
   };
 
   const removerItemProduto = (itemProdutoId: number) => {
-    const novaLista = itensProduto.filter((item) => item.itemProdutoId !== itemProdutoId);
+    const novaLista = itensProduto.filter(
+      (item) => item.itemProdutoId !== itemProdutoId
+    );
     setItensProduto(novaLista);
   };
 
-
   return (
     <Layout titulo="CADASTRO DE PRODUTO" mensagens={messages}>
-      <Toast ref={toast} /> {/* Adicionando o componente Toast */}
+      <Toast ref={toast} />
+      {(id || cadastro) && (
+        <div className="columns" style={{ gap: "1rem" }}>
+          <div className="column is-3">
+            <Input
+              label="Código:"
+              value={id || ""}
+              id="inputId"
+              disabled={true}
+            />
+          </div>
+
+          <div className="column is-3">
+            <Input
+              label="Data do Cadastro:"
+              value={cadastro || ""}
+              id="inputDataCadastro"
+              disabled={true}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="columns" style={{ gap: "1rem" }}>
-        <div className="column is-3">
-          <Input
-            label="Código:"
-            value={id || ""}
-            id="inputId"
-            disabled={true}
-          />
-        </div>
-
-        <div className="column is-3">
-          <Input
-            label="Data do Cadastro:"
-            value={cadastro || ""}
-            id="inputDataCadastro"
-            disabled={true}
-          />
-        </div>
-
         <div className="column is-3">
           <label className="label" htmlFor="inputCategoria">
             Categoria: *
@@ -239,7 +260,9 @@ export const CadastroProdutos: React.FC = () => {
             id="inputCategoria"
             options={categorias}
             value={categorias.find((cat) => cat.value === categoria)} // Usando string
-            onChange={(selectedOption) => setCategoria(selectedOption?.value || "")} // Passando apenas string
+            onChange={(selectedOption) =>
+              setCategoria(selectedOption?.value || "")
+            }
             placeholder="Selecione a categoria"
             styles={{
               container: (provided) => ({
@@ -248,7 +271,9 @@ export const CadastroProdutos: React.FC = () => {
               }),
             }}
           />
-          {errors.categoria && <p className="help is-danger">{errors.categoria}</p>}
+          {errors.categoria && (
+            <p className="help is-danger">{errors.categoria}</p>
+          )}
         </div>
 
         <div className="column is-3">
@@ -272,8 +297,7 @@ export const CadastroProdutos: React.FC = () => {
         </div>
       </div>
 
-      {/* Resto do componente permanece o mesmo */}
-      <div className="columns is-flex" style={{ gap: "1rem" }}>
+      <div className="columns" style={{ gap: "1rem" }}>
         <div className="column is-8">
           <Input
             label="Nome: *"
@@ -297,9 +321,8 @@ export const CadastroProdutos: React.FC = () => {
           />
         </div>
       </div>
-
-      <div className="columns">
-        <div className="column is-full">
+      <div className="columns is-flex" style={{ gap: "1rem" }}>
+        <div className="column" style={{ textAlign: "left" }}>
           <label className="label" htmlFor="inputDescricao">
             Descrição
           </label>
@@ -312,10 +335,9 @@ export const CadastroProdutos: React.FC = () => {
           />
         </div>
       </div>
-
       {categoria !== "MATERIA_PRIMA" && (
         <>
-          <div className="columns is-flex" style={{ gap: "1rem", alignItems: "center" }}>
+          <div className="columns" style={{ gap: "1rem" }}>
             <div className="column is-8">
               <label className="label" htmlFor="produtoSelect">
                 Insumos / Matéria Prima
@@ -329,7 +351,9 @@ export const CadastroProdutos: React.FC = () => {
                     label: produto.nome,
                   }))}
                 value={produtoSelecionado}
-                onChange={(selectedOption) => setProdutoSelecionado(selectedOption)}
+                onChange={(selectedOption) =>
+                  setProdutoSelecionado(selectedOption)
+                }
                 placeholder="Digite o nome do produto"
                 styles={{
                   container: (provided) => ({
@@ -340,7 +364,7 @@ export const CadastroProdutos: React.FC = () => {
               />
             </div>
 
-            <div className="column is-2">
+            <div className="column is-4">
               <label className="label" htmlFor="inputQuantidade">
                 Qtd
               </label>
@@ -351,14 +375,16 @@ export const CadastroProdutos: React.FC = () => {
                 min={1}
                 placeholder="Quantidade"
                 style={{
-                  width: "100%",
+                  width: "95%",
                   height: "38px",
                   boxSizing: "border-box",
                 }}
               />
             </div>
+          </div>
 
-            <div className="column is-2" style={{ textAlign: "center" }}>
+          <div className="columns is-flex" style={{ gap: "1rem" }}>
+            <div className="column" style={{ textAlign: "right" }}>
               <label className="label" style={{ visibility: "hidden" }}>
                 Botão Adicionar
               </label>
@@ -367,12 +393,29 @@ export const CadastroProdutos: React.FC = () => {
                 className="button is-link"
                 onClick={adicionarItemProduto}
                 style={{
-                  width: "70%",
+                  width: "auto",
+                  minWidth: "150px",
+                  maxWidth: "100%",
                   height: "38px",
                   boxSizing: "border-box",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  padding: "0 10px",
+                  transition: "background-color 0.3s ease, font-size 0.3s ease",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#2196F3";
+                  e.currentTarget.style.fontSize = "1.2rem";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#3273dc";
+                  e.currentTarget.style.fontSize = "1rem";
                 }}
               >
-                Adicionar
+                + Adicionar Insumo
               </Button>
             </div>
           </div>
@@ -445,14 +488,15 @@ export const CadastroProdutos: React.FC = () => {
           </div>
         </>
       )}
-
-      {/* Parte para exibir produtos que utilizam este item como matéria prima */}
+      
       {categoria === "MATERIA_PRIMA" && (
         <div className="field">
           <h3>Produtos que utilizam este item</h3>
           <DataTable
-            value={listaProdutos.filter(produto => 
-              produto.itensProduto.some(item => item.itemProdutoId === Number(id))
+            value={listaProdutos.filter((produto) =>
+              produto.itensProduto.some(
+                (item) => item.itemProdutoId === Number(id)
+              )
             )}
             emptyMessage="Nenhum produto utiliza este item."
           >
@@ -474,14 +518,15 @@ export const CadastroProdutos: React.FC = () => {
                   type="button"
                   label="Ver Produto"
                   className="p-button-info"
-                  onClick={() => router.push(`/cadastros/produtos?id=${rowData.id}`)}
+                  onClick={() =>
+                    router.push(`/cadastros/produtos?id=${rowData.id}`)
+                  }
                 />
               )}
             />
           </DataTable>
         </div>
       )}
-
       <div className="field is-grouped">
         <div className="control">
           <button className="button is-link" onClick={submit}>
@@ -497,4 +542,3 @@ export const CadastroProdutos: React.FC = () => {
     </Layout>
   );
 };
-
