@@ -9,27 +9,11 @@ import { useFormik } from "formik";
 import { DataTablePageParams } from "primereact/datatable";
 import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
-import Select from "react-select"; // ComboBox para filtrar por categoria
 import { Toast } from "primereact/toast"; // Importa o Toast para exibir notificações
 
 interface ConsultaProdutosForm {
   nome?: string;
-  categoria?: string; // Filtro para categoria
 }
-
-const categorias = [
-  { value: "MATERIA_PRIMA", label: "Matéria Prima" },
-  { value: "BOLO", label: "Bolo" },
-  { value: "DOCE", label: "Doce" },
-  { value: "QUITANDA", label: "Quitanda" },
-  { value: "TORTA", label: "Torta" },
-  { value: "SOBREMESA", label: "Sobremesa" },
-  { value: "BEBIDA", label: "Bebida" },
-  { value: "CUPCAKE_MUFFIN", label: "Cupcake/Muffin" },
-  { value: "SALGADO", label: "Salgado" },
-  { value: "RECHEIO_COBERTURA", label: "Recheio/Cobertura" },
-  { value: "UTENSILIO_EMBALAGEM", label: "Utensílio/Embalagem" },
-];
 
 export const ListagemProdutos: React.FC = () => {
   const service = useProdutoService();
@@ -46,13 +30,13 @@ export const ListagemProdutos: React.FC = () => {
 
   // Carregamento inicial de todos os produtos
   useEffect(() => {
-    carregarProdutos("", 0, 5, "");
+    carregarProdutos("", 0, 5);
   }, []);
 
-  const carregarProdutos = (nome: string, page: number, rows: number, categoria: string) => {
+  const carregarProdutos = (nome: string, page: number, rows: number) => {
     setLoading(true);
     service
-      .find(nome, page, rows, categoria) // Chamada para a API com nome, página, tamanho e categoria
+      .find(nome, page, rows) // Chamada para a API com nome, página, e tamanho
       .then((result) => {
         setProdutos(result); // Atualiza os produtos no estado
         setProdutosFiltrados(result.content); // Inicializa a lista filtrada com todos os produtos
@@ -73,38 +57,22 @@ export const ListagemProdutos: React.FC = () => {
 
   // Função chamada quando o formulário de busca é submetido
   const handleSubmit = (filtro: ConsultaProdutosForm) => {
-    carregarProdutos(filtro.nome || "", 0, produtos.size, filtro.categoria || "");
+    carregarProdutos(filtro.nome || "", 0, produtos.size);
   };
 
-  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue } = useFormik<ConsultaProdutosForm>({
+  const { handleSubmit: formikSubmit, values: filtro, handleChange } = useFormik<ConsultaProdutosForm>({
     onSubmit: handleSubmit,
-    initialValues: { nome: "", categoria: "" },
+    initialValues: { nome: "" },
   });
 
-  // Função para carregar produtos com paginação e aplicar filtro de categoria
+  // Função para carregar produtos com paginação e aplicar filtro de nome
   const handlePage = (event: DataTablePageParams) => {
-    carregarProdutos(filtro.nome || "", event.page, event.rows, filtro.categoria || "");
+    carregarProdutos(filtro.nome || "", event.page, event.rows);
   };
 
   // Função para limpar os filtros e recarregar a página inicial
   const limparFiltro = () => {
     window.location.reload(); // Faz um refresh na página, voltando ao estado inicial
-  };
-
-  // Função para filtrar os produtos localmente pela categoria no frontend
-  const handleCategoriaChange = (selectedOption: any) => {
-    const categoriaSelecionada = selectedOption?.value || "";
-    setFieldValue("categoria", categoriaSelecionada);
-
-    // Filtrar localmente com base na categoria selecionada
-    if (categoriaSelecionada) {
-      const produtosFiltradosPorCategoria = produtos.content.filter(
-        (produto) => produto.categoria === categoriaSelecionada
-      );
-      setProdutosFiltrados(produtosFiltradosPorCategoria);
-    } else {
-      setProdutosFiltrados(produtos.content); // Se não houver categoria, mostra todos os produtos
-    }
   };
 
   const editar = (produto: Produto) => {
@@ -115,7 +83,7 @@ export const ListagemProdutos: React.FC = () => {
   const deletar = async (produto: Produto) => {
     try {
       await service.deletar(produto.id);
-      carregarProdutos(filtro.nome || "", produtos.number, produtos.size, filtro.categoria || "");
+      carregarProdutos(filtro.nome || "", produtos.number, produtos.size);
       if (toast.current) {
         toast.current.show({
           severity: "success",
@@ -125,7 +93,6 @@ export const ListagemProdutos: React.FC = () => {
         });
       }
     } catch (error: any) {
-      // Corrigido para não exibir a mensagem de sucesso quando há um erro
       if (toast.current) {
         toast.current.show({
           severity: "error",
@@ -152,19 +119,6 @@ export const ListagemProdutos: React.FC = () => {
             name="nome"
             value={filtro.nome}
           />
-
-          <div className="column is-one-quarter">
-            <label className="label">Categoria</label>
-            <Select
-              id="categoria"
-              options={categorias}
-              value={categorias.find((cat) => cat.value === filtro.categoria)}
-              onChange={handleCategoriaChange} // Filtro local por categoria
-              placeholder="Selecione a categoria"
-              isClearable
-              styles={{ container: (provided) => ({ ...provided, width: "100%" }) }}
-            />
-          </div>
         </div>
 
         <div className="field is-grouped">
@@ -195,7 +149,7 @@ export const ListagemProdutos: React.FC = () => {
       <div className="columns">
         <div className="is-full" style={{ width: "100%" }}>
           <TabelaProdutos
-            produtos={produtosFiltrados} // Agora exibe os produtos filtrados localmente
+            produtos={produtosFiltrados} // Exibe os produtos filtrados localmente
             onEdit={editar}
             onDelete={deletar}
             totalRecords={produtos.totalElements} // Total de registros agora é o total real
