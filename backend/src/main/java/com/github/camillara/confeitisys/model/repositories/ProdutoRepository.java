@@ -1,6 +1,7 @@
 package com.github.camillara.confeitisys.model.repositories;
 
 import com.github.camillara.confeitisys.model.Produto;
+import com.github.camillara.confeitisys.model.enums.Categoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
     @Query("SELECT p FROM Produto p WHERE upper(p.nome) like upper(:nome) " +
             "AND (:categoria IS NULL OR p.categoria = :categoria)")
-    Page<Produto> buscarPorNomeECategoria(@Param("nome") String nome, @Param("categoria") String categoria, Pageable pageable);
+    Page<Produto> buscarPorNomeECategoria(@Param("nome") String nome, @Param("categoria") Categoria categoria, Pageable pageable);
+
 
     @Query("SELECT COUNT(ip) > 0 FROM ItemProduto ip WHERE ip.itemProduto.id = :produtoId")
     boolean isProdutoUsadoComoItem(@Param("produtoId") Long produtoId);

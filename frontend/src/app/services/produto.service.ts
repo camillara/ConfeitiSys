@@ -43,11 +43,18 @@ export const useProdutoService = () => {
   };
 
   // Método para consultar produtos por nome, com paginação
-  const find = async (nome: string = "", page: number = 0, size: number = 10): Promise<Page<Produto>> => {
-    const url = `${resourceURL}/filtrar?nome=${nome}&page=${page}&size=${size}`;
+  const find = async (nome: string = "", categoria: string = "", page: number = 0, size: number = 10): Promise<Page<Produto>> => {
+    let url = `${resourceURL}/filtrar?nome=${nome}&page=${page}&size=${size}`;
+
+    // Adiciona o filtro de categoria na URL caso esteja presente
+    if (categoria) {
+        url += `&categoria=${categoria}`;
+    }
+
     const response: AxiosResponse<Page<Produto>> = await httpClient.get(url);
     return response.data;
-  };
+};
+
 
   return {
     salvar,

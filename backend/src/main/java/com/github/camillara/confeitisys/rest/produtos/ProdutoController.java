@@ -156,13 +156,24 @@ public class ProdutoController {
 	@GetMapping("/filtrar")
 	public Page<ProdutoFormRequestDTO> getLista(
 			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
-			@RequestParam(value = "categoria", required = false) String categoria, // Adicionando o parâmetro de categoria
+			@RequestParam(value = "categoria", required = false) String categoria,
 			Pageable pageable) {
 
-		// Chama o repositório para buscar com filtro de nome e categoria
-		return repository.buscarPorNomeECategoria("%" + nome + "%", categoria, pageable)
+		Categoria categoriaEnum = null;
+
+		if (categoria != null && !categoria.isEmpty()) {
+			try {
+				categoriaEnum = Categoria.valueOf(categoria.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				// Categoria inválida, log ou lance exceção se necessário
+			}
+		}
+
+		return repository.buscarPorNomeECategoria("%" + nome + "%", categoriaEnum, pageable)
 				.map(ProdutoFormRequestDTO::fromModel);
 	}
+
+
 
 
 
