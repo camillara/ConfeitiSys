@@ -26,4 +26,10 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     @Query("SELECT p FROM Produto p JOIN p.itensProduto ip WHERE ip.itemProduto.id = :itemProdutoId")
     List<Produto> findProdutosByItemProdutoId(@Param("itemProdutoId") Long itemProdutoId);
 
+    @Query("SELECT CASE WHEN COUNT(iv) > 0 THEN true ELSE false END FROM ItemVenda iv WHERE iv.produto.id = :produtoId")
+    boolean existsProdutoVinculadoEmItemVenda(@Param("produtoId") Long produtoId);
+
+    @Query("SELECT CASE WHEN COUNT(idv) > 0 THEN true ELSE false END FROM ItemDetalhadoVenda idv WHERE idv.produto.id = :produtoId")
+    boolean existsProdutoVinculadoEmItemDetalhadoVenda(@Param("produtoId") Long produtoId);
+
 }

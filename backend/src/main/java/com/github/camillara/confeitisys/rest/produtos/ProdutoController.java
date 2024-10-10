@@ -104,12 +104,13 @@ public class ProdutoController {
 
 		Produto produto = produtoExistente.get();
 
-		// Verificar se o produto é do tipo "MATERIA_PRIMA" e está sendo usado em outro produto
-		verificarUsoDeMateriaPrima(produto);
+		// Verificar se o produto está vinculado a uma venda
+		verificarProdutoVinculadoAVenda(produto);
 
 		repository.delete(produto);
 		return ResponseEntity.noContent().build();
 	}
+
 
 	private void salvarItensProduto(ProdutoFormRequestDTO produtoDTO, Produto produtoSalvo) {
 		if (produtoDTO.getItensProduto() != null) {
@@ -184,6 +185,15 @@ public class ProdutoController {
 				.map(ProdutoFormRequestDTO::fromModel);
 	}
 
+	private void verificarProdutoVinculadoAVenda(Produto produto) {
+		// Verificar se o produto está vinculado a alguma venda
+		boolean produtoVinculadoEmVenda = repository.existsProdutoVinculadoEmItemVenda(produto.getId()) ||
+				repository.existsProdutoVinculadoEmItemDetalhadoVenda(produto.getId());
+
+		if (produtoVinculadoEmVenda) {
+			throw new OperacaoNaoPermitidaException("Não é possível excluir o produto pois ele está vinculado a uma venda.");
+		}
+	}
 
 
 
