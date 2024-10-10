@@ -144,19 +144,51 @@ export const ListagemClientes: React.FC = () => {
           />
         </div>
 
-        <div className="field is-grouped">
-          <div className="control is-link">
-            <button type="submit" className="button is-link">
-              Consultar
-            </button>
-          </div>
-          <div className="control is-link">
-            <button
-              type="button"
+        <div
+          className="field is-grouped"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px", // Espaçamento entre os botões
+          }}
+        >
+          <div className="control">
+            <Button
+              label="Novo"
+              icon="pi pi-plus"
+              className="p-button-success"
+              style={{
+                fontSize: "14px", 
+                fontWeight: "bold", 
+                width: "150px", 
+                height: "38px", 
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
+                color: "#FFFFFF", 
+              }}
               onClick={() => Router.push("/cadastros/clientes")}
-              className="button is-success"
+            />
+          </div>
+          <div className="control">
+            <button
+              type="submit"
+              className="button is-link"
+              style={{
+                fontSize: "14px", 
+                fontWeight: "bold", 
+                width: "150px", 
+                height: "38px", 
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
+                color: "#FFFFFF", 
+              }}
             >
-              Novo
+              <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
+              Consultar
             </button>
           </div>
         </div>
@@ -164,8 +196,8 @@ export const ListagemClientes: React.FC = () => {
 
       <br />
 
-      <div className="columns">
-        <div className="is-full">
+      <div className="columns is-full" style={{ overflowX: "auto" }}>
+        <div className="is-full" style={{ width: "100%" }}>
           <DataTable
             value={clientes.content}
             totalRecords={clientes.totalElements}
@@ -176,11 +208,16 @@ export const ListagemClientes: React.FC = () => {
             onPage={handlePage}
             loading={loading}
             emptyMessage="Nenhum registro."
+            responsiveLayout="scroll" // Garante a responsividade
           >
-            <Column field="id" header="Código" />
-            <Column field="nome" header="Nome" />
-            <Column field="email" header="Email" />
-            <Column body={actionTemplate} header="" />
+            <Column field="id" header="Código" style={{ width: '10%' }} />
+            <Column field="nome" header="Nome" style={{ width: '30%' }} />
+            <Column field="email" header="Email" style={{ width: '40%' }} />
+            <Column
+              body={actionTemplate}
+              header="Ações"
+              style={{ width: '20%', textAlign: 'center' }}
+            />
           </DataTable>
         </div>
       </div>
