@@ -1,12 +1,11 @@
 package com.github.camillara.confeitisys.model;
 
+import java.math.BigDecimal;
 import javax.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
-@Table(name = "tb_item_venda")
+@Table(name = "tb_item_detalhado_venda")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,23 +13,23 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode
 @ToString
-public class ItemVenda {
+public class ItemDetalhadoVenda {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "id_venda")
-	private Venda venda;
+	@JoinColumn(name = "id_item_venda")
+	private ItemVenda itemVenda;
 
 	@ManyToOne
 	@JoinColumn(name = "id_produto")
 	private Produto produto;
 
-	@Column
-	private Integer quantidade;
+	@Column(name = "quantidade_usada")
+	private Integer quantidadeUsada;
 
-	@OneToMany(mappedBy = "itemVenda", cascade = CascadeType.ALL)
-	private List<ItemDetalhadoVenda> itensDetalhados;
+	@Column(name = "custo_insumo")
+	private BigDecimal custoInsumoNoMomento;
 }
