@@ -1,6 +1,7 @@
 package com.github.camillara.confeitisys.rest.vendas;
 
 import com.github.camillara.confeitisys.model.ItemDetalhadoVenda;
+import com.github.camillara.confeitisys.model.ItemVenda;
 import com.github.camillara.confeitisys.model.Produto;
 import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
@@ -35,53 +36,50 @@ public class VendasController {
 	@PostMapping
 	@Transactional
 	public void realizarVenda(@RequestBody Venda venda) {
-		// Persistir a venda
 		venda.prePersist();
 		repository.save(venda);
 
-		// Processar cada item da venda
 		venda.getItens().forEach(itemVenda -> {
-			itemVenda.setVenda(venda);
-
-			// Verifique diretamente se o produto está associado
-			Produto produto = itemVenda.getProduto();
-			if (produto == null || produto.getId() == null) {
-				throw new IllegalArgumentException("Produto não pode ser nulo para o item de venda.");
-			}
-
-			// Carregar explicitamente o produto para garantir que seus itens estejam disponíveis
-			produto = produtoRepository.findById(produto.getId())
-					.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para o item de venda."));
-
-			// Definir o valor unitário do produto no momento da venda
-			itemVenda.setValorUnitario(produto.getPreco());
-
-			// Crie os itens detalhados da venda com base nos itensProduto
-			List<ItemDetalhadoVenda> itensDetalhados = new ArrayList<>();
-			if (produto.getItensProduto() != null) {
-				produto.getItensProduto().forEach(insumo -> {
-					if (insumo.getItemProduto() != null) {
-						ItemDetalhadoVenda itemDetalhadoVenda = ItemDetalhadoVenda.builder()
-								.itemVenda(itemVenda)
-								.produto(insumo.getItemProduto()) // Produto insumo
-								.quantidadeUsada(insumo.getQuantidade())
-								.custoInsumoNoMomento(insumo.getItemProduto().getPreco()) // Custo no momento da venda
-								.build();
-						itensDetalhados.add(itemDetalhadoVenda);
-					} else {
-						throw new IllegalStateException("Insumo não possui produto associado.");
-					}
-				});
-			}
-
-			// Associe os itens detalhados ao item de venda
-			itemVenda.setItensDetalhados(itensDetalhados);
+			processarItemVenda(venda, itemVenda);
 		});
 
-		// Persistir os itens da venda
 		itemVendaReposistory.saveAll(venda.getItens());
 	}
 
+	private void processarItemVenda(Venda venda, ItemVenda itemVenda) {
+		itemVenda.setVenda(venda);
+		Produto produto = validarEObterProduto(itemVenda);
+		itemVenda.setValorUnitario(produto.getPreco());
+		List<ItemDetalhadoVenda> itensDetalhados = criarItensDetalhados(itemVenda, produto);
+		itemVenda.setItensDetalhados(itensDetalhados);
+	}
 
+	private Produto validarEObterProduto(ItemVenda itemVenda) {
+		Produto produto = itemVenda.getProduto();
+		if (produto == null || produto.getId() == null) {
+			throw new IllegalArgumentException("Produto não pode ser nulo para o item de venda.");
+		}
+		return produtoRepository.findById(produto.getId())
+				.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para o item de venda."));
+	}
 
+	private List<ItemDetalhadoVenda> criarItensDetalhados(ItemVenda itemVenda, Produto produto) {
+		List<ItemDetalhadoVenda> itensDetalhados = new ArrayList<>();
+		if (produto.getItensProduto() != null) {
+			produto.getItensProduto().forEach(insumo -> {
+				if (insumo.getItemProduto() != null) {
+					ItemDetalhadoVenda itemDetalhadoVenda = ItemDetalhadoVenda.builder()
+							.itemVenda(itemVenda)
+							.produto(insumo.getItemProduto())
+							.quantidadeUsada(insumo.getQuantidade())
+							.custoInsumoNoMomento(insumo.getItemProduto().getPreco())
+							.build();
+					itensDetalhados.add(itemDetalhadoVenda);
+				} else {
+					throw new IllegalStateException("Insumo não possui produto associado.");
+				}
+			});
+		}
+		return itensDetalhados;
+	}
 }
