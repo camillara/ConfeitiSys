@@ -31,10 +31,4 @@ public class ItemProduto {
 
 	private Integer quantidade;
 
-	public BigDecimal calcularValorTotal() {
-		if (this.produto == null) {
-			throw new IllegalStateException("Produto não pode ser nulo ao calcular o valor total.");
-		}
-		return this.produto.getPreco().multiply(new BigDecimal(this.quantidade));
-	}
 }

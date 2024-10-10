@@ -65,7 +65,8 @@ CREATE TABLE item_venda (
                             id bigserial NOT NULL PRIMARY KEY,
                             id_venda bigint REFERENCES venda (id) NOT NULL,
                             id_produto bigint REFERENCES produto (id) NOT NULL,
-                            quantidade integer NOT NULL
+                            quantidade integer NOT NULL,
+                            valor_unitario numeric(16, 2) NOT NULL -- Nova coluna para armazenar o valor unitário do produto no momento da venda
 );
 
 -- Tabela de insumos para os produtos (usados na produção dos produtos)

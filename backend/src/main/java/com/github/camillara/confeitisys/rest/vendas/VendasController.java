@@ -25,7 +25,7 @@ public class VendasController {
 
 	@Autowired
 	private VendaRepository repository;
-	
+
 	@Autowired
 	private ItemVendaRepository itemVendaReposistory;
 
@@ -53,16 +53,19 @@ public class VendasController {
 			produto = produtoRepository.findById(produto.getId())
 					.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para o item de venda."));
 
+			// Definir o valor unitário do produto no momento da venda
+			itemVenda.setValorUnitario(produto.getPreco());
+
 			// Crie os itens detalhados da venda com base nos itensProduto
 			List<ItemDetalhadoVenda> itensDetalhados = new ArrayList<>();
 			if (produto.getItensProduto() != null) {
 				produto.getItensProduto().forEach(insumo -> {
-					if (insumo.getProduto() != null) {
+					if (insumo.getItemProduto() != null) {
 						ItemDetalhadoVenda itemDetalhadoVenda = ItemDetalhadoVenda.builder()
 								.itemVenda(itemVenda)
-								.produto(insumo.getProduto()) // Produto insumo
+								.produto(insumo.getItemProduto()) // Produto insumo
 								.quantidadeUsada(insumo.getQuantidade())
-								.custoInsumoNoMomento(insumo.calcularValorTotal()) // Custo no momento da venda
+								.custoInsumoNoMomento(insumo.getItemProduto().getPreco()) // Custo no momento da venda
 								.build();
 						itensDetalhados.add(itemDetalhadoVenda);
 					} else {
@@ -78,6 +81,7 @@ public class VendasController {
 		// Persistir os itens da venda
 		itemVendaReposistory.saveAll(venda.getItens());
 	}
+
 
 
 }
