@@ -2,6 +2,7 @@ package com.github.camillara.confeitisys.rest.clientes;
 
 import java.util.Optional;
 
+import com.github.camillara.confeitisys.exception.OperacaoNaoPermitidaException;
 import com.github.camillara.confeitisys.model.Cliente;
 import com.github.camillara.confeitisys.model.repositories.ClienteRepository;
 import com.github.camillara.confeitisys.rest.clientes.dto.ClienteFormRequestDTO;
@@ -58,10 +59,15 @@ public class ClienteController {
 	@DeleteMapping("{id}")
 	public ResponseEntity<Object> delete(@PathVariable Long id) {
 		return repository.findById(id).map(cliente -> {
+			// Verificar se o cliente está vinculado a uma venda
+			verificarClienteVinculadoAVenda(cliente);
+
+			// Se não estiver vinculado a nenhuma venda, permitir exclusão
 			repository.delete(cliente);
 			return ResponseEntity.noContent().build();
 		}).orElseGet(() -> ResponseEntity.notFound().build());
 	}
+
 
 	@GetMapping
 	public Page<ClienteFormRequestDTO> getLista(
@@ -70,4 +76,14 @@ public class ClienteController {
 		return repository.buscarPorNome("%" + nome + "%", pageable)
 				.map(ClienteFormRequestDTO::fromModel);
 	}
+
+	private void verificarClienteVinculadoAVenda(Cliente cliente) {
+		// Consultar se o cliente está vinculado a alguma venda
+		boolean clienteVinculado = repository.existsClienteVinculadoEmVenda(cliente.getId());
+
+		if (clienteVinculado) {
+			throw new OperacaoNaoPermitidaException("Não é possível excluir o cliente, pois ele está vinculado a uma venda.");
+		}
+	}
+
 }
