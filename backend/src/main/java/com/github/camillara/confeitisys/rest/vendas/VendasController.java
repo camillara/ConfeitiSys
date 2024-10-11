@@ -6,9 +6,7 @@ import com.github.camillara.confeitisys.model.Produto;
 import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
 import com.github.camillara.confeitisys.model.repositories.VendaRepository;
-import com.github.camillara.confeitisys.rest.vendas.dto.ItemDetalhadoVendaFormRequestDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.ItemVendaFormRequestDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +26,12 @@ public class VendasController {
 	private VendaRepository repository;
 
 	@Autowired
-	private ItemVendaRepository itemVendaReposistory;
+	private ItemVendaRepository itemVendaRepository;
 
 	@Autowired
 	private ProdutoRepository produtoRepository;
 
+	// Método para realizar uma nova venda
 	@PostMapping
 	@Transactional
 	public void realizarVenda(@RequestBody Venda venda) {
@@ -43,9 +42,10 @@ public class VendasController {
 			processarItemVenda(venda, itemVenda);
 		});
 
-		itemVendaReposistory.saveAll(venda.getItens());
+		itemVendaRepository.saveAll(venda.getItens());
 	}
 
+	// Método auxiliar para processar itens de venda
 	private void processarItemVenda(Venda venda, ItemVenda itemVenda) {
 		itemVenda.setVenda(venda);
 		Produto produto = validarEObterProduto(itemVenda);
@@ -54,6 +54,7 @@ public class VendasController {
 		itemVenda.setItensDetalhados(itensDetalhados);
 	}
 
+	// Método auxiliar para validar e obter um produto
 	private Produto validarEObterProduto(ItemVenda itemVenda) {
 		Produto produto = itemVenda.getProduto();
 		if (produto == null || produto.getId() == null) {
@@ -63,6 +64,7 @@ public class VendasController {
 				.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para o item de venda."));
 	}
 
+	// Método auxiliar para criar itens detalhados de venda
 	private List<ItemDetalhadoVenda> criarItensDetalhados(ItemVenda itemVenda, Produto produto) {
 		List<ItemDetalhadoVenda> itensDetalhados = new ArrayList<>();
 		if (produto.getItensProduto() != null) {
@@ -83,10 +85,9 @@ public class VendasController {
 		return itensDetalhados;
 	}
 
-	// Novo método para buscar uma venda pelo ID
-	// Novo método para buscar uma venda pelo ID
+	// Método para buscar uma venda pelo ID
 	@GetMapping("/{id}")
-	public VendaFormRequestDTO buscarVendaPorId(@PathVariable Long id) {
+	public VendaDTO buscarVendaPorId(@PathVariable Long id) {
 		Venda venda = repository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
 
@@ -94,11 +95,12 @@ public class VendasController {
 	}
 
 	// Método para converter a entidade Venda para DTO
-	private VendaFormRequestDTO converterVendaParaDTO(Venda venda) {
-		List<ItemVendaFormRequestDTO> itensDTO = venda.getItens().stream()
+	// Método para converter a entidade Venda para DTO
+	private VendaDTO converterVendaParaDTO(Venda venda) {
+		List<ItemVendaDTO> itensDTO = venda.getItens().stream()
 				.map(item -> {
-					List<ItemDetalhadoVendaFormRequestDTO> itensDetalhadosDTO = item.getItensDetalhados().stream()
-							.map(detalhe -> ItemDetalhadoVendaFormRequestDTO.builder()
+					List<ItemDetalhadoVendaDTO> itensDetalhadosDTO = item.getItensDetalhados().stream()
+							.map(detalhe -> ItemDetalhadoVendaDTO.builder()
 									.id(detalhe.getId())
 									.idProduto(detalhe.getProduto().getId())
 									.nomeProduto(detalhe.getProduto().getNome()) // Nome do produto
@@ -107,7 +109,7 @@ public class VendasController {
 									.build())
 							.collect(Collectors.toList());
 
-					return ItemVendaFormRequestDTO.builder()
+					return ItemVendaDTO.builder()
 							.id(item.getId())
 							.idProduto(item.getProduto().getId())
 							.nomeProduto(item.getProduto().getNome()) // Nome do produto
@@ -118,7 +120,7 @@ public class VendasController {
 				})
 				.collect(Collectors.toList());
 
-		return VendaFormRequestDTO.builder()
+		return VendaDTO.builder()
 				.id(venda.getId())
 				.cliente(venda.getCliente()) // Incluindo o objeto Cliente completo
 				.formaPagamento(venda.getFormaPagamento())
