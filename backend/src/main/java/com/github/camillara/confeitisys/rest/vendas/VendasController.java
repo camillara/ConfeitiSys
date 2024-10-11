@@ -84,6 +84,7 @@ public class VendasController {
 	}
 
 	// Novo método para buscar uma venda pelo ID
+	// Novo método para buscar uma venda pelo ID
 	@GetMapping("/{id}")
 	public VendaFormRequestDTO buscarVendaPorId(@PathVariable Long id) {
 		Venda venda = repository.findById(id)
@@ -100,22 +101,26 @@ public class VendasController {
 							.map(detalhe -> ItemDetalhadoVendaFormRequestDTO.builder()
 									.id(detalhe.getId())
 									.idProduto(detalhe.getProduto().getId())
+									.nomeProduto(detalhe.getProduto().getNome()) // Nome do produto
 									.quantidade(detalhe.getQuantidadeUsada())
+									.custoInsumoNoMomento(detalhe.getCustoInsumoNoMomento()) // Custo do insumo
 									.build())
 							.collect(Collectors.toList());
 
 					return ItemVendaFormRequestDTO.builder()
 							.id(item.getId())
 							.idProduto(item.getProduto().getId())
+							.nomeProduto(item.getProduto().getNome()) // Nome do produto
 							.quantidade(item.getQuantidade())
-							.itens(itensDetalhadosDTO)
+							.valorUnitario(item.getValorUnitario()) // Preço unitário
+							.itens(itensDetalhadosDTO) // Itens detalhados
 							.build();
 				})
 				.collect(Collectors.toList());
 
 		return VendaFormRequestDTO.builder()
 				.id(venda.getId())
-				.idCliente(venda.getCliente().getId())
+				.cliente(venda.getCliente()) // Incluindo o objeto Cliente completo
 				.formaPagamento(venda.getFormaPagamento())
 				.statusPagamento(venda.getStatusPagamento())
 				.statusPedido(venda.getStatusPedido())
@@ -126,4 +131,5 @@ public class VendasController {
 				.observacao(venda.getObservacao())
 				.build();
 	}
+
 }

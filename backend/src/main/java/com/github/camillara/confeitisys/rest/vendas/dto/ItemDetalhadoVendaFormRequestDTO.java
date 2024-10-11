@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,5 +14,7 @@ import lombok.NoArgsConstructor;
 public class ItemDetalhadoVendaFormRequestDTO {
 	private Long id;
 	private Long idProduto;
+	private String nomeProduto;
 	private Integer quantidade;
+	private BigDecimal custoInsumoNoMomento;
 }

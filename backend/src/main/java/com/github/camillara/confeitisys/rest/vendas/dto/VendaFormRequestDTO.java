@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.github.camillara.confeitisys.model.Cliente;
 import com.github.camillara.confeitisys.model.enums.FormaPagamento;
 import com.github.camillara.confeitisys.model.enums.StatusPagamento;
 import com.github.camillara.confeitisys.model.enums.StatusPedido;
@@ -16,7 +17,7 @@ import lombok.*;
 @Builder
 public class VendaFormRequestDTO {
 	private Long id;
-	private Long idCliente;
+	private Cliente cliente;
 	private FormaPagamento formaPagamento;
 	private StatusPagamento statusPagamento;
 	private StatusPedido statusPedido;
