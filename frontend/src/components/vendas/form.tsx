@@ -38,7 +38,7 @@ const formScheme: Venda = {
   statusPagamento: "",
   statusPedido: "",
   cadastro: "",
-  dataEntrega: "", 
+  dataEntrega: "",
   observacao: "",
 };
 
@@ -75,12 +75,13 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const formik = useFormik<Venda>({
     onSubmit: (values) => {
-      //console.log("Form values:", values); // Adiciona o console.log aqui
       const venda: Venda = {
         ...values,
-        dataEntrega: values.dataEntrega ? new Date(values.dataEntrega).toISOString().split("T")[0] : "",
+        dataEntrega: values.dataEntrega
+          ? new Date(values.dataEntrega).toISOString().split("T")[0]
+          : "",
       };
-      //console.log("Venda enviada:", venda);
+
       onSubmit(venda);
     },
     initialValues: formScheme,
@@ -215,72 +216,87 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           <small className="p-error p-d-block">{formik.errors.cliente}</small>
         </div>
 
-        <div className="p-grid">
-          <div className="p-col-2">
-            <span className="p-float-label">
-              <InputText
-                id="codigoProduto"
-                onBlur={handleCodigoProdutoSelect}
-                value={codigoProduto}
-                onChange={(e) => setCodigoProduto(e.target.value)}
-              />
-              <label htmlFor="codigoProduto">Código</label>
-            </span>
-          </div>
+        <div className="p-grid p-align-center" style={{ gap: "1rem" }}>
+  <div className="p-col-12 p-md-2">
+    <span className="p-float-label">
+      <InputText
+        id="codigoProduto"
+        onBlur={handleCodigoProdutoSelect}
+        value={codigoProduto}
+        onChange={(e) => setCodigoProduto(e.target.value)}
+        style={{ height: "50px" }} // Altura igual para todos os campos
+      />
+      <label htmlFor="codigoProduto">Código</label>
+    </span>
+  </div>
 
-          <div className="p-col-6">
-            <AutoComplete
-              id="produto"
-              name="produto"
-              value={produto}
-              field="nome"
-              suggestions={listaFiltradaProdutos}
-              completeMethod={handleProdutoAutoComplete}
-              onChange={(e) => setProduto(e.value)}
-            />
-          </div>
+  <div className="p-col-12 p-md-5">
+    <AutoComplete
+      id="produto"
+      name="produto"
+      value={produto}
+      field="nome"
+      suggestions={listaFiltradaProdutos}
+      completeMethod={handleProdutoAutoComplete}
+      onChange={(e) => setProduto(e.value)}
+      style={{ height: "50px", width: "100%" }} // Altura e largura do AutoComplete
+    />
+  </div>
 
-          <div className="p-col-2">
-            <span className="p-float-label">
-              <InputText
-                id="qtdProduto"
-                value={quantidadeProduto}
-                onChange={(e) => setQuantidadeProduto(Number(e.target.value))}
-              />
-              <label htmlFor="qtdProduto">QTD</label>
-            </span>
-          </div>
+  <div className="p-col-12 p-md-2">
+    <span className="p-float-label">
+      <InputText
+        id="qtdProduto"
+        value={quantidadeProduto}
+        onChange={(e) => setQuantidadeProduto(Number(e.target.value))}
+        style={{ height: "50px" }} // Altura igual
+      />
+      <label htmlFor="qtdProduto">QTD</label>
+    </span>
+  </div>
 
-          <div className="p-col-2">
-            <Button
-              type="button"
-              label="Adicionar"
-              onClick={handleAddProduto}
-              disabled={disableAddProdutoButton()}
-            />
-          </div>
+  <div className="p-col-12 p-md-2" style={{ textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+    <Button
+      type="button"
+      label="+ Adicionar"
+      onClick={handleAddProduto}
+      disabled={disableAddProdutoButton()}
+      className="button is-link"
+      style={{
+        width: "auto",
+        minWidth: "150px",
+        maxWidth: "100%",
+        height: "50px", // Altura igual aos outros campos
+        boxSizing: "border-box",
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+        padding: "0 10px",
+        transition: "background-color 0.3s ease, font-size 0.3s ease",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = "#2196F3";
+        e.currentTarget.style.fontSize = "1.2rem";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = "#3273dc";
+        e.currentTarget.style.fontSize = "1rem";
+      }}
+    />
+  </div>
+</div>
+
+
+
+        <div className="p-col-12">
           <div className="p-col-12">
             <DataTable
               value={formik.values.itens}
               emptyMessage="Nenhum produto adicionado."
+              responsiveLayout="scroll"
             >
-              <Column
-                body={(itemVenda: ItemVenda) => {
-                  const handleRemoverItem = () => {
-                    const novaLista = formik.values.itens?.filter(
-                      (item) => item.produto.id !== itemVenda.produto.id
-                    );
-                    formik.setFieldValue("itens", novaLista);
-                  };
-                  return (
-                    <Button
-                      type="button"
-                      label="Excluir"
-                      onClick={handleRemoverItem}
-                    />
-                  );
-                }}
-              />
               <Column field="produto.id" header="Código" />
               <Column field="produto.categoria" header="Categoria" />
               <Column field="produto.nome" header="Produto" />
@@ -295,63 +311,80 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                   return <div>{totalFormatado}</div>;
                 }}
               />
+              <Column
+                header="Ações"
+                body={(itemVenda: ItemVenda) => {
+                  const handleRemoverItem = () => {
+                    const novaLista = formik.values.itens?.filter(
+                      (item) => item.produto.id !== itemVenda.produto.id
+                    );
+                    formik.setFieldValue("itens", novaLista);
+                  };
+                  return (
+                    <Button
+                      type="button"
+                      icon="pi pi-trash"
+                      className="p-button-danger"
+                      onClick={handleRemoverItem}
+                    />
+                  );
+                }}
+              />
             </DataTable>
+          </div>
+
+          <small className="p-error p-d-block">
+            {formik.touched && formik.errors.itens}
+          </small>
+        </div>
+        <div className="p-col-5">
+          <div className="p-field">
+            <label htmlFor="formaPagamento">Forma de Pagamento: *</label>
+            <Dropdown
+              id="formaPagamento"
+              options={formasPagamento}
+              value={formik.values.formaPagamento}
+              onChange={(e) => formik.setFieldValue("formaPagamento", e.value)}
+              placeholder="Selecione..."
+            />
             <small className="p-error p-d-block">
-              {formik.touched && formik.errors.itens}
+              {formik.touched && formik.errors.formaPagamento}
             </small>
           </div>
-          <div className="p-col-5">
-            <div className="p-field">
-              <label htmlFor="formaPagamento">Forma de Pagamento: *</label>
-              <Dropdown
-                id="formaPagamento"
-                options={formasPagamento}
-                value={formik.values.formaPagamento}
-                onChange={(e) =>
-                  formik.setFieldValue("formaPagamento", e.value)
-                }
-                placeholder="Selecione..."
-              />
-              <small className="p-error p-d-block">
-                {formik.touched && formik.errors.formaPagamento}
-              </small>
-            </div>
+        </div>
+        <div className="p-col-5">
+          <div className="p-field">
+            <label htmlFor="statusPagamento">Status de Pagamento: *</label>
+            <Dropdown
+              id="statusPagamento"
+              options={statusPagamento}
+              value={formik.values.statusPagamento}
+              onChange={(e) => formik.setFieldValue("statusPagamento", e.value)}
+              placeholder="Selecione..."
+            />
+            <small className="p-error p-d-block">
+              {formik.touched && formik.errors.statusPagamento}
+            </small>
           </div>
-          <div className="p-col-5">
-            <div className="p-field">
-              <label htmlFor="statusPagamento">Status de Pagamento: *</label>
-              <Dropdown
-                id="statusPagamento"
-                options={statusPagamento}
-                value={formik.values.statusPagamento}
-                onChange={(e) =>
-                  formik.setFieldValue("statusPagamento", e.value)
-                }
-                placeholder="Selecione..."
-              />
-              <small className="p-error p-d-block">
-                {formik.touched && formik.errors.statusPagamento}
-              </small>
-            </div>
-          </div>
+        </div>
 
-          <div className="p-col-5">
-            <div className="p-field">
-              <label htmlFor="statusPedido">Status do Pedido: *</label>
-              <Dropdown
-                id="statusPedido"
-                options={statusPedido}
-                value={formik.values.statusPedido}
-                onChange={(e) => formik.setFieldValue("statusPedido", e.value)}
-                placeholder="Selecione..."
-              />
-              <small className="p-error p-d-block">
-                {formik.touched && formik.errors.statusPedido}
-              </small>
-            </div>
+        <div className="p-col-5">
+          <div className="p-field">
+            <label htmlFor="statusPedido">Status do Pedido: *</label>
+            <Dropdown
+              id="statusPedido"
+              options={statusPedido}
+              value={formik.values.statusPedido}
+              onChange={(e) => formik.setFieldValue("statusPedido", e.value)}
+              placeholder="Selecione..."
+            />
+            <small className="p-error p-d-block">
+              {formik.touched && formik.errors.statusPedido}
+            </small>
           </div>
+        </div>
 
-          <InputDate
+        <InputDate
           id="dataEntrega"
           name="dataEntrega"
           label="Data Entrega: *"
@@ -362,24 +395,23 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           error={formik.errors.dataEntrega}
         />
 
-          <div className="p-col-2">
-            <div className="p-field">
-              <label htmlFor="itens">Itens:</label>
-              <InputText disabled value={formik.values.itens?.length} />
-            </div>
-          </div>
-
-          <div className="p-col-2">
-            <div className="p-field">
-              <label htmlFor="total">Total:</label>
-              <InputText
-                disabled
-                value={formatadorMoney.format(formik.values.total)}
-              />
-            </div>
+        <div className="p-col-2">
+          <div className="p-field">
+            <label htmlFor="itens">Itens:</label>
+            <InputText disabled value={formik.values.itens?.length} />
           </div>
         </div>
-        
+
+        <div className="p-col-2">
+          <div className="p-field">
+            <label htmlFor="total">Total:</label>
+            <InputText
+              disabled
+              value={formatadorMoney.format(formik.values.total)}
+            />
+          </div>
+        </div>
+
         <div className="columns">
           <div className="field is-full column">
             <label className="label" htmlFor="inputObservacao">
@@ -389,9 +421,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <textarea
                 className="textarea"
                 id="inputObservacao"
-                name="observacao" 
-                value={formik.values.observacao} 
-                onChange={formik.handleChange} 
+                name="observacao"
+                value={formik.values.observacao}
+                onChange={formik.handleChange}
                 placeholder="Digite qualquer observação sobre a venda"
               />
             </div>
