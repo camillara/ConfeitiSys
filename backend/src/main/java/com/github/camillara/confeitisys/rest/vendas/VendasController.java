@@ -6,18 +6,18 @@ import com.github.camillara.confeitisys.model.Produto;
 import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
 import com.github.camillara.confeitisys.model.repositories.VendaRepository;
+import com.github.camillara.confeitisys.rest.vendas.dto.ItemDetalhadoVendaFormRequestDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.ItemVendaFormRequestDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.camillara.confeitisys.model.repositories.ItemVendaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/vendas")
@@ -81,5 +81,49 @@ public class VendasController {
 			});
 		}
 		return itensDetalhados;
+	}
+
+	// Novo método para buscar uma venda pelo ID
+	@GetMapping("/{id}")
+	public VendaFormRequestDTO buscarVendaPorId(@PathVariable Long id) {
+		Venda venda = repository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
+
+		return converterVendaParaDTO(venda);
+	}
+
+	// Método para converter a entidade Venda para DTO
+	private VendaFormRequestDTO converterVendaParaDTO(Venda venda) {
+		List<ItemVendaFormRequestDTO> itensDTO = venda.getItens().stream()
+				.map(item -> {
+					List<ItemDetalhadoVendaFormRequestDTO> itensDetalhadosDTO = item.getItensDetalhados().stream()
+							.map(detalhe -> ItemDetalhadoVendaFormRequestDTO.builder()
+									.id(detalhe.getId())
+									.idProduto(detalhe.getProduto().getId())
+									.quantidade(detalhe.getQuantidadeUsada())
+									.build())
+							.collect(Collectors.toList());
+
+					return ItemVendaFormRequestDTO.builder()
+							.id(item.getId())
+							.idProduto(item.getProduto().getId())
+							.quantidade(item.getQuantidade())
+							.itens(itensDetalhadosDTO)
+							.build();
+				})
+				.collect(Collectors.toList());
+
+		return VendaFormRequestDTO.builder()
+				.id(venda.getId())
+				.idCliente(venda.getCliente().getId())
+				.formaPagamento(venda.getFormaPagamento())
+				.statusPagamento(venda.getStatusPagamento())
+				.statusPedido(venda.getStatusPedido())
+				.itens(itensDTO)
+				.total(venda.getTotal())
+				.cadastro(venda.getDataCadastro())
+				.dataEntrega(venda.getDataEntrega())
+				.observacao(venda.getObservacao())
+				.build();
 	}
 }

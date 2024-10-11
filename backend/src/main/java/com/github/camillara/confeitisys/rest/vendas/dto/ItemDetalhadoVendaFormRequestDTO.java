@@ -1,16 +1,16 @@
 package com.github.camillara.confeitisys.rest.vendas.dto;
 
-import lombok.*;
-
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ItemVendaFormRequestDTO {
+public class ItemDetalhadoVendaFormRequestDTO {
 	private Long id;
 	private Long idProduto;
 	private Integer quantidade;
-	private List<ItemDetalhadoVendaFormRequestDTO> itens;
 }
