@@ -49,10 +49,39 @@ export const ListagemClientes: React.FC = () => {
       .finally(() => setLoading(false));
   };
 
-  const deletar = (cliente: Cliente) => {
-    service.deletar(cliente.id).then(() => {
-      handlePage(null!);
-    });
+  const deletar = async (cliente: Cliente) => {
+    try {
+      const response = await service.deletar(cliente.id);
+
+      // Se a resposta for bem-sucedida
+      if (response.status >= 200 && response.status < 300) {
+        handlePage(null!); // Recarrega a lista de clientes
+
+        // Exibir toast de sucesso
+        if (toast.current) {
+          toast.current.show({
+            severity: "success",
+            summary: "Sucesso",
+            detail: "Cliente deletado com sucesso.",
+            life: 3000,
+          });
+        }
+      }
+    } catch (error: any) {
+      // Exibir toast de erro
+      if (toast.current) {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.data ||
+          "Erro ao tentar deletar o cliente.";
+        toast.current.show({
+          severity: "error",
+          summary: "Erro ao deletar",
+          detail: errorMessage,
+          life: 5000,
+        });
+      }
+    }
   };
 
   const toast = useRef<any>(null);
@@ -61,73 +90,68 @@ export const ListagemClientes: React.FC = () => {
     const url = `/cadastros/clientes?id=${registro.id}`;
 
     const accept = () => {
-      toast.current.show({
-        severity: "info",
-        summary: "Mensagem",
-        detail: "Cliente DELETADO com sucesso!",
-        life: 3000,
-      });
-      deletar(registro);
+        deletar(registro);
     };
 
     const reject = () => {
-      toast.current.show({
-        severity: "warn",
-        summary: "Mensagem",
-        detail: "Cliente NÃO Deletado!",
-        life: 3000,
-      });
+        toast.current.show({
+            severity: "warn",
+            summary: "Mensagem",
+            detail: "Cliente NÃO Deletado!",
+            life: 3000,
+        });
     };
 
     const confirmacaoDeletar = (event: { currentTarget: any }) => {
-      confirmPopup({
-        target: event.currentTarget,
-        message: "Confirma a exclusão deste registro?",
-        icon: "pi pi-info-circle",
-        acceptClassName: "p-button-danger",
-        acceptLabel: "Sim",
-        rejectLabel: "Não",
-        accept,
-        reject,
-      });
+        confirmPopup({
+            target: event.currentTarget,
+            message: "Confirma a exclusão deste registro?",
+            icon: "pi pi-info-circle",
+            acceptClassName: "p-button-danger",
+            acceptLabel: "Sim",
+            rejectLabel: "Não",
+            accept,
+            reject,
+        });
     };
 
     return (
-      <div className="field is-grouped" style={{ justifyContent: "center" }}>
-        <Toast ref={toast} />
-        <ConfirmPopup />
+        <div className="field is-grouped" style={{ justifyContent: "center" }}>
+            <Toast ref={toast} />
+            <ConfirmPopup />
 
-        <div className="control" style={{ marginRight: "8px" }}>
-          <Button
-            onClick={() => Router.push(url)}
-            icon="pi pi-pencil"
-            label="Editar"
-            className="p-button-text"
-            style={{
-              width: "120px", 
-              backgroundColor: "#2196F3", 
-              color: "#ffffff", 
-              borderRadius: "4px", 
-            }}
-          />
+            <div className="control" style={{ marginRight: "8px" }}>
+                <Button
+                    onClick={() => Router.push(url)}
+                    icon="pi pi-pencil"
+                    label="Editar"
+                    className="p-button-text"
+                    style={{
+                        width: "120px",
+                        backgroundColor: "#2196F3",
+                        color: "#ffffff",
+                        borderRadius: "4px",
+                    }}
+                />
+            </div>
+            <div className="control">
+                <Button
+                    onClick={confirmacaoDeletar}
+                    icon="pi pi-trash"
+                    label="Deletar"
+                    className="p-button-text"
+                    style={{
+                        width: "120px",
+                        backgroundColor: "#f70202",
+                        color: "#ffffff",
+                        borderRadius: "4px",
+                    }}
+                />
+            </div>
         </div>
-        <div className="control">
-          <Button
-            onClick={confirmacaoDeletar}
-            icon="pi pi-trash"
-            label="Deletar"
-            className="p-button-text"
-            style={{
-              width: "120px", 
-              backgroundColor: "#f70202", 
-              color: "#ffffff", 
-              borderRadius: "4px", 
-            }}
-          />
-        </div>
-      </div>
     );
-  };
+};
+
 
   return (
     <Layout titulo="CLIENTES">
@@ -158,15 +182,15 @@ export const ListagemClientes: React.FC = () => {
               icon="pi pi-plus"
               className="p-button-success"
               style={{
-                fontSize: "14px", 
-                fontWeight: "bold", 
-                width: "150px", 
-                height: "38px", 
+                fontSize: "14px",
+                fontWeight: "bold",
+                width: "150px",
+                height: "38px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: "4px",
-                color: "#FFFFFF", 
+                color: "#FFFFFF",
               }}
               onClick={() => Router.push("/cadastros/clientes")}
             />
@@ -176,15 +200,15 @@ export const ListagemClientes: React.FC = () => {
               type="submit"
               className="button is-link"
               style={{
-                fontSize: "14px", 
-                fontWeight: "bold", 
-                width: "150px", 
-                height: "38px", 
+                fontSize: "14px",
+                fontWeight: "bold",
+                width: "150px",
+                height: "38px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: "4px",
-                color: "#FFFFFF", 
+                color: "#FFFFFF",
               }}
             >
               <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
@@ -210,13 +234,13 @@ export const ListagemClientes: React.FC = () => {
             emptyMessage="Nenhum registro."
             responsiveLayout="scroll" // Garante a responsividade
           >
-            <Column field="id" header="Código" style={{ width: '10%' }} />
-            <Column field="nome" header="Nome" style={{ width: '30%' }} />
-            <Column field="email" header="Email" style={{ width: '40%' }} />
+            <Column field="id" header="Código" style={{ width: "10%" }} />
+            <Column field="nome" header="Nome" style={{ width: "30%" }} />
+            <Column field="email" header="Email" style={{ width: "40%" }} />
             <Column
               body={actionTemplate}
               header="Ações"
-              style={{ width: '20%', textAlign: 'center' }}
+              style={{ width: "20%", textAlign: "center" }}
             />
           </DataTable>
         </div>

@@ -25,10 +25,10 @@ export const useClienteService = () => {
     return response.data;
   };
 
-  const deletar = async (id: any): Promise<void> => {
+  const deletar = async (id: any): Promise<AxiosResponse<void>> => {
     const url: string = `${resourceURL}/${id}`;
-    await httpClient.delete(url);
-  };
+    return await httpClient.delete(url); // Retorna a resposta completa
+};
 
   const find = async (
 nome: string = "", p0: string, page: number = 0, size: number = 10  ): Promise<Page<Cliente>> => {
