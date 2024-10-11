@@ -202,93 +202,199 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="p-fluid">
-        <div className="p-field">
-          <label htmlFor="cliente">Cliente: *</label>
-          <AutoComplete
-            suggestions={listaClientes.content}
-            completeMethod={handleClienteAutocomplete}
-            value={formik.values.cliente}
-            field="nome"
-            id="cliente"
-            name="cliente"
-            onChange={handleClienteChange}
-          />
-          <small className="p-error p-d-block">{formik.errors.cliente}</small>
+        <div className="p-grid p-align-center" style={{ gap: "1rem" }}>
+          {/* Campo de Nome (Cliente) */}
+          <div className="p-col-12 p-md-8">
+            <div className="p-field">
+              <label htmlFor="cliente" style={{ marginBottom: "0.5rem" }}>
+                Cliente: *
+              </label>
+              <AutoComplete
+                suggestions={listaClientes.content}
+                completeMethod={handleClienteAutocomplete}
+                value={formik.values.cliente}
+                field="nome"
+                id="cliente"
+                name="cliente"
+                onChange={handleClienteChange}
+                style={{ height: "45px", width: "100%" }}
+              />
+              <small className="p-error p-d-block">
+                {formik.errors.cliente}
+              </small>
+            </div>
+          </div>
+
+          {/* Campo de Data (Data Entrega) */}
+          <div className="p-col-12 p-md-3">
+            <div className="p-field">
+              <label htmlFor="dataEntrega">Data Entrega: *</label>
+              <InputDate
+                id="dataEntrega"
+                name="dataEntrega"
+                autoComplete="off"
+                onChange={formik.handleChange}
+                value={formik.values.dataEntrega}
+                error={formik.errors.dataEntrega}
+                style={{ height: "45px", width: "100%" }}
+                label={""}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="p-grid p-align-center" style={{ gap: "1rem" }}>
-  <div className="p-col-12 p-md-2">
-    <span className="p-float-label">
-      <InputText
-        id="codigoProduto"
-        onBlur={handleCodigoProdutoSelect}
-        value={codigoProduto}
-        onChange={(e) => setCodigoProduto(e.target.value)}
-        style={{ height: "50px" }} // Altura igual para todos os campos
-      />
-      <label htmlFor="codigoProduto">Código</label>
-    </span>
-  </div>
+          {/* Forma de Pagamento */}
+          <div className="p-col-12 p-md-3">
+            <div className="p-field">
+              <label
+                htmlFor="formaPagamento"
+                style={{ marginBottom: "0.5rem" }}
+              >
+                Forma de Pagamento: *
+              </label>
+              <Dropdown
+                id="formaPagamento"
+                options={formasPagamento}
+                value={formik.values.formaPagamento}
+                onChange={(e) =>
+                  formik.setFieldValue("formaPagamento", e.value)
+                }
+                placeholder="Selecione..."
+                style={{ height: "45px", width: "100%" }} // Altura ajustada
+              />
+              <small className="p-error p-d-block">
+                {formik.touched.formaPagamento && formik.errors.formaPagamento}
+              </small>
+            </div>
+          </div>
 
-  <div className="p-col-12 p-md-5">
-    <AutoComplete
-      id="produto"
-      name="produto"
-      value={produto}
-      field="nome"
-      suggestions={listaFiltradaProdutos}
-      completeMethod={handleProdutoAutoComplete}
-      onChange={(e) => setProduto(e.value)}
-      style={{ height: "50px", width: "100%" }} // Altura e largura do AutoComplete
-    />
-  </div>
+          {/* Status de Pagamento */}
+          <div className="p-col-12 p-md-3">
+            <div className="p-field">
+              <label
+                htmlFor="statusPagamento"
+                style={{ marginBottom: "0.5rem" }}
+              >
+                Status de Pagamento: *
+              </label>
+              <Dropdown
+                id="statusPagamento"
+                options={statusPagamento}
+                value={formik.values.statusPagamento}
+                onChange={(e) =>
+                  formik.setFieldValue("statusPagamento", e.value)
+                }
+                placeholder="Selecione..."
+                style={{ height: "45px", width: "100%" }} // Altura ajustada
+              />
+              <small className="p-error p-d-block">
+                {formik.touched.statusPagamento &&
+                  formik.errors.statusPagamento}
+              </small>
+            </div>
+          </div>
 
-  <div className="p-col-12 p-md-2">
-    <span className="p-float-label">
-      <InputText
-        id="qtdProduto"
-        value={quantidadeProduto}
-        onChange={(e) => setQuantidadeProduto(Number(e.target.value))}
-        style={{ height: "50px" }} // Altura igual
-      />
-      <label htmlFor="qtdProduto">QTD</label>
-    </span>
-  </div>
+          {/* Status do Pedido */}
+          <div className="p-col-12 p-md-3">
+            <div className="p-field">
+              <label htmlFor="statusPedido" style={{ marginBottom: "0.5rem" }}>
+                Status do Pedido: *
+              </label>
+              <Dropdown
+                id="statusPedido"
+                options={statusPedido}
+                value={formik.values.statusPedido}
+                onChange={(e) => formik.setFieldValue("statusPedido", e.value)}
+                placeholder="Selecione..."
+                style={{ height: "45px", width: "100%" }} // Altura ajustada
+              />
+              <small className="p-error p-d-block">
+                {formik.touched.statusPedido && formik.errors.statusPedido}
+              </small>
+            </div>
+          </div>
+        </div>
 
-  <div className="p-col-12 p-md-2" style={{ textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-    <Button
-      type="button"
-      label="+ Adicionar"
-      onClick={handleAddProduto}
-      disabled={disableAddProdutoButton()}
-      className="button is-link"
-      style={{
-        width: "auto",
-        minWidth: "150px",
-        maxWidth: "100%",
-        height: "50px", // Altura igual aos outros campos
-        boxSizing: "border-box",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-        padding: "0 10px",
-        transition: "background-color 0.3s ease, font-size 0.3s ease",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = "#2196F3";
-        e.currentTarget.style.fontSize = "1.2rem";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = "#3273dc";
-        e.currentTarget.style.fontSize = "1rem";
-      }}
-    />
-  </div>
-</div>
+        <div className="p-grid p-align-center" style={{ gap: "1rem" }}>
+          <div className="p-col-12 p-md-2">
+            <span className="p-float-label">
+              <InputText
+                id="codigoProduto"
+                onBlur={handleCodigoProdutoSelect}
+                value={codigoProduto}
+                onChange={(e) => setCodigoProduto(e.target.value)}
+                style={{ height: "50px" }} // Altura igual para todos os campos
+              />
+              <label htmlFor="codigoProduto">Código</label>
+            </span>
+          </div>
 
+          <div className="p-col-12 p-md-6">
+            <AutoComplete
+              id="produto"
+              name="produto"
+              value={produto}
+              field="nome"
+              suggestions={listaFiltradaProdutos}
+              completeMethod={handleProdutoAutoComplete}
+              onChange={(e) => setProduto(e.value)}
+              style={{ height: "50px", width: "100%" }} // Altura e largura do AutoComplete
+            />
+          </div>
 
+          <div className="p-col-12 p-md-1">
+            <span className="p-float-label">
+              <InputText
+                id="qtdProduto"
+                value={quantidadeProduto}
+                onChange={(e) => setQuantidadeProduto(Number(e.target.value))}
+                style={{ height: "50px" }}
+              />
+              <label htmlFor="qtdProduto">QTD</label>
+            </span>
+          </div>
+
+          <div
+            className="p-col-12 p-md-2"
+            style={{
+              textAlign: "right",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              type="button"
+              label="+ Adicionar"
+              onClick={handleAddProduto}
+              disabled={disableAddProdutoButton()}
+              className="button is-link"
+              style={{
+                width: "auto",
+                minWidth: "150px",
+                maxWidth: "100%",
+                height: "50px", // Altura igual aos outros campos
+                boxSizing: "border-box",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                padding: "0 10px",
+                transition: "background-color 0.3s ease, font-size 0.3s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#2196F3";
+                e.currentTarget.style.fontSize = "1.2rem";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#3273dc";
+                e.currentTarget.style.fontSize = "1rem";
+              }}
+            />
+          </div>
+        </div>
 
         <div className="p-col-12">
           <div className="p-col-12">
@@ -337,6 +443,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             {formik.touched && formik.errors.itens}
           </small>
         </div>
+
         <div className="p-col-5">
           <div className="p-field">
             <label htmlFor="formaPagamento">Forma de Pagamento: *</label>
@@ -383,17 +490,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             </small>
           </div>
         </div>
-
-        <InputDate
-          id="dataEntrega"
-          name="dataEntrega"
-          label="Data Entrega: *"
-          autoComplete="off"
-          columnClasses="is-half"
-          onChange={formik.handleChange}
-          value={formik.values.dataEntrega}
-          error={formik.errors.dataEntrega}
-        />
 
         <div className="p-col-2">
           <div className="p-field">
