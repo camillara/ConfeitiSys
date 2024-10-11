@@ -206,7 +206,10 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           {/* Campo de Nome (Cliente) */}
           <div className="p-col-12 p-md-6">
             <div className="p-field">
-              <label htmlFor="cliente" style={{ marginBottom: "0.5rem", fontWeight: 'bold' }}>
+              <label
+                htmlFor="cliente"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
                 Cliente: *
               </label>
               <AutoComplete
@@ -248,7 +251,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             <div className="p-field">
               <label
                 htmlFor="formaPagamento"
-                style={{ marginBottom: "0.5rem", fontWeight: 'bold' }}
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
               >
                 Forma de Pagamento: *
               </label>
@@ -279,7 +282,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             <div className="p-field">
               <label
                 htmlFor="statusPagamento"
-                style={{ marginBottom: "0.5rem", fontWeight: 'bold' }}
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
               >
                 Status de Pagamento: *
               </label>
@@ -295,8 +298,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                   height: "38px",
                   width: "100%",
                   display: "flex",
-                  alignItems: "center", 
-                  textAlign: "left", 
+                  alignItems: "center",
+                  textAlign: "left",
                 }}
               />
               <small className="p-error p-d-block">
@@ -309,7 +312,10 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           {/* Status do Pedido */}
           <div className="p-col-12 p-md-3">
             <div className="p-field">
-              <label htmlFor="statusPedido" style={{ marginBottom: "0.5rem", fontWeight: 'bold' }}>
+              <label
+                htmlFor="statusPedido"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
                 Status do Pedido: *
               </label>
               <Dropdown
@@ -452,8 +458,22 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <Column field="produto.categoria" header="Categoria" />
               <Column field="produto.nome" header="Produto" />
               <Column field="produto.tipo" header="Tipo" />
-              <Column field="produto.preco" header="Preço Unitário" />
+
+              {/* Preço Unitário com formatação de moeda */}
+              <Column
+                field="produto.preco"
+                header="Preço Unitário"
+                body={(itemVenda: ItemVenda) => {
+                  const precoFormatado = formatadorMoney.format(
+                    itemVenda.produto.preco!
+                  );
+                  return <div>{precoFormatado}</div>;
+                }}
+              />
+
               <Column field="quantidade" header="QTD" />
+
+              {/* Coluna Total */}
               <Column
                 header="Total"
                 body={(itemVenda: ItemVenda) => {
@@ -462,6 +482,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                   return <div>{totalFormatado}</div>;
                 }}
               />
+
+              {/* Ações - Remover Item */}
               <Column
                 header="Ações"
                 body={(itemVenda: ItemVenda) => {
