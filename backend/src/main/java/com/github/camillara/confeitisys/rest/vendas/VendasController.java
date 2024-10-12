@@ -5,6 +5,8 @@ import com.github.camillara.confeitisys.model.*;
 import com.github.camillara.confeitisys.model.repositories.*;
 import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -260,6 +262,18 @@ public class VendasController {
 		// Deletar a venda
 		repository.deleteById(id);
 		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping
+	public Page<VendaDTO> listarVendas(
+			@RequestParam(value = "nomeCliente", required = false, defaultValue = "") String nomeCliente,
+			Pageable pageable) {
+
+		// Busca vendas com base no nome do cliente
+		Page<Venda> vendas = repository.buscarPorNomeCliente("%" + nomeCliente + "%", pageable);
+
+		// Converte a entidade Venda em DTO para retornar na resposta
+		return vendas.map(this::converterVendaParaDTO);
 	}
 
 
