@@ -1,17 +1,12 @@
 package com.github.camillara.confeitisys.rest.vendas;
 
-import com.github.camillara.confeitisys.model.ItemDetalhadoVenda;
-import com.github.camillara.confeitisys.model.ItemVenda;
-import com.github.camillara.confeitisys.model.Produto;
-import com.github.camillara.confeitisys.model.Venda;
-import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
-import com.github.camillara.confeitisys.model.repositories.VendaRepository;
+import com.github.camillara.confeitisys.model.*;
+import com.github.camillara.confeitisys.model.repositories.*;
 import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import com.github.camillara.confeitisys.model.repositories.ItemVendaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +24,13 @@ public class VendasController {
 	private ItemVendaRepository itemVendaRepository;
 
 	@Autowired
+	private ItemDetalhadoVendaRepository itemDetalhadoVendaRepository;
+
+	@Autowired
 	private ProdutoRepository produtoRepository;
+
+	@Autowired
+	private ClienteRepository clienteRepository;
 
 	// Método para realizar uma nova venda
 	@PostMapping
@@ -134,4 +135,111 @@ public class VendasController {
 				.build();
 	}
 
+	@PutMapping("/{id}")
+	@Transactional
+	public VendaDTO atualizarVenda(@PathVariable Long id, @RequestBody VendaFormRequestDTO vendaAtualizadaDTO) {
+		// Busca a venda existente
+		Venda vendaExistente = repository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
+
+		// Atualiza os campos da venda
+		Cliente cliente = clienteRepository.findById(vendaAtualizadaDTO.getIdCliente())
+				.orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para o ID: " + vendaAtualizadaDTO.getIdCliente()));
+
+		vendaExistente.setCliente(cliente);
+		vendaExistente.setFormaPagamento(vendaAtualizadaDTO.getFormaPagamento());
+		vendaExistente.setStatusPagamento(vendaAtualizadaDTO.getStatusPagamento());
+		vendaExistente.setStatusPedido(vendaAtualizadaDTO.getStatusPedido());
+		vendaExistente.setDataEntrega(vendaAtualizadaDTO.getDataEntrega());
+		vendaExistente.setObservacao(vendaAtualizadaDTO.getObservacao());
+
+		// Buscar todos os ids dos ItemVenda relacionados à venda
+		List<Object[]> itensVendaExistentes = itemVendaRepository.findItemVendaIdsAndProdutoIdsByVendaId(id);
+
+		// Criar uma lista para armazenar os ids de itens de venda a serem removidos
+		List<Long> idsItensVendaExistentes = itensVendaExistentes.stream()
+				.map(obj -> (Long) obj[0]) // O primeiro elemento do Object[] é o id de ItemVenda
+				.collect(Collectors.toList());
+
+		// Iterar sobre os novos itens de venda e atualizar ou adicionar os novos
+		List<ItemVenda> itensAtualizados = vendaAtualizadaDTO.getItens().stream().map(itemDTO -> {
+			ItemVenda itemVenda;
+
+			// Se o ID do item de venda é nulo, é um novo item de venda
+			if (itemDTO.getId() == null) {
+				itemVenda = new ItemVenda();
+			} else {
+				// Caso contrário, tenta buscar o item existente
+				itemVenda = itemVendaRepository.findById(itemDTO.getId())
+						.orElseThrow(() -> new IllegalArgumentException("Item de venda não encontrado para o ID: " + itemDTO.getId()));
+
+				// Remover da lista de ids a serem excluídos
+				idsItensVendaExistentes.remove(itemDTO.getId());
+			}
+
+			itemVenda.setVenda(vendaExistente);
+			Produto produto = produtoRepository.findById(itemDTO.getIdProduto())
+					.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para o ID: " + itemDTO.getIdProduto()));
+			itemVenda.setProduto(produto);
+			itemVenda.setQuantidade(itemDTO.getQuantidade());
+			itemVenda.setValorUnitario(produto.getPreco());
+
+			// Atualizar ou adicionar os itens detalhados
+			List<ItemDetalhadoVenda> itensDetalhados = produto.getItensProduto().stream().map(insumo -> {
+				ItemDetalhadoVenda itemDetalhado = new ItemDetalhadoVenda();
+				itemDetalhado.setItemVenda(itemVenda);
+				itemDetalhado.setProduto(insumo.getItemProduto());
+				itemDetalhado.setQuantidadeUsada(insumo.getQuantidade());
+				itemDetalhado.setCustoInsumoNoMomento(insumo.getItemProduto().getPreco());
+				return itemDetalhado;
+			}).collect(Collectors.toList());
+
+			itemVenda.setItensDetalhados(itensDetalhados);
+			return itemVenda;
+		}).collect(Collectors.toList());
+
+		// Remover os itens de venda que não estão mais presentes
+		for (Long idItemVendaRemovido : idsItensVendaExistentes) {
+			// Buscar os itens detalhados do item de venda removido e deletar
+			List<Long> idsItensDetalhados = itemDetalhadoVendaRepository.findIdsByItemVendaId(idItemVendaRemovido);
+			itemDetalhadoVendaRepository.deleteAllById(idsItensDetalhados);
+
+			// Deletar o item de venda
+			itemVendaRepository.deleteById(idItemVendaRemovido);
+		}
+
+		// Atualiza os itens na venda existente
+		vendaExistente.setItens(itensAtualizados);
+
+		// Salva a venda atualizada
+		repository.save(vendaExistente);
+
+		// Retorna o DTO atualizado
+		return converterVendaParaDTO(vendaExistente);
+	}
+
+
+
+	@GetMapping("/{itemVendaId}/detalhes")
+	public List<Long> listarItensDetalhadosPorItemVenda(@PathVariable Long itemVendaId) {
+		return itemDetalhadoVendaRepository.findIdsByItemVendaId(itemVendaId);
+	}
+
+	// Método GET para buscar itens de venda por id_venda
+	@GetMapping("/itens/{idVenda}")
+	public ResponseEntity<List<Object[]>> getItemVendasByVendaId(@PathVariable Long idVenda) {
+		// Chama o método do repositório para buscar os itens da venda
+		List<Object[]> itensVenda = itemVendaRepository.findItemVendaIdsAndProdutoIdsByVendaId(idVenda);
+
+		// Verifica se a lista está vazia ou não
+		if (itensVenda.isEmpty()) {
+			return ResponseEntity.noContent().build();  // Retorna 204 No Content se não houver itens
+		}
+
+		// Retorna a lista de ids de ItemVenda e Produto
+		return ResponseEntity.ok(itensVenda);
+	}
+
+
 }
+

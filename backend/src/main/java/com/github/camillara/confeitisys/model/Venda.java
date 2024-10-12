@@ -9,6 +9,8 @@ import com.github.camillara.confeitisys.model.enums.StatusPagamento;
 import com.github.camillara.confeitisys.model.enums.StatusPedido;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "tb_venda")
 @Getter
@@ -33,14 +35,15 @@ public class Venda {
 	private FormaPagamento formaPagamento;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Status_pagamento")
+	@Column(name = "status_pagamento")
 	private StatusPagamento statusPagamento;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Status_pedido")
+	@Column(name = "status_pedido")
 	private StatusPedido statusPedido;
 
-	@OneToMany(mappedBy = "venda")
+	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+	@JsonManagedReference  // Resolve o ciclo
 	private List<ItemVenda> itens;
 
 	@Column
