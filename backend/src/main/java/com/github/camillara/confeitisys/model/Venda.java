@@ -43,7 +43,6 @@ public class Venda {
 	private StatusPedido statusPedido;
 
 	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
-	@JsonManagedReference  // Resolve o ciclo
 	private List<ItemVenda> itens;
 
 	@Column

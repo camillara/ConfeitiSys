@@ -1,5 +1,6 @@
 package com.github.camillara.confeitisys.rest.vendas;
 
+import com.github.camillara.confeitisys.exception.VendaNaoEncontradaException;
 import com.github.camillara.confeitisys.model.*;
 import com.github.camillara.confeitisys.model.repositories.*;
 import com.github.camillara.confeitisys.rest.vendas.dto.*;
@@ -90,7 +91,7 @@ public class VendasController {
 	@GetMapping("/{id}")
 	public VendaDTO buscarVendaPorId(@PathVariable Long id) {
 		Venda venda = repository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
+				.orElseThrow(() -> new VendaNaoEncontradaException(id));
 
 		return converterVendaParaDTO(venda);
 	}
@@ -244,27 +245,20 @@ public class VendasController {
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<Void> deletarVenda(@PathVariable Long id) {
-		// Busca a venda existente
 		Venda vendaExistente = repository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
+				.orElseThrow(() -> new VendaNaoEncontradaException(id));
 
-		// Itera sobre cada ItemVenda relacionado à venda
+		// Remover itens relacionados à venda
 		vendaExistente.getItens().forEach(itemVenda -> {
-			// Para cada ItemVenda, buscar os itens detalhados e removê-los
 			List<Long> idsItensDetalhados = itemDetalhadoVendaRepository.findIdsByItemVendaId(itemVenda.getId());
 			if (!idsItensDetalhados.isEmpty()) {
-				// Deletar todos os itens detalhados vinculados ao itemVenda
 				itemDetalhadoVendaRepository.deleteAllById(idsItensDetalhados);
 			}
-
-			// Deletar o próprio itemVenda
 			itemVendaRepository.deleteById(itemVenda.getId());
 		});
 
-		// Após deletar todos os itens relacionados, deletar a venda
+		// Deletar a venda
 		repository.deleteById(id);
-
-		// Retornar um status 204 (No Content) como resposta
 		return ResponseEntity.noContent().build();
 	}
 
