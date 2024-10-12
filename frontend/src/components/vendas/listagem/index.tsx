@@ -12,7 +12,7 @@ import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
 import { Toast } from "primereact/toast";
 import Select from "react-select";
-import { InputDate } from "components"; // Assumindo que você tenha um componente de data como no exemplo
+import { InputDate } from "components"; 
 
 interface ConsultaVendasForm {
   nomeCliente?: string;
@@ -136,8 +136,8 @@ export const ListagemVendas: React.FC = () => {
 
   const deletar = async (venda: Venda) => {
     try {
-      await service.deletar(venda.id);  // Chama o serviço para deletar a venda
-      carregarVendas(filtro, vendas.number, vendas.size);  // Recarrega a lista de vendas após a exclusão
+      await service.deletar(venda.id);  
+      carregarVendas(filtro, vendas.number, vendas.size);  
       toast.current?.show({
         severity: "success",
         summary: "Sucesso",

@@ -17,3 +17,13 @@ export interface ItemVenda {
   produto: Produto;
   quantidade: number;
 }
+
+export interface ItemProdutoAtualizarDTO {
+  produtoId: number;
+  categoria: string;
+  nome: string;
+  tipo: string;
+  precoUnitario: number;
+  qtd: number;
+  total: number;
+}

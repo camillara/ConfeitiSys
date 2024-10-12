@@ -1,7 +1,11 @@
 import { Cliente } from "app/models/clientes";
 import { Page } from "app/models/common/page";
-import { ItemVenda, Venda } from "app/models/vendas";
-import { useClienteService, useProdutoService } from "app/services";
+import { ItemVenda, Venda, ItemProdutoAtualizarDTO } from "app/models/vendas";
+import {
+  useClienteService,
+  useProdutoService,
+  useVendaService,
+} from "app/services";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import {
@@ -18,6 +22,7 @@ import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
 import { validationScheme } from "./validationScheme";
 import { InputDate } from "components";
+import { useRouter } from "next/router";
 
 const formatadorMoney = new Intl.NumberFormat("pt-br", {
   style: "currency",
@@ -28,7 +33,7 @@ interface VendasFormProps {
   onSubmit: (venda: Venda) => void;
   onNovaVenda: () => void;
   vendaRealizada: boolean;
-  venda?: Venda; // Prop opcional para edição da venda
+  venda?: Venda;
 }
 
 const formScheme: Venda = {
@@ -49,6 +54,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   vendaRealizada,
   venda,
 }) => {
+  const router = useRouter(); // Usando o useRouter para pegar a URL atual
+  const { id } = router.query; // Pegando o parâmetro "id" da URL
+  const { buscarPorId } = useVendaService(); // Função para buscar a venda pelo ID
   const formasPagamento: String[] = [
     "DINHEIRO",
     "PIX",
@@ -60,7 +68,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   const clienteService = useClienteService();
   const produtoService = useProdutoService();
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
-  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>([]);
+  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>(
+    []
+  );
   const [mensagem, setMensagem] = useState<string>("");
   const [codigoProduto, setCodigoProduto] = useState<string>("");
   const [quantidadeProduto, setQuantidadeProduto] = useState<number>(0);
@@ -87,9 +97,30 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     validationSchema: validationScheme,
   });
 
+  useEffect(() => {
+    if (id) {
+      // Se houver um id na URL, busca a venda correspondente
+      buscarPorId(Number(id))
+        .then((vendaCarregada) => {
+          if (vendaCarregada) {
+            formik.setValues(vendaCarregada); // Setando os valores da venda no formulário
+            console.log("Venda carregada:", vendaCarregada); // Verificando a venda carregada
+          } else {
+            console.log("Nenhuma venda fornecida. Resetando o formulário."); // Adicionando console.log para depuração
+            formik.resetForm({ values: formScheme });
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar a venda:", error);
+        });
+    }
+  }, [id]); // O useEffect será executado sempre que o id mudar
+
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
-    clienteService.find(nome, "", 0, 20).then((clientes) => setListaClientes(clientes));
+    clienteService
+      .find(nome, "", 0, 20)
+      .then((clientes) => setListaClientes(clientes));
   };
 
   const handleClienteChange = (e: AutoCompleteChangeParams) => {
@@ -447,24 +478,33 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
               {/* Preço Unitário com formatação de moeda */}
               <Column
-                field="produto.preco"
+                field="produto.precoUnitario"
                 header="Preço Unitário"
-                body={(itemVenda: ItemVenda) => {
+                body={(itemVenda: ItemProdutoAtualizarDTO) => {
+                  // Se houver precoUnitario, usamos ele, caso contrário usamos o preço do produto.
+                  const precoUnitario = itemVenda.precoUnitario
+                    ? itemVenda.precoUnitario // Usar precoUnitario do ItemProdutoAtualizarDTO
+                    : itemVenda.produto?.preco; // Usar produto.preco para novos itens
+
                   const precoFormatado = formatadorMoney.format(
-                    itemVenda.produto.preco!
+                    precoUnitario || 0
                   );
                   return <div>{precoFormatado}</div>;
                 }}
               />
 
-              <Column field="quantidade" header="QTD" />
+              <Column field="qtd" header="QTD" />
 
               {/* Coluna Total */}
               <Column
                 header="Total"
-                body={(itemVenda: ItemVenda) => {
-                  const total = itemVenda.produto.preco! * itemVenda.quantidade;
-                  const totalFormatado = formatadorMoney.format(total);
+                body={(itemVenda: ItemProdutoAtualizarDTO) => {
+                  const precoUnitario = itemVenda.precoUnitario
+                    ? itemVenda.precoUnitario
+                    : itemVenda.produto?.preco; // Mesma verificação aqui
+
+                  const total = precoUnitario * itemVenda.qtd;
+                  const totalFormatado = formatadorMoney.format(total || 0);
                   return <div>{totalFormatado}</div>;
                 }}
               />
@@ -472,10 +512,10 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               {/* Ações - Remover Item */}
               <Column
                 header="Ações"
-                body={(itemVenda: ItemVenda) => {
+                body={(itemVenda: ItemProdutoAtualizarDTO) => {
                   const handleRemoverItem = () => {
                     const novaLista = formik.values.itens?.filter(
-                      (item) => item.produto.id !== itemVenda.produto.id
+                      (item) => item.produtoId !== itemVenda.produtoId
                     );
                     formik.setFieldValue("itens", novaLista);
                   };

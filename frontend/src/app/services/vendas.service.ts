@@ -1,6 +1,6 @@
 import { httpClient } from "app/http";
 import { Page } from "app/models/common/page";
-import { Venda } from "app/models/vendas";
+import { ItemProdutoAtualizarDTO, Venda } from "app/models/vendas";
 import { AxiosResponse } from "axios";
 
 const resourceURL = "/api/vendas";
@@ -66,10 +66,17 @@ export const useVendaService = () => {
     return await httpClient.delete(`${resourceURL}/${id}`);
   };
 
+    // Nova função para listar os itens de venda relacionados a um idVenda
+    const listarItensPorVenda = async (idVenda: number): Promise<ItemProdutoAtualizarDTO[]> => {
+      const response: AxiosResponse<ItemProdutoAtualizarDTO[]> = await httpClient.get(`${resourceURL}/${idVenda}/itens-produto`);
+      return response.data;
+    };
+
   return {
     realizarVenda,
     find,
     buscarPorId,
     deletar,
+    listarItensPorVenda,
   };
 }
