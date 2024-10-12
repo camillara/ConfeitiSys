@@ -241,6 +241,34 @@ public class VendasController {
 		return ResponseEntity.ok(itensVenda);
 	}
 
+	@DeleteMapping("/{id}")
+	@Transactional
+	public ResponseEntity<Void> deletarVenda(@PathVariable Long id) {
+		// Busca a venda existente
+		Venda vendaExistente = repository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Venda não encontrada para o ID: " + id));
+
+		// Itera sobre cada ItemVenda relacionado à venda
+		vendaExistente.getItens().forEach(itemVenda -> {
+			// Para cada ItemVenda, buscar os itens detalhados e removê-los
+			List<Long> idsItensDetalhados = itemDetalhadoVendaRepository.findIdsByItemVendaId(itemVenda.getId());
+			if (!idsItensDetalhados.isEmpty()) {
+				// Deletar todos os itens detalhados vinculados ao itemVenda
+				itemDetalhadoVendaRepository.deleteAllById(idsItensDetalhados);
+			}
+
+			// Deletar o próprio itemVenda
+			itemVendaRepository.deleteById(itemVenda.getId());
+		});
+
+		// Após deletar todos os itens relacionados, deletar a venda
+		repository.deleteById(id);
+
+		// Retornar um status 204 (No Content) como resposta
+		return ResponseEntity.noContent().build();
+	}
+
+
 
 }
 
