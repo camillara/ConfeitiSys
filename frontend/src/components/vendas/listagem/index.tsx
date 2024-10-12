@@ -11,7 +11,7 @@ import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
 import { Toast } from "primereact/toast";
 import Select from "react-select";
-import { InputDate } from "components";  // Assumindo que você tenha um componente de data como no exemplo
+import { InputDate } from "components"; // Assumindo que você tenha um componente de data como no exemplo
 
 interface ConsultaVendasForm {
   nomeCliente?: string;
@@ -60,7 +60,11 @@ export const ListagemVendas: React.FC = () => {
     carregarVendas({}, 0, 5);
   }, []);
 
-  const carregarVendas = (filtro: ConsultaVendasForm, page: number, rows: number) => {
+  const carregarVendas = (
+    filtro: ConsultaVendasForm,
+    page: number,
+    rows: number
+  ) => {
     setLoading(true);
     service
       .find(
@@ -97,7 +101,12 @@ export const ListagemVendas: React.FC = () => {
     carregarVendas(filtro, 0, vendas.size);
   };
 
-  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue } = useFormik<ConsultaVendasForm>({
+  const {
+    handleSubmit: formikSubmit,
+    values: filtro,
+    handleChange,
+    setFieldValue,
+  } = useFormik<ConsultaVendasForm>({
     onSubmit: handleSubmit,
     initialValues: {
       nomeCliente: "",
@@ -161,13 +170,11 @@ export const ListagemVendas: React.FC = () => {
     <Layout titulo="VENDAS">
       <Toast ref={toast} />
       <form onSubmit={formikSubmit}>
-        <div
-          className="columns"
-          style={{ marginBottom: "1rem", display: "flex", flexWrap: "wrap" }}
-        >
-          <div style={{ flex: 2, marginRight: "1rem", minWidth: "250px" }}>
+        <div className="columns is-multiline" style={{ gap: "1rem" }}>
+          {/* Campo de Nome do Cliente */}
+          <div className="column is-full">
             <Input
-              label="Nome do Cliente"
+              label="Cliente"
               id="nomeCliente"
               columnClasses="is-full"
               autoComplete="on"
@@ -177,90 +184,111 @@ export const ListagemVendas: React.FC = () => {
               placeholder="Digite o nome do cliente"
             />
           </div>
-
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Forma de Pagamento</label>
+        </div>
+        <div className="columns is-multiline" style={{ gap: "1rem" }}>
+          {/* Campos de Forma de Pagamento, Status de Pagamento, Status do Pedido */}
+          <div className="p-col-12 p-md-3">
+          <label
+                htmlFor="formaPagamento"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
+                Forma de Pagamento
+              </label>
             <Select
+              label="Forma de Pagamento"
               id="formaPagamento"
               options={formasPagamento}
-              value={formasPagamento.find((fp) => fp.value === filtro.formaPagamento)}
-              onChange={(option) => setFieldValue("formaPagamento", option?.value || "")}
-              placeholder="Selecione a forma de pagamento"
+              value={filtro.formaPagamento}
+              onChange={(option) =>
+                setFieldValue("formaPagamento", option?.value || "")
+              }
+              placeholder="Selecione forma pagamento"
               isClearable
             />
           </div>
 
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Status de Pagamento</label>
+          <div className="p-col-12 p-md-3">
+          <label
+                htmlFor="statusPagamento"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
+                Status de Pagamento
+              </label>
             <Select
+              label="Status de Pagamento"
               id="statusPagamento"
               options={statusPagamento}
-              value={statusPagamento.find((sp) => sp.value === filtro.statusPagamento)}
-              onChange={(option) => setFieldValue("statusPagamento", option?.value || "")}
-              placeholder="Selecione o status de pagamento"
+              value={filtro.statusPagamento}
+              onChange={(option) =>
+                setFieldValue("statusPagamento", option?.value || "")
+              }
+              placeholder="Selecione status pagamento"
               isClearable
             />
           </div>
 
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Status do Pedido</label>
+          <div className="p-col-12 p-md-3">
+          <label
+                htmlFor="statusPedido"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
+                Status do Pedido
+              </label>
             <Select
+              label="Status do Pedido"
               id="statusPedido"
               options={statusPedido}
-              value={statusPedido.find((sp) => sp.value === filtro.statusPedido)}
-              onChange={(option) => setFieldValue("statusPedido", option?.value || "")}
-              placeholder="Selecione o status do pedido"
+              value={filtro.statusPedido}
+              onChange={(option) =>
+                setFieldValue("statusPedido", option?.value || "")
+              }
+              placeholder="Selecione status pedido"
               isClearable
             />
           </div>
         </div>
 
-        <div className="columns" style={{ marginBottom: "1rem", display: "flex", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Data de Cadastro (Início)</label>
+        <div className="columns is-multiline" style={{ gap: "1rem" }}>
+          {/* Campos de Data de Cadastro (Início e Fim) */}
+          <div className="column is-one-half">
             <InputDate
+              label="Data da Venda (Início)"
               id="dataCadastroInicio"
-              name="dataCadastroInicio"
+              onChange={handleChange}
               value={filtro.dataCadastroInicio}
-              onChange={handleChange}
-              placeholder="Selecione a data de início"
             />
           </div>
 
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Data de Cadastro (Fim)</label>
+          <div className="column is-one-half">
             <InputDate
+              label="Data da Venda (Fim)"
               id="dataCadastroFim"
-              name="dataCadastroFim"
+              onChange={handleChange}
               value={filtro.dataCadastroFim}
-              onChange={handleChange}
-              placeholder="Selecione a data de fim"
             />
           </div>
 
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Data de Entrega (Início)</label>
+          {/* Campos de Data de Entrega (Início e Fim) */}
+          <div className="column is-one-half">
             <InputDate
+              label="Data de Entrega (Início)"
               id="dataEntregaInicio"
-              name="dataEntregaInicio"
-              value={filtro.dataEntregaInicio}
               onChange={handleChange}
-              placeholder="Selecione a data de início"
+              value={filtro.dataEntregaInicio}
             />
           </div>
 
-          <div style={{ flex: 1, minWidth: "250px" }}>
-            <label className="label">Data de Entrega (Fim)</label>
+          <div className="column is-one-half">
             <InputDate
+              label="Data de Entrega (Fim)"
               id="dataEntregaFim"
-              name="dataEntregaFim"
-              value={filtro.dataEntregaFim}
               onChange={handleChange}
-              placeholder="Selecione a data de fim"
+              value={filtro.dataEntregaFim}
             />
           </div>
         </div>
 
+        {/* Botões */}
         <div
           className="field is-grouped"
           style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
@@ -278,9 +306,7 @@ export const ListagemVendas: React.FC = () => {
             <button
               type="submit"
               className="button is-link"
-              style={{
-                ...buttonStyle,
-              }}
+              style={buttonStyle}
             >
               <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
               Consultar
