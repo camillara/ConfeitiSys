@@ -56,7 +56,11 @@ export const useVendaService = () => {
     return response.data;
   };
   
-  
+    // Nova função para buscar a venda por ID
+    const buscarPorId = async (id: number): Promise<Venda> => {
+      const response: AxiosResponse<Venda> = await httpClient.get(`${resourceURL}/${id}`);
+      return response.data;
+    };
 
   const deletar = async (id: number): Promise<AxiosResponse<void>> => {
     return await httpClient.delete(`${resourceURL}/${id}`);
@@ -65,6 +69,7 @@ export const useVendaService = () => {
   return {
     realizarVenda,
     find,
+    buscarPorId,
     deletar,
   };
 }

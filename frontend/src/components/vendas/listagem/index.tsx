@@ -2,6 +2,7 @@ import { Layout } from "components";
 import Router from "next/router";
 import { TabelaVendas } from "./tabela";
 import { Venda } from "app/models/vendas";
+import { VendasForm } from "./VendasForm";
 import { useVendaService } from "app/services";
 import { useState, useEffect, useRef } from "react";
 import { Input } from "components";
@@ -135,8 +136,8 @@ export const ListagemVendas: React.FC = () => {
 
   const deletar = async (venda: Venda) => {
     try {
-      await service.deletar(venda.id);
-      carregarVendas(filtro, vendas.number, vendas.size);
+      await service.deletar(venda.id);  // Chama o serviço para deletar a venda
+      carregarVendas(filtro, vendas.number, vendas.size);  // Recarrega a lista de vendas após a exclusão
       toast.current?.show({
         severity: "success",
         summary: "Sucesso",
@@ -188,12 +189,12 @@ export const ListagemVendas: React.FC = () => {
         <div className="columns is-multiline" style={{ gap: "1rem" }}>
           {/* Campos de Forma de Pagamento, Status de Pagamento, Status do Pedido */}
           <div className="p-col-12 p-md-3">
-          <label
-                htmlFor="formaPagamento"
-                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
-              >
-                Forma de Pagamento
-              </label>
+            <label
+              htmlFor="formaPagamento"
+              style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+            >
+              Forma de Pagamento
+            </label>
             <Select
               label="Forma de Pagamento"
               id="formaPagamento"
@@ -208,12 +209,12 @@ export const ListagemVendas: React.FC = () => {
           </div>
 
           <div className="p-col-12 p-md-3">
-          <label
-                htmlFor="statusPagamento"
-                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
-              >
-                Status de Pagamento
-              </label>
+            <label
+              htmlFor="statusPagamento"
+              style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+            >
+              Status de Pagamento
+            </label>
             <Select
               label="Status de Pagamento"
               id="statusPagamento"
@@ -228,12 +229,12 @@ export const ListagemVendas: React.FC = () => {
           </div>
 
           <div className="p-col-12 p-md-3">
-          <label
-                htmlFor="statusPedido"
-                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
-              >
-                Status do Pedido
-              </label>
+            <label
+              htmlFor="statusPedido"
+              style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+            >
+              Status do Pedido
+            </label>
             <Select
               label="Status do Pedido"
               id="statusPedido"

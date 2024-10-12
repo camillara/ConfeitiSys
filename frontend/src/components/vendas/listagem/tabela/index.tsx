@@ -34,6 +34,7 @@ export const TabelaVendas: React.FC<TabelaVendasProps> = ({
   onPage,
   loading,
 }: TabelaVendasProps) => {
+  // Template de ações para editar e deletar
   const actionTemplate = (registro: Venda) => {
     const accept = async () => {
       try {
@@ -95,6 +96,7 @@ export const TabelaVendas: React.FC<TabelaVendasProps> = ({
     );
   };
 
+  // Template para formatar o campo de total com separadores de moeda
   const totalTemplate = (rowData: Venda) => {
     return (
       <div
@@ -130,7 +132,7 @@ export const TabelaVendas: React.FC<TabelaVendasProps> = ({
       <Column field="statusPagamento" header="Status de Pagamento" />
       <Column field="statusPedido" header="Status do Pedido" />
       <Column field="total" header="Total" body={totalTemplate} style={{ textAlign: "right" }} />
-      <Column body={actionTemplate} header="" />
+      <Column body={actionTemplate} header="Ações" />
     </DataTable>
   );
 };

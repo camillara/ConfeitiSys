@@ -28,6 +28,7 @@ interface VendasFormProps {
   onSubmit: (venda: Venda) => void;
   onNovaVenda: () => void;
   vendaRealizada: boolean;
+  venda?: Venda; // Prop opcional para edição da venda
 }
 
 const formScheme: Venda = {
@@ -46,6 +47,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   onSubmit,
   onNovaVenda,
   vendaRealizada,
+  venda,
 }) => {
   const formasPagamento: String[] = [
     "DINHEIRO",
@@ -58,9 +60,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   const clienteService = useClienteService();
   const produtoService = useProdutoService();
   const [listaProdutos, setListaProdutos] = useState<Produto[]>([]);
-  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>(
-    []
-  );
+  const [listaFiltradaProdutos, setListaFiltradaProdutos] = useState<Produto[]>([]);
   const [mensagem, setMensagem] = useState<string>("");
   const [codigoProduto, setCodigoProduto] = useState<string>("");
   const [quantidadeProduto, setQuantidadeProduto] = useState<number>(0);
@@ -81,25 +81,15 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           ? new Date(values.dataEntrega).toISOString().split("T")[0]
           : "",
       };
-
       onSubmit(venda);
     },
     initialValues: formScheme,
     validationSchema: validationScheme,
   });
 
-  // UseEffect para resetar o formulário quando o componente for montado
-  useEffect(() => {
-    formik.resetForm({
-      values: formScheme,
-    });
-  }, []); // Executado uma vez quando o componente é montado
-
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
-    clienteService
-      .find(nome, "", 0, 20)
-      .then((clientes) => setListaClientes(clientes));
+    clienteService.find(nome, "", 0, 20).then((clientes) => setListaClientes(clientes));
   };
 
   const handleClienteChange = (e: AutoCompleteChangeParams) => {
@@ -109,7 +99,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const handleCodigoProdutoSelect = (event: any) => {
     const parsedValue = parseInt(codigoProduto);
-
     if (!isNaN(parsedValue)) {
       produtoService
         .carregarProduto(parsedValue.toString())
@@ -162,7 +151,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     const produtosEncontrados = listaProdutos.filter((produto: Produto) =>
       produto.nome?.toUpperCase().includes(event.query.toUpperCase())
     );
-
     setListaFiltradaProdutos(produtosEncontrados);
   };
 
@@ -274,8 +262,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                   height: "38px",
                   width: "100%",
                   display: "flex",
-                  alignItems: "center", // Centraliza verticalmente
-                  textAlign: "left", // Alinha o texto à esquerda
+                  alignItems: "center",
+                  textAlign: "left",
                 }}
               />
               <small className="p-error p-d-block">
@@ -335,8 +323,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                   height: "38px",
                   width: "100%",
                   display: "flex",
-                  alignItems: "center", // Centraliza verticalmente
-                  textAlign: "left", // Alinha o texto à esquerda
+                  alignItems: "center",
+                  textAlign: "left",
                 }}
               />
               <small className="p-error p-d-block">
@@ -362,7 +350,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <InputText
                 id="codigoProduto"
                 value={codigoProduto}
-                disabled // Campo desabilitado
+                disabled
                 style={{ height: "38px", width: "100%" }}
               />
               <label htmlFor="codigoProduto">Código</label>
@@ -382,7 +370,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               onChange={(e) => {
                 const selectedProduto = e.value;
                 setProduto(selectedProduto);
-
                 setCodigoProduto(selectedProduto ? selectedProduto.codigo : "");
               }}
               style={{ height: "38px", width: "100%" }}
@@ -429,14 +416,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#2196F3";
-                e.currentTarget.style.fontSize = "1.2rem";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#3273dc";
-                e.currentTarget.style.fontSize = "1rem";
               }}
             />
           </div>
