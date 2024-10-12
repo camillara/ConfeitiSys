@@ -3,6 +3,7 @@ package com.github.camillara.confeitisys.rest.vendas;
 import com.github.camillara.confeitisys.exception.VendaNaoEncontradaException;
 import com.github.camillara.confeitisys.model.*;
 import com.github.camillara.confeitisys.model.repositories.*;
+import com.github.camillara.confeitisys.rest.produtos.dto.ItemProdutoAtualizarDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -294,7 +296,32 @@ public class VendasController {
 		return vendas.map(this::converterVendaParaDTO);
 	}
 
+	@GetMapping("/{idVenda}/itens-produto")
+	public ResponseEntity<List<ItemProdutoAtualizarDTO>> listarItensPorVenda(@PathVariable Long idVenda) {
+		List<ItemProdutoAtualizarDTO> itens = listarItensPorVendaService(idVenda);
+		return ResponseEntity.ok(itens);
+	}
 
+	public List<ItemProdutoAtualizarDTO> listarItensPorVendaService(Long idVenda) {
+		// Busca todos os itens de venda relacionados à venda
+		List<ItemVenda> itensVenda = itemVendaRepository.findByVendaId(idVenda);
+
+		// Mapeia os itens de venda para o DTO ItemProdutoAtualizarDTO
+		return itensVenda.stream().map(itemVenda -> {
+			Produto produto = itemVenda.getProduto();
+
+			// Cria o DTO com as informações do Produto e ItemVenda
+			return ItemProdutoAtualizarDTO.builder()
+					.produtoId(produto.getId())
+					.categoria(produto.getCategoria().name()) // Considerando que categoria e tipo são enums
+					.nome(produto.getNome())
+					.tipo(produto.getTipo().name())
+					.precoUnitario(itemVenda.getValorUnitario())
+					.qtd(itemVenda.getQuantidade())
+					.total(itemVenda.getValorUnitario().multiply(new BigDecimal(itemVenda.getQuantidade()))) // Total = preço * quantidade
+					.build();
+		}).collect(Collectors.toList()); // Retorna a lista de DTOs
+	}
 
 
 }

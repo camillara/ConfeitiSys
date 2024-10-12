@@ -11,4 +11,6 @@ public interface ItemVendaRepository extends JpaRepository<ItemVenda, Long> {
 
     @Query("SELECT i.id, i.produto.id FROM ItemVenda i WHERE i.venda.id = :idVenda")
     List<Object[]> findItemVendaIdsAndProdutoIdsByVendaId(@Param("idVenda") Long idVenda);
+
+    List<ItemVenda> findByVendaId(Long vendaId);
 }
