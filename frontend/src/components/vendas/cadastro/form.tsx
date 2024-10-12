@@ -3,13 +3,13 @@ import { Page } from "app/models/common/page";
 import { ItemVenda, Venda } from "app/models/vendas";
 import { useClienteService, useProdutoService } from "app/services";
 import { useFormik } from "formik";
+import { useEffect, useState } from "react";
 import {
   AutoComplete,
   AutoCompleteChangeParams,
   AutoCompleteCompleteMethodParams,
 } from "primereact/autocomplete";
 import { Button } from "primereact/button";
-import { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Produto } from "app/models/produtos";
 import { Dialog } from "primereact/dialog";
@@ -75,7 +75,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const formik = useFormik<Venda>({
     onSubmit: (values) => {
-      console.log("Form values:", values); // Imprime os valores originais do formulário
       const venda: Venda = {
         ...values,
         dataEntrega: values.dataEntrega
@@ -88,7 +87,13 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     initialValues: formScheme,
     validationSchema: validationScheme,
   });
-  
+
+  // UseEffect para resetar o formulário quando o componente for montado
+  useEffect(() => {
+    formik.resetForm({
+      values: formScheme,
+    });
+  }, []); // Executado uma vez quando o componente é montado
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
@@ -109,7 +114,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       produtoService
         .carregarProduto(parsedValue.toString())
         .then((produtoEncontrado) => setProduto(produtoEncontrado))
-        .catch((error) => setMensagem("Produto não encontrado!"));
+        .catch(() => setMensagem("Produto não encontrado!"));
     }
   };
 
@@ -117,20 +122,18 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     const itensAdicionados = formik.values.itens || [];
 
     const jaExisteOItemNaVenda = itensAdicionados.some(
-      (itemVenda: ItemVenda) => {
-        return itemVenda.produto.id === produto.id;
-      }
+      (itemVenda: ItemVenda) => itemVenda.produto.id === produto.id
     );
 
     if (jaExisteOItemNaVenda) {
       itensAdicionados.forEach((itemVenda: ItemVenda) => {
         if (itemVenda.produto.id === produto.id) {
-          itemVenda.quantidade = itemVenda.quantidade + quantidadeProduto;
+          itemVenda.quantidade += quantidadeProduto;
         }
       });
     } else {
       itensAdicionados.push({
-        produto: produto,
+        produto,
         quantidade: quantidadeProduto,
       });
     }
@@ -156,9 +159,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       const produtosEncontrados = await produtoService.listar();
       setListaProdutos(produtosEncontrados);
     }
-    const produtosEncontrados = listaProdutos.filter((produto: Produto) => {
-      return produto.nome?.toUpperCase().includes(event.query.toUpperCase());
-    });
+    const produtosEncontrados = listaProdutos.filter((produto: Produto) =>
+      produto.nome?.toUpperCase().includes(event.query.toUpperCase())
+    );
 
     setListaFiltradaProdutos(produtosEncontrados);
   };
@@ -166,7 +169,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   const dialogMensagemFooter = () => {
     return (
       <div>
-        <Button label="Ok" onClick={(e) => setMensagem("")} />
+        <Button label="Ok" onClick={() => setMensagem("")} />
       </div>
     );
   };
@@ -196,13 +199,12 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const realizarNovaVenda = () => {
     formik.resetForm({
-      values: formScheme, 
+      values: formScheme,
     });
-    formik.setFieldValue("itens", []); 
-    formik.setFieldTouched("itens", false); 
-    onNovaVenda(); 
+    formik.setFieldValue("itens", []);
+    formik.setFieldTouched("itens", false);
+    onNovaVenda();
   };
-  
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -239,7 +241,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <InputDate
                 id="dataEntrega"
                 name="dataEntrega"
-                autoComplete="on"
+                autoComplete="off"
                 onChange={formik.handleChange}
                 value={formik.values.dataEntrega}
                 error={formik.errors.dataEntrega}
