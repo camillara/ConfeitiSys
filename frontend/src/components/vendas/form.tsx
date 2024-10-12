@@ -75,6 +75,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const formik = useFormik<Venda>({
     onSubmit: (values) => {
+      console.log("Form values:", values); // Imprime os valores originais do formulário
       const venda: Venda = {
         ...values,
         dataEntrega: values.dataEntrega
@@ -87,6 +88,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     initialValues: formScheme,
     validationSchema: validationScheme,
   });
+  
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
@@ -193,11 +195,14 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   const realizarNovaVenda = () => {
-    onNovaVenda();
-    formik.resetForm();
-    formik.setFieldValue("itens", []);
-    formik.setFieldTouched("itens", false);
+    formik.resetForm({
+      values: formScheme, // Reseta com os valores iniciais do esquema
+    });
+    formik.setFieldValue("itens", []); // Garante que os itens também sejam resetados
+    formik.setFieldTouched("itens", false); // Marca os campos como não tocados
+    onNovaVenda(); // Chama a função que habilita a próxima venda
   };
+  
 
   return (
     <form onSubmit={formik.handleSubmit}>
