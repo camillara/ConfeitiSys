@@ -12,16 +12,13 @@ export const useVendaService = () => {
     await httpClient.post<Venda>(resourceURL, venda);
   };
 
-  const find = async (
-    nomeCliente: string,
-    page: number,
-    rows: number
-  ): Promise<Page<Venda>> => {
+  const find = async (nomeCliente: string, page: number, rows: number): Promise<Page<Venda>> => {
     const response: AxiosResponse<Page<Venda>> = await httpClient.get(
       `${resourceURL}?nomeCliente=${nomeCliente}&page=${page}&size=${rows}`
     );
     return response.data;
   };
+  
 
   const deletar = async (id: number): Promise<AxiosResponse<void>> => {
     return await httpClient.delete(`${resourceURL}/${id}`);

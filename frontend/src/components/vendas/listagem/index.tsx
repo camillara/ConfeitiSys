@@ -58,7 +58,11 @@ export const ListagemVendas: React.FC = () => {
     carregarVendas(filtro.nomeCliente || "", 0, vendas.size);
   };
 
-  const { handleSubmit: formikSubmit, values: filtro, handleChange } = useFormik<ConsultaVendasForm>({
+  const {
+    handleSubmit: formikSubmit,
+    values: filtro,
+    handleChange,
+  } = useFormik<ConsultaVendasForm>({
     onSubmit: handleSubmit,
     initialValues: { nomeCliente: "" },
   });
@@ -97,11 +101,26 @@ export const ListagemVendas: React.FC = () => {
     }
   };
 
+  const buttonStyle = {
+    fontSize: "14px",
+    fontWeight: "bold",
+    width: "150px",
+    height: "38px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "4px",
+    color: "#FFFFFF",
+  };
+
   return (
     <Layout titulo="VENDAS">
       <Toast ref={toast} />
       <form onSubmit={formikSubmit}>
-        <div className="columns" style={{ marginBottom: "1rem", display: "flex", flexWrap: "wrap" }}>
+        <div
+          className="columns"
+          style={{ marginBottom: "1rem", display: "flex", flexWrap: "wrap" }}
+        >
           <div style={{ flex: 2, marginRight: "1rem", minWidth: "250px" }}>
             <Input
               label="Nome do Cliente"
@@ -116,17 +135,27 @@ export const ListagemVendas: React.FC = () => {
           </div>
         </div>
 
-        <div className="field is-grouped" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div
+          className="field is-grouped"
+          style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
+        >
           <div className="control">
             <Button
               label="Nova Venda"
               icon="pi pi-plus"
               className="p-button-success"
+              style={buttonStyle}
               onClick={() => Router.push("/vendas/nova-venda")}
             />
           </div>
           <div className="control">
-            <button type="submit" className="button is-link">
+            <button
+              type="submit"
+              className="button is-link"
+              style={{
+                ...buttonStyle,
+              }}
+            >
               <i className="pi pi-search" style={{ marginRight: "8px" }}></i>
               Consultar
             </button>
@@ -136,6 +165,11 @@ export const ListagemVendas: React.FC = () => {
               label="Limpar Filtro"
               icon="pi pi-filter-slash"
               className="p-button-secondary"
+              style={{
+                ...buttonStyle,
+                backgroundColor: "#6c757d",
+                border: "none",
+              }}
               onClick={limparFiltro}
             />
           </div>
