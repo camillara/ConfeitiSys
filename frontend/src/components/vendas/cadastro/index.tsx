@@ -1,6 +1,6 @@
 import { Venda } from "app/models/vendas";
 import { Layout } from "components";
-import { VendasForm } from "components/vendas/form";
+import { VendasForm } from "components/vendas/cadastro/form";
 import { useVendaService } from "app/services";
 import { Alert } from "components/common/message";
 import { useState } from "react";

@@ -196,11 +196,11 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const realizarNovaVenda = () => {
     formik.resetForm({
-      values: formScheme, // Reseta com os valores iniciais do esquema
+      values: formScheme, 
     });
-    formik.setFieldValue("itens", []); // Garante que os itens também sejam resetados
-    formik.setFieldTouched("itens", false); // Marca os campos como não tocados
-    onNovaVenda(); // Chama a função que habilita a próxima venda
+    formik.setFieldValue("itens", []); 
+    formik.setFieldTouched("itens", false); 
+    onNovaVenda(); 
   };
   
 
