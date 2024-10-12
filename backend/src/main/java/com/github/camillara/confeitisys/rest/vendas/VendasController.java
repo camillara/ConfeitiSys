@@ -152,6 +152,7 @@ public class VendasController {
 		vendaExistente.setStatusPedido(vendaAtualizadaDTO.getStatusPedido());
 		vendaExistente.setDataEntrega(vendaAtualizadaDTO.getDataEntrega());
 		vendaExistente.setObservacao(vendaAtualizadaDTO.getObservacao());
+		vendaExistente.setTotal(vendaAtualizadaDTO.getTotal());
 
 		// Buscar todos os ids dos ItemVenda relacionados à venda
 		List<Object[]> itensVendaExistentes = itemVendaRepository.findItemVendaIdsAndProdutoIdsByVendaId(id);
