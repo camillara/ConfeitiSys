@@ -7,10 +7,12 @@ import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -266,15 +268,32 @@ public class VendasController {
 
 	@GetMapping
 	public Page<VendaDTO> listarVendas(
-			@RequestParam(value = "nomeCliente", required = false, defaultValue = "") String nomeCliente,
+			@RequestParam(value = "nomeCliente", required = false) String nomeCliente,
+			@RequestParam(value = "formaPagamento", required = false) String formaPagamento,
+			@RequestParam(value = "statusPagamento", required = false) String statusPagamento,
+			@RequestParam(value = "statusPedido", required = false) String statusPedido,
+			@RequestParam(value = "dataCadastroInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataCadastroInicio,
+			@RequestParam(value = "dataCadastroFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataCadastroFim,
+			@RequestParam(value = "dataEntregaInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntregaInicio,
+			@RequestParam(value = "dataEntregaFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntregaFim,
 			Pageable pageable) {
 
-		// Busca vendas com base no nome do cliente
-		Page<Venda> vendas = repository.buscarPorNomeCliente("%" + nomeCliente + "%", pageable);
+		// Chamando o repositório com os parâmetros fornecidos
+		Page<Venda> vendas = repository.buscarPorFiltros(
+				nomeCliente,
+				formaPagamento,
+				statusPagamento,
+				statusPedido,
+				dataCadastroInicio,
+				dataCadastroFim,
+				dataEntregaInicio,
+				dataEntregaFim,
+				pageable);
 
 		// Converte a entidade Venda em DTO para retornar na resposta
 		return vendas.map(this::converterVendaParaDTO);
 	}
+
 
 
 
