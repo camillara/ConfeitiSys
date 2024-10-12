@@ -10,9 +10,18 @@ import { DataTablePageParams } from "primereact/datatable";
 import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
 import { Toast } from "primereact/toast";
+import Select from "react-select";
+import { InputDate } from "components";  // Assumindo que você tenha um componente de data como no exemplo
 
 interface ConsultaVendasForm {
   nomeCliente?: string;
+  formaPagamento?: string;
+  statusPagamento?: string;
+  statusPedido?: string;
+  dataCadastroInicio?: string;
+  dataCadastroFim?: string;
+  dataEntregaInicio?: string;
+  dataEntregaFim?: string;
 }
 
 export const ListagemVendas: React.FC = () => {
@@ -28,14 +37,44 @@ export const ListagemVendas: React.FC = () => {
   const [vendasFiltradas, setVendasFiltradas] = useState<Array<Venda>>([]);
   const toast = useRef<Toast>(null);
 
+  // Opções para Select
+  const formasPagamento = [
+    { value: "DINHEIRO", label: "Dinheiro" },
+    { value: "PIX", label: "PIX" },
+    { value: "CARTAO_DE_CREDITO", label: "Cartão de Crédito" },
+    { value: "CARTAO_DE_DEBITO", label: "Cartão de Débito" },
+  ];
+
+  const statusPagamento = [
+    { value: "PENDENTE", label: "Pendente" },
+    { value: "PAGO", label: "Pago" },
+  ];
+
+  const statusPedido = [
+    { value: "PRODUCAO", label: "Produção" },
+    { value: "ENTREGUE", label: "Entregue" },
+    { value: "CANCELADO", label: "Cancelado" },
+  ];
+
   useEffect(() => {
-    carregarVendas("", 0, 5);
+    carregarVendas({}, 0, 5);
   }, []);
 
-  const carregarVendas = (nomeCliente: string, page: number, rows: number) => {
+  const carregarVendas = (filtro: ConsultaVendasForm, page: number, rows: number) => {
     setLoading(true);
     service
-      .find(nomeCliente, page, rows)
+      .find(
+        filtro.nomeCliente || "",
+        page,
+        rows,
+        filtro.formaPagamento,
+        filtro.statusPagamento,
+        filtro.statusPedido,
+        filtro.dataCadastroInicio,
+        filtro.dataCadastroFim,
+        filtro.dataEntregaInicio,
+        filtro.dataEntregaFim
+      )
       .then((result) => {
         setVendas(result);
         setVendasFiltradas(result.content);
@@ -55,20 +94,25 @@ export const ListagemVendas: React.FC = () => {
   };
 
   const handleSubmit = (filtro: ConsultaVendasForm) => {
-    carregarVendas(filtro.nomeCliente || "", 0, vendas.size);
+    carregarVendas(filtro, 0, vendas.size);
   };
 
-  const {
-    handleSubmit: formikSubmit,
-    values: filtro,
-    handleChange,
-  } = useFormik<ConsultaVendasForm>({
+  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue } = useFormik<ConsultaVendasForm>({
     onSubmit: handleSubmit,
-    initialValues: { nomeCliente: "" },
+    initialValues: {
+      nomeCliente: "",
+      formaPagamento: "",
+      statusPagamento: "",
+      statusPedido: "",
+      dataCadastroInicio: "",
+      dataCadastroFim: "",
+      dataEntregaInicio: "",
+      dataEntregaFim: "",
+    },
   });
 
   const handlePage = (event: DataTablePageParams) => {
-    carregarVendas(filtro.nomeCliente || "", event.page, event.rows);
+    carregarVendas(filtro, event.page, event.rows);
   };
 
   const limparFiltro = () => {
@@ -83,7 +127,7 @@ export const ListagemVendas: React.FC = () => {
   const deletar = async (venda: Venda) => {
     try {
       await service.deletar(venda.id);
-      carregarVendas(filtro.nomeCliente || "", vendas.number, vendas.size);
+      carregarVendas(filtro, vendas.number, vendas.size);
       toast.current?.show({
         severity: "success",
         summary: "Sucesso",
@@ -131,6 +175,88 @@ export const ListagemVendas: React.FC = () => {
               name="nomeCliente"
               value={filtro.nomeCliente}
               placeholder="Digite o nome do cliente"
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Forma de Pagamento</label>
+            <Select
+              id="formaPagamento"
+              options={formasPagamento}
+              value={formasPagamento.find((fp) => fp.value === filtro.formaPagamento)}
+              onChange={(option) => setFieldValue("formaPagamento", option?.value || "")}
+              placeholder="Selecione a forma de pagamento"
+              isClearable
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Status de Pagamento</label>
+            <Select
+              id="statusPagamento"
+              options={statusPagamento}
+              value={statusPagamento.find((sp) => sp.value === filtro.statusPagamento)}
+              onChange={(option) => setFieldValue("statusPagamento", option?.value || "")}
+              placeholder="Selecione o status de pagamento"
+              isClearable
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Status do Pedido</label>
+            <Select
+              id="statusPedido"
+              options={statusPedido}
+              value={statusPedido.find((sp) => sp.value === filtro.statusPedido)}
+              onChange={(option) => setFieldValue("statusPedido", option?.value || "")}
+              placeholder="Selecione o status do pedido"
+              isClearable
+            />
+          </div>
+        </div>
+
+        <div className="columns" style={{ marginBottom: "1rem", display: "flex", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Data de Cadastro (Início)</label>
+            <InputDate
+              id="dataCadastroInicio"
+              name="dataCadastroInicio"
+              value={filtro.dataCadastroInicio}
+              onChange={handleChange}
+              placeholder="Selecione a data de início"
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Data de Cadastro (Fim)</label>
+            <InputDate
+              id="dataCadastroFim"
+              name="dataCadastroFim"
+              value={filtro.dataCadastroFim}
+              onChange={handleChange}
+              placeholder="Selecione a data de fim"
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Data de Entrega (Início)</label>
+            <InputDate
+              id="dataEntregaInicio"
+              name="dataEntregaInicio"
+              value={filtro.dataEntregaInicio}
+              onChange={handleChange}
+              placeholder="Selecione a data de início"
+            />
+          </div>
+
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <label className="label">Data de Entrega (Fim)</label>
+            <InputDate
+              id="dataEntregaFim"
+              name="dataEntregaFim"
+              value={filtro.dataEntregaFim}
+              onChange={handleChange}
+              placeholder="Selecione a data de fim"
             />
           </div>
         </div>

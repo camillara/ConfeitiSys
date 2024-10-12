@@ -12,12 +12,50 @@ export const useVendaService = () => {
     await httpClient.post<Venda>(resourceURL, venda);
   };
 
-  const find = async (nomeCliente: string, page: number, rows: number): Promise<Page<Venda>> => {
-    const response: AxiosResponse<Page<Venda>> = await httpClient.get(
-      `${resourceURL}?nomeCliente=${nomeCliente}&page=${page}&size=${rows}`
-    );
+  const find = async (
+    nomeCliente: string, 
+    page: number, 
+    rows: number, 
+    formaPagamento?: string, 
+    statusPagamento?: string, 
+    statusPedido?: string, 
+    dataCadastroInicio?: string, 
+    dataCadastroFim?: string, 
+    dataEntregaInicio?: string, 
+    dataEntregaFim?: string
+  ): Promise<Page<Venda>> => {
+    
+    // Montando a URL com os filtros opcionais
+    let url = `${resourceURL}?nomeCliente=${nomeCliente}&page=${page}&size=${rows}`;
+    
+    // Adiciona os parâmetros de filtro à URL se estiverem definidos
+    if (formaPagamento) {
+      url += `&formaPagamento=${formaPagamento}`;
+    }
+    if (statusPagamento) {
+      url += `&statusPagamento=${statusPagamento}`;
+    }
+    if (statusPedido) {
+      url += `&statusPedido=${statusPedido}`;
+    }
+    if (dataCadastroInicio) {
+      url += `&dataCadastroInicio=${dataCadastroInicio}`;
+    }
+    if (dataCadastroFim) {
+      url += `&dataCadastroFim=${dataCadastroFim}`;
+    }
+    if (dataEntregaInicio) {
+      url += `&dataEntregaInicio=${dataEntregaInicio}`;
+    }
+    if (dataEntregaFim) {
+      url += `&dataEntregaFim=${dataEntregaFim}`;
+    }
+  
+    // Faz a requisição e retorna os dados
+    const response: AxiosResponse<Page<Venda>> = await httpClient.get(url);
     return response.data;
   };
+  
   
 
   const deletar = async (id: number): Promise<AxiosResponse<void>> => {
