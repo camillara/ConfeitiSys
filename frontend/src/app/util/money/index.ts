@@ -1,38 +1,47 @@
 export const converterEmBigDecimal = (value: any): number => {
-  if (!value || isNaN(value)) {
+  if (!value) {
     return 0;
   }
 
-  // Se o valor for numérico, retornamos diretamente como número
-  if (typeof value === 'number') {
-    return parseFloat(value.toFixed(2));
-  }
+  // Remover apenas os pontos
+  const cleanedValue = value.replace(/\./g, "");
 
-  // Remover apenas os pontos e substituir a vírgula por ponto
-  const cleanedValue = value.replace(/\./g, "").replace(",", ".");
+  // Substituir a vírgula por ponto como separador decimal
+  const numericValue = cleanedValue.replace(",", ".");
 
-  // Converter para número com até duas casas decimais
-  return parseFloat(cleanedValue);
+  // Converter para número e garantir duas casas decimais
+  return parseFloat(numericValue);
 };
 
-
-export const formatReal = (valor: any): string => {
-  // Se for um número, garantimos que tem duas casas decimais
+export const formatReal = (valor: any) => {
   if (typeof valor === "number") {
-    return valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    valor = valor.toFixed(2).toString();
   }
 
-  // Para outros tipos, como strings, tentamos fazer a formatação adequada
-  const numericValue = parseFloat(valor.replace(",", "."));
-  if (isNaN(numericValue)) {
-    return "R$ 0,00"; // Retorno padrão para valores inválidos
+  const cleanedValue = valor.replace(/\D/g, "");
+
+  // Verificar se cleanedValue tem pelo menos 3 dígitos
+  if (cleanedValue.length < 3) {
+    return "0,00"; // Ou qualquer valor padrão desejado
   }
 
-  return numericValue.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+  const v = ((cleanedValue / 100).toFixed(2) + "").split(".");
+
+  const m = v[0]
+    .split("")
+    .reverse()
+    .join("")
+    .match(/.{1,3}/g);
+
+  // Verificar se m não é null antes de prosseguir
+  if (m === null) {
+    return "0,00"; // Ou qualquer valor padrão desejado
+  }
+
+  for (let i = 0; i < m.length; i++) {
+    m[i] = m[i].split("").reverse().join("") + ".";
+  }
+  const r = m.reverse().join("");
+
+  return r.substring(0, r.lastIndexOf(".")) + "," + v[1];
 };
