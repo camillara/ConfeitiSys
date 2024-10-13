@@ -1,6 +1,21 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useUser } from "context/UserContext"; // Importa o contexto de usuário
 
 export const Menu: React.FC = () => {
+  const { user, setUser } = useUser();  // Acessa o usuário e a função para atualizar o contexto
+  const router = useRouter();
+
+  const handleLogout = () => {
+    setUser(null);  // Limpa o contexto de usuário
+    router.push("/login");  // Redireciona para a página de login
+  };
+
+  // Se não houver usuário logado, não exibe o menu
+  if (!user) {
+    return null;
+  }
+
   return (
     <aside className="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile">
       <p className="menu-label is-hidden-touch">Menu ConfeitiSys</p>
@@ -9,7 +24,9 @@ export const Menu: React.FC = () => {
         <MenuItem href="/consultas/produtos" label="Produtos" />
         <MenuItem href="/consultas/clientes" label="Clientes" />
         <MenuItem href="/consultas/vendas" label="Vendas" />
-        <MenuItem href="/" label="Sair" />
+        <li>
+          <a onClick={handleLogout}>Sair</a> {/* Ação de logout */}
+        </li>
       </ul>
     </aside>
   );
