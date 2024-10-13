@@ -311,14 +311,13 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         // Criar nova venda
         await service.realizarVenda(venda);
       }
-  
+
       // Redireciona ou exibe uma mensagem de sucesso após salvar
       Router.push("/vendas");
     } catch (error) {
       console.error("Erro ao salvar a venda:", error);
     }
   };
-  
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -543,6 +542,14 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#2196F3";
+                e.currentTarget.style.fontSize = "1.2rem";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#3273dc";
+                e.currentTarget.style.fontSize = "1rem";
+              }}
             />
           </div>
         </div>
@@ -666,32 +673,102 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         </div>
 
         <div className="columns">
-          <div className="field is-full column">
-            {/* Verifica se estamos em uma edição de venda (quando há um ID) */}
+          <div className="field is-full column" style={{ textAlign: "right" }}>
+            {/* Botão de Atualizar para Edição */}
             {!vendaRealizada && id ? (
               <Button
                 type="submit"
                 label="Atualizar"
-                className="p-button-warning"
+                className="p-button-primary"
+                style={{
+                  backgroundColor: "#007bff",
+                  borderColor: "#007bff",
+                  color: "#ffffff",
+                  width: "auto",
+                  minWidth: "150px",
+                  maxWidth: "100%",
+                  height: "38px",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  padding: "0 10px",
+                  transition: "background-color 0.3s ease, font-size 0.3s ease",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#0056b3";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#007bff";
+                }}
               />
             ) : (
-              // Mostra o botão de Finalizar apenas quando for uma nova venda e ainda não foi realizada
+              // Botão de Finalizar para nova venda
               !vendaRealizada && (
                 <Button
                   type="submit"
-                  label="Finalizar"
-                  className="p-button-success"
+                  label="Salvar"
+                  className="p-button-primary"
+                  style={{
+                    backgroundColor: "#007bff",
+                    borderColor: "#007bff",
+                    color: "#ffffff",
+                    width: "auto",
+                    minWidth: "150px",
+                    maxWidth: "100%",
+                    height: "38px",
+                    boxSizing: "border-box",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    padding: "0 10px",
+                    transition:
+                      "background-color 0.3s ease, font-size 0.3s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#0056b3";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#007bff";
+                  }}
                 />
               )
             )}
 
-            {/* Sempre exibe o botão de "Voltar para Listagem" */}
+            {/* Botão de Voltar para a listagem */}
             <Button
               type="button"
-              onClick={() => Router.push("/vendas")}
-              label="Voltar para Listagem"
+              onClick={() => router.push("/vendas/vendas")}
+              label="Voltar"
               className="p-button-secondary"
-              style={{ marginLeft: "10px" }}
+              style={{
+                marginLeft: "10px",
+                backgroundColor: "#d4e5ff",
+                borderColor: "#b3d1ff",
+                color: "#007bff",
+                width: "auto",
+                minWidth: "150px",
+                maxWidth: "100%",
+                height: "38px",
+                boxSizing: "border-box",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                padding: "0 10px",
+                transition: "background-color 0.3s ease, font-size 0.3s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#cce0ff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#d4e5ff";
+              }}
             />
           </div>
         </div>
