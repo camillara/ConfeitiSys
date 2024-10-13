@@ -88,11 +88,19 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     onSubmit: (values) => {
       const venda: Venda = {
         ...values,
+        id: id ? Number(id) : undefined, // Inclui o ID se estiver editando uma venda
+        cliente: { id: values.cliente?.id } as Cliente, // Enviando apenas o id do cliente
         dataEntrega: values.dataEntrega
           ? new Date(values.dataEntrega).toISOString().split("T")[0]
           : "",
       };
-      onSubmit(venda);
+
+      // Verifica se estamos atualizando ou criando uma nova venda
+      if (id) {
+        onSubmit({ ...venda, id: Number(id) });
+      } else {
+        onSubmit(venda);
+      }
     },
     initialValues: formScheme,
     validationSchema: validationScheme,
@@ -183,41 +191,48 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   const handleAddProduto = () => {
-    console.log("Produto selecionado:", produto);  // Verifica se o produto está correto
-    console.log("Preço do produto selecionado:", produto.preco);  // Verifica o preço do produto
-  
+    console.log("Produto selecionado:", produto); // Verifica se o produto está correto
+    console.log("Preço do produto selecionado:", produto.preco); // Verifica o preço do produto
+
     const itensAdicionados = formik.values.itens || [];
-  
+
     const jaExisteOItemNaVenda = itensAdicionados.some(
       (itemVenda: ItemVenda) => itemVenda.produto.id === produto.id
     );
-  
+
     if (jaExisteOItemNaVenda) {
       itensAdicionados.forEach((itemVenda: ItemVenda) => {
         if (itemVenda.produto.id === produto.id) {
           itemVenda.quantidade += quantidadeProduto;
-          console.log("Item já existe na venda. Quantidade atualizada para:", itemVenda.quantidade);
+          console.log(
+            "Item já existe na venda. Quantidade atualizada para:",
+            itemVenda.quantidade
+          );
         }
       });
     } else {
       itensAdicionados.push({
-        produto,  // Produto é o objeto selecionado
+        produto, // Produto é o objeto selecionado
         quantidade: quantidadeProduto,
-        precoUnitario: produto.preco,  // Atribui o preço do produto no momento da adição
+        precoUnitario: produto.preco, // Atribui o preço do produto no momento da adição
       });
-      console.log("Novo item adicionado à venda:", produto.nome, "com preço:", produto.preco);
+      console.log(
+        "Novo item adicionado à venda:",
+        produto.nome,
+        "com preço:",
+        produto.preco
+      );
     }
-  
+
     setProduto(null!);
     setCodigoProduto("");
     setQuantidadeProduto(0);
-  
+
     // Calcula o total da venda e atualiza o campo
     const total = totalVenda();
-    console.log("Total atualizado:", total);  // Verifica se o total está sendo calculado corretamente
+    console.log("Total atualizado:", total); // Verifica se o total está sendo calculado corretamente
     formik.setFieldValue("total", total);
   };
-  
 
   const handleFecharDialogProdutoNaoEncontrado = () => {
     setCodigoProduto("");
@@ -251,22 +266,27 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   const totalVenda = () => {
-    console.log("Itens na venda:", formik.values.itens);  // Verifica os itens atualmente na venda
-  
+    console.log("Itens na venda:", formik.values.itens); // Verifica os itens atualmente na venda
+
     const totais: number[] | undefined = formik.values.itens?.map(
       (itemVenda) => {
         // Verifica se o itemVenda possui um precoUnitario ou usa o preco do produto
-        const precoUnitario = itemVenda.precoUnitario || itemVenda.produto?.preco || 0;
-        console.log("Preço unitário para o item:", itemVenda.produto?.nome, precoUnitario);  // Verifica o preço unitário de cada item
+        const precoUnitario =
+          itemVenda.precoUnitario || itemVenda.produto?.preco || 0;
+        console.log(
+          "Preço unitário para o item:",
+          itemVenda.produto?.nome,
+          precoUnitario
+        ); // Verifica o preço unitário de cada item
         return itemVenda.quantidade * precoUnitario;
       }
     );
-  
+
     if (totais && totais.length) {
       const total = totais.reduce(
         (somatoriaAtual = 0, valorItemAtual) => somatoriaAtual + valorItemAtual
       );
-      console.log("Total calculado da venda:", total);  // Verifica o total calculado
+      console.log("Total calculado da venda:", total); // Verifica o total calculado
       return total;
     } else {
       return 0;
@@ -281,6 +301,24 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     formik.setFieldTouched("itens", false);
     onNovaVenda();
   };
+
+  const handleSubmit = async (venda: Venda) => {
+    try {
+      if (venda.id) {
+        // Atualizar venda existente
+        await service.atualizarVenda(venda.id, venda);
+      } else {
+        // Criar nova venda
+        await service.realizarVenda(venda);
+      }
+  
+      // Redireciona ou exibe uma mensagem de sucesso após salvar
+      Router.push("/vendas");
+    } catch (error) {
+      console.error("Erro ao salvar a venda:", error);
+    }
+  };
+  
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -627,15 +665,36 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           </div>
         </div>
 
-        {!vendaRealizada && <Button type="submit" label="Finalizar" />}
-        {vendaRealizada && (
-          <Button
-            type="button"
-            onClick={realizarNovaVenda}
-            label="Nova Venda"
-            className="p-button-success"
-          />
-        )}
+        <div className="columns">
+          <div className="field is-full column">
+            {/* Verifica se estamos em uma edição de venda (quando há um ID) */}
+            {!vendaRealizada && id ? (
+              <Button
+                type="submit"
+                label="Atualizar"
+                className="p-button-warning"
+              />
+            ) : (
+              // Mostra o botão de Finalizar apenas quando for uma nova venda e ainda não foi realizada
+              !vendaRealizada && (
+                <Button
+                  type="submit"
+                  label="Finalizar"
+                  className="p-button-success"
+                />
+              )
+            )}
+
+            {/* Sempre exibe o botão de "Voltar para Listagem" */}
+            <Button
+              type="button"
+              onClick={() => Router.push("/vendas")}
+              label="Voltar para Listagem"
+              className="p-button-secondary"
+              style={{ marginLeft: "10px" }}
+            />
+          </div>
+        </div>
       </div>
       <Dialog
         header="Atenção"

@@ -66,10 +66,13 @@ export const useVendaService = () => {
     return await httpClient.delete(`${resourceURL}/${id}`);
   };
 
-    // Nova função para listar os itens de venda relacionados a um idVenda
     const listarItensPorVenda = async (idVenda: number): Promise<ItemProdutoAtualizarDTO[]> => {
       const response: AxiosResponse<ItemProdutoAtualizarDTO[]> = await httpClient.get(`${resourceURL}/${idVenda}/itens-produto`);
       return response.data;
+    };
+
+    const atualizarVenda = async (id: number, vendaAtualizadaDTO: Venda): Promise<void> => {
+      await httpClient.put<Venda>(`${resourceURL}/${id}`, vendaAtualizadaDTO);
     };
 
   return {
@@ -78,5 +81,6 @@ export const useVendaService = () => {
     buscarPorId,
     deletar,
     listarItensPorVenda,
+    atualizarVenda, 
   };
 }
