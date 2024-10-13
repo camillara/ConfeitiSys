@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { TextField, Button, Typography, Container, Box, Link, IconButton, InputAdornment } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';  
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import axios from 'axios';
+import { useUser } from 'context/UserContext'; // Importa o contexto de usuário
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);  
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-
+  const { setUser } = useUser();  // Usar o setUser do contexto para armazenar o usuário
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event: React.MouseEvent) => event.preventDefault();
@@ -18,16 +19,27 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-
       const response = await axios.post('http://localhost:8080/api/users/login', { email, password });
+      console.log("API Response: ", response.data);  // Verifica o que está sendo retornado pela API
       if (response.status === 200) {
-
-        router.push('/');
+        const userData = response.data;  // Supondo que a resposta contenha o id e o email do usuário
+        // Verifique se os dados retornados possuem os valores corretos
+        if (userData.id && userData.email) {
+          // Armazena as informações do usuário no contexto
+          setUser({ id: userData.id, email: userData.email });
+          console.log("UserContext after login:", { id: userData.id, email: userData.email });
+          // Redireciona para o dashboard
+          router.push('/');
+        } else {
+          console.error("ID ou email do usuário não encontrados na resposta da API.");
+        }
       }
     } catch (error: any) {
+      console.error("Erro ao logar:", error);
       setError('Credenciais inválidas');
     }
   };
+  
 
   return (
     <Container maxWidth="sm">
@@ -49,7 +61,7 @@ const Login = () => {
             fullWidth
             variant="outlined"
             margin="normal"
-            type={showPassword ? 'text' : 'password'}  // Alterna entre texto e senha
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             InputProps={{
@@ -81,7 +93,7 @@ const Login = () => {
             Entrar
           </Button>
         </form>
-        
+
         <Box sx={{ mt: 2 }}>
           <Typography variant="body2" align="center">
             Não tem uma conta?{' '}

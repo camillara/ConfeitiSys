@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
-	@Query("select c from Cliente c where upper(c.nome) like upper(:nome)")
-	Page<Cliente> buscarPorNome(@Param("nome") String nome, Pageable pageable);
+	@Query("select c from Cliente c where upper(c.nome) like upper(:nome) and c.user.id = :userId")
+	Page<Cliente> buscarPorNome(@Param("nome") String nome, @Param("userId") Long userId, Pageable pageable);
 
 	@Query("SELECT CASE WHEN COUNT(v) > 0 THEN true ELSE false END FROM Venda v WHERE v.cliente.id = :clienteId")
 	boolean existsClienteVinculadoEmVenda(@Param("clienteId") Long clienteId);

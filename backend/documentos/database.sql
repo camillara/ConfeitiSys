@@ -45,7 +45,8 @@ CREATE TABLE cliente (
                          telefone varchar(14),
                          email varchar(100) UNIQUE,
                          data_cadastro date,
-                         observacao varchar(255)
+                         observacao varchar(255),
+                         user_id bigint REFERENCES tb_user(id)
 );
 
 -- Tabela de usuários

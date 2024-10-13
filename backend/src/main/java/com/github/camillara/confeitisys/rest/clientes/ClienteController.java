@@ -17,29 +17,30 @@ public class ClienteController {
 	private ClienteService clienteService;
 
 	@PostMapping
-	public ResponseEntity<ClienteFormRequestDTO> salvar(@RequestBody ClienteFormRequestDTO request) {
-		return clienteService.salvar(request);
+	public ResponseEntity<ClienteFormRequestDTO> salvar(@RequestBody ClienteFormRequestDTO request, @RequestParam String userId) {
+		return clienteService.salvar(request, userId);
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ClienteFormRequestDTO request) {
-		return clienteService.atualizar(id, request);
+	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ClienteFormRequestDTO request, @RequestParam String userId) {
+		return clienteService.atualizar(id, request, userId);
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<ClienteFormRequestDTO> getById(@PathVariable Long id) {
-		return clienteService.getById(id);
+	public ResponseEntity<ClienteFormRequestDTO> getById(@PathVariable Long id, @RequestParam String userId) {
+		return clienteService.getById(id, userId);
 	}
 
 	@DeleteMapping("{id}")
-	public ResponseEntity<Object> delete(@PathVariable Long id) {
-		return clienteService.delete(id);
+	public ResponseEntity<Object> delete(@PathVariable Long id, @RequestParam String userId) {
+		return clienteService.delete(id, userId);
 	}
 
 	@GetMapping
 	public Page<ClienteFormRequestDTO> getLista(
 			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
+			@RequestParam String userId, // Incluímos o userId como String na requisição
 			Pageable pageable) {
-		return clienteService.getLista(nome, pageable);
+		return clienteService.getLista(nome, userId, pageable);
 	}
 }

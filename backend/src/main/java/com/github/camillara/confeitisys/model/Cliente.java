@@ -47,6 +47,10 @@ public class Cliente {
 	@Column(name = "observacao", length = 255)
 	private String observacao;
 
+	@ManyToOne(fetch = FetchType.LAZY) // Relacionamento ManyToOne com User
+	@JoinColumn(name = "user_id", nullable = false) // FK para a tabela de usuários
+	private User user;
+
 	@PrePersist
 	public void prePersist() {
 		setDataCadastro(LocalDate.now());

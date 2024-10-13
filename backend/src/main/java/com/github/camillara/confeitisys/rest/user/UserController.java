@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/users")
@@ -20,10 +22,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
-        boolean authenticated = userService.authenticate(user.getEmail(), user.getPassword());
-        if (authenticated) {
-            return ResponseEntity.ok("Login successful");
+    public ResponseEntity<?> login(@RequestBody User user) {
+        Optional<User> authenticatedUser = userService.findByEmailAndPassword(user.getEmail(), user.getPassword());
+        if (authenticatedUser.isPresent()) {
+            // Retorna o objeto User com ID e Email para o frontend
+            return ResponseEntity.ok(authenticatedUser.get());
         } else {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
