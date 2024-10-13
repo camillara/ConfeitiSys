@@ -6,8 +6,9 @@ import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
 import React from "react";
 
 // Função para formatar o número com separador de vírgula
-const formatNumber = (value: number) => {
-  return value.toLocaleString("pt-BR", {
+const formatNumber = (value: number | null | undefined) => {
+  // Verifica se o valor é nulo ou indefinido, e retorna 0 como valor padrão
+  return (value || 0).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -115,24 +116,34 @@ export const TabelaVendas: React.FC<TabelaVendasProps> = ({
   };
 
   return (
-    <DataTable
-      value={vendas}
-      paginator
-      rows={rows}
-      totalRecords={totalRecords}
-      first={first}
-      onPage={onPage}
-      loading={loading}
-      responsiveLayout="scroll"
-      lazy
-    >
-      <Column field="id" header="Código" />
-      <Column field="cliente.nome" header="Cliente" />
-      <Column field="formaPagamento" header="Forma de Pagamento" />
-      <Column field="statusPagamento" header="Status de Pagamento" />
-      <Column field="statusPedido" header="Status do Pedido" />
-      <Column field="total" header="Total" body={totalTemplate} style={{ textAlign: "right" }} />
-      <Column body={actionTemplate} header="Ações" />
-    </DataTable>
+    <>
+      <DataTable
+        value={vendas}
+        paginator
+        rows={rows}
+        totalRecords={totalRecords}
+        first={first}
+        onPage={onPage}
+        loading={loading}
+        responsiveLayout="scroll"
+        lazy
+      >
+        <Column field="id" header="Código" />
+        <Column field="cliente.nome" header="Cliente" />
+        <Column field="formaPagamento" header="Forma de Pagamento" />
+        <Column field="statusPagamento" header="Status de Pagamento" />
+        <Column field="statusPedido" header="Status do Pedido" />
+        <Column
+          field="total"
+          header="Total"
+          body={totalTemplate}
+          style={{ textAlign: "right" }}
+        />
+        <Column body={actionTemplate} header="Ações" />
+      </DataTable>
+      <div style={{ marginTop: "10px", textAlign: "right" }}>
+        Contém {Math.ceil(totalRecords / rows)} páginas
+      </div>
+    </>
   );
 };

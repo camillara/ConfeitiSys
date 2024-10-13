@@ -133,33 +133,38 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
   };
 
   return (
-    <DataTable
-      value={produtos}
-      paginator
-      rows={rows}
-      totalRecords={totalRecords}
-      first={first}
-      onPage={onPage}
-      loading={loading}
-      responsiveLayout="scroll"
-      lazy
-    >
-      <Column field="id" header="Código" />
+    <>
+      <DataTable
+        value={produtos}
+        paginator
+        rows={rows}
+        totalRecords={totalRecords}
+        first={first}
+        onPage={onPage}
+        loading={loading}
+        responsiveLayout="scroll"
+        lazy
+      >
+        <Column field="id" header="Código" />
 
-      <Column field="nome" header="Nome" />
-      <Column
-        field="categoria"
-        header="Categoria"
-        body={(rowData: Produto) => formatCategoria(rowData.categoria)}
-      />
-      <Column field="tipo" header="Tipo" />
-      <Column
-        field="preco"
-        header="Preço"
-        body={precoTemplate}
-        style={{ textAlign: "right" }}
-      />
-      <Column body={actionTemplate} header="" />
-    </DataTable>
+        <Column field="nome" header="Nome" />
+        <Column
+          field="categoria"
+          header="Categoria"
+          body={(rowData: Produto) => formatCategoria(rowData.categoria)}
+        />
+        <Column field="tipo" header="Tipo" />
+        <Column
+          field="preco"
+          header="Preço"
+          body={precoTemplate}
+          style={{ textAlign: "right" }}
+        />
+        <Column body={actionTemplate} header="" />
+      </DataTable>
+      <div style={{ marginTop: "10px", textAlign: "right" }}>
+        Contém {Math.ceil(totalRecords / rows)} páginas
+      </div>
+    </>
   );
 };

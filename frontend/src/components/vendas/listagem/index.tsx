@@ -97,6 +97,7 @@ export const ListagemVendas: React.FC = () => {
       })
       .finally(() => setLoading(false));
   };
+  
 
   const handleSubmit = (filtro: ConsultaVendasForm) => {
     carregarVendas(filtro, 0, vendas.size);
