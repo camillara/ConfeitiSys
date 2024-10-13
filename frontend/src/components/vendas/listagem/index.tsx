@@ -253,7 +253,7 @@ export const ListagemVendas: React.FC = () => {
               icon="pi pi-plus"
               className="p-button-success"
               style={buttonStyle}
-              onClick={() => Router.push("/vendas/nova-venda")}
+              onClick={() => Router.push("/cadastros/vendas")}
             />
           </div>
           <div className="control">
