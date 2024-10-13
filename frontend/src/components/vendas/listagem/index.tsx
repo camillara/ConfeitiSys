@@ -2,7 +2,6 @@ import { Layout } from "components";
 import Router from "next/router";
 import { TabelaVendas } from "./tabela";
 import { Venda } from "app/models/vendas";
-import { VendasForm } from "./VendasForm";
 import { useVendaService } from "app/services";
 import { useState, useEffect, useRef } from "react";
 import { Input } from "components";
@@ -12,17 +11,13 @@ import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
 import { Toast } from "primereact/toast";
 import Select from "react-select";
-import { InputDate } from "components"; 
+import { InputDate } from "components";
 
 interface ConsultaVendasForm {
   nomeCliente?: string;
   formaPagamento?: string;
   statusPagamento?: string;
   statusPedido?: string;
-  dataCadastroInicio?: string;
-  dataCadastroFim?: string;
-  dataEntregaInicio?: string;
-  dataEntregaFim?: string;
 }
 
 export const ListagemVendas: React.FC = () => {
@@ -74,11 +69,7 @@ export const ListagemVendas: React.FC = () => {
         rows,
         filtro.formaPagamento,
         filtro.statusPagamento,
-        filtro.statusPedido,
-        filtro.dataCadastroInicio,
-        filtro.dataCadastroFim,
-        filtro.dataEntregaInicio,
-        filtro.dataEntregaFim
+        filtro.statusPedido
       )
       .then((result) => {
         setVendas(result);
@@ -97,7 +88,6 @@ export const ListagemVendas: React.FC = () => {
       })
       .finally(() => setLoading(false));
   };
-  
 
   const handleSubmit = (filtro: ConsultaVendasForm) => {
     carregarVendas(filtro, 0, vendas.size);
@@ -115,10 +105,6 @@ export const ListagemVendas: React.FC = () => {
       formaPagamento: "",
       statusPagamento: "",
       statusPedido: "",
-      dataCadastroInicio: "",
-      dataCadastroFim: "",
-      dataEntregaInicio: "",
-      dataEntregaFim: "",
     },
   });
 
@@ -137,8 +123,8 @@ export const ListagemVendas: React.FC = () => {
 
   const deletar = async (venda: Venda) => {
     try {
-      await service.deletar(venda.id);  
-      carregarVendas(filtro, vendas.number, vendas.size);  
+      await service.deletar(venda.id);
+      carregarVendas(filtro, vendas.number, vendas.size);
       toast.current?.show({
         severity: "success",
         summary: "Sucesso",
@@ -200,9 +186,11 @@ export const ListagemVendas: React.FC = () => {
               label="Forma de Pagamento"
               id="formaPagamento"
               options={formasPagamento}
-              value={filtro.formaPagamento}
+              value={formasPagamento.find(
+                (option) => option.value === filtro.formaPagamento
+              )} // Correção: encontrando o objeto correspondente
               onChange={(option) =>
-                setFieldValue("formaPagamento", option?.value || "")
+                setFieldValue("formaPagamento", option ? option.value : "")
               }
               placeholder="Selecione forma pagamento"
               isClearable
@@ -220,9 +208,11 @@ export const ListagemVendas: React.FC = () => {
               label="Status de Pagamento"
               id="statusPagamento"
               options={statusPagamento}
-              value={filtro.statusPagamento}
+              value={statusPagamento.find(
+                (option) => option.value === filtro.statusPagamento
+              )} // Correção: encontrando o objeto correspondente
               onChange={(option) =>
-                setFieldValue("statusPagamento", option?.value || "")
+                setFieldValue("statusPagamento", option ? option.value : "")
               }
               placeholder="Selecione status pagamento"
               isClearable
@@ -240,52 +230,14 @@ export const ListagemVendas: React.FC = () => {
               label="Status do Pedido"
               id="statusPedido"
               options={statusPedido}
-              value={filtro.statusPedido}
+              value={statusPedido.find(
+                (option) => option.value === filtro.statusPedido
+              )} // Correção: encontrando o objeto correspondente
               onChange={(option) =>
-                setFieldValue("statusPedido", option?.value || "")
+                setFieldValue("statusPedido", option ? option.value : "")
               }
               placeholder="Selecione status pedido"
               isClearable
-            />
-          </div>
-        </div>
-
-        <div className="columns is-multiline" style={{ gap: "1rem" }}>
-          {/* Campos de Data de Cadastro (Início e Fim) */}
-          <div className="column is-one-half">
-            <InputDate
-              label="Data da Venda (Início)"
-              id="dataCadastroInicio"
-              onChange={handleChange}
-              value={filtro.dataCadastroInicio}
-            />
-          </div>
-
-          <div className="column is-one-half">
-            <InputDate
-              label="Data da Venda (Fim)"
-              id="dataCadastroFim"
-              onChange={handleChange}
-              value={filtro.dataCadastroFim}
-            />
-          </div>
-
-          {/* Campos de Data de Entrega (Início e Fim) */}
-          <div className="column is-one-half">
-            <InputDate
-              label="Data de Entrega (Início)"
-              id="dataEntregaInicio"
-              onChange={handleChange}
-              value={filtro.dataEntregaInicio}
-            />
-          </div>
-
-          <div className="column is-one-half">
-            <InputDate
-              label="Data de Entrega (Fim)"
-              id="dataEntregaFim"
-              onChange={handleChange}
-              value={filtro.dataEntregaFim}
             />
           </div>
         </div>

@@ -193,12 +193,10 @@ public class VendaService {
 	}
 
 	public Page<VendaDTO> listarVendas(String nomeCliente, String formaPagamento, String statusPagamento,
-									   String statusPedido, LocalDate dataCadastroInicio, LocalDate dataCadastroFim,
-									   LocalDate dataEntregaInicio, LocalDate dataEntregaFim, Pageable pageable) {
+									   String statusPedido, Pageable pageable) {
 
 		Page<Venda> vendas = repository.buscarPorFiltros(
-				nomeCliente, formaPagamento, statusPagamento, statusPedido,
-				dataCadastroInicio, dataCadastroFim, dataEntregaInicio, dataEntregaFim, pageable);
+				nomeCliente, formaPagamento, statusPagamento, statusPedido, pageable);
 
 		return vendas.map(this::converterVendaParaDTO);
 	}

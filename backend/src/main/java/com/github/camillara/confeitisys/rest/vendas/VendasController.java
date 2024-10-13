@@ -52,14 +52,9 @@ public class VendasController {
 			@RequestParam(value = "formaPagamento", required = false) String formaPagamento,
 			@RequestParam(value = "statusPagamento", required = false) String statusPagamento,
 			@RequestParam(value = "statusPedido", required = false) String statusPedido,
-			@RequestParam(value = "dataCadastroInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataCadastroInicio,
-			@RequestParam(value = "dataCadastroFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataCadastroFim,
-			@RequestParam(value = "dataEntregaInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntregaInicio,
-			@RequestParam(value = "dataEntregaFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntregaFim,
 			Pageable pageable) {
 
-		return vendaService.listarVendas(nomeCliente, formaPagamento, statusPagamento, statusPedido,
-				dataCadastroInicio, dataCadastroFim, dataEntregaInicio, dataEntregaFim, pageable);
+		return vendaService.listarVendas(nomeCliente, formaPagamento, statusPagamento, statusPedido, pageable);
 	}
 
 	@DeleteMapping("/{id}")

@@ -18,21 +18,13 @@ public interface VendaRepository extends JpaRepository<Venda, Long>{
             "WHERE (:nomeCliente IS NULL OR UPPER(c.nome) LIKE UPPER(CONCAT('%', :nomeCliente, '%'))) " +
             "AND (:formaPagamento IS NULL OR v.forma_pagamento = :formaPagamento) " +
             "AND (:statusPagamento IS NULL OR v.status_pagamento = :statusPagamento) " +
-            "AND (:statusPedido IS NULL OR v.status_pedido = :statusPedido) " +
-            "AND (:dataCadastroInicio IS NULL OR v.data_de_cadastro >= :dataCadastroInicio) " +
-            "AND (:dataCadastroFim IS NULL OR v.data_de_cadastro <= :dataCadastroFim) " +
-            "AND (:dataEntregaInicio IS NULL OR v.data_de_entrega >= :dataEntregaInicio) " +
-            "AND (:dataEntregaFim IS NULL OR v.data_de_entrega <= :dataEntregaFim)",
+            "AND (:statusPedido IS NULL OR v.status_pedido = :statusPedido) ",
             nativeQuery = true)
     Page<Venda> buscarPorFiltros(
             @Param("nomeCliente") String nomeCliente,
             @Param("formaPagamento") String formaPagamento,
             @Param("statusPagamento") String statusPagamento,
             @Param("statusPedido") String statusPedido,
-            @Param("dataCadastroInicio") LocalDate dataCadastroInicio,
-            @Param("dataCadastroFim") LocalDate dataCadastroFim,
-            @Param("dataEntregaInicio") LocalDate dataEntregaInicio,
-            @Param("dataEntregaFim") LocalDate dataEntregaFim,
             Pageable pageable);
 
 }
