@@ -57,7 +57,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   const router = useRouter(); // Usando o useRouter para pegar a URL atual
   const { id } = router.query; // Pegando o parâmetro "id" da URL
   const { buscarPorId, listarItensPorVenda } = useVendaService(); // Função para buscar a venda e os itens pelo ID
-  
+
   const formasPagamento: String[] = [
     "DINHEIRO",
     "PIX",
@@ -101,13 +101,18 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   const { carregarProduto } = useProdutoService();
 
   // Função para carregar os produtos e montar a lista de itens
-  const carregarItensVenda = async (itensVenda: ItemVenda[], idVenda: number) => {
+  const carregarItensVenda = async (
+    itensVenda: ItemVenda[],
+    idVenda: number
+  ) => {
     try {
       const itensProduto = await listarItensPorVenda(idVenda); // Buscar os itens com o preço gravado no momento da venda
       const itensComProduto = await Promise.all(
         itensVenda.map(async (item) => {
-          const itemAtualizado = itensProduto.find(i => i.produtoId === item.idProduto); // Buscar o item correspondente pelo produtoId
-          
+          const itemAtualizado = itensProduto.find(
+            (i) => i.produtoId === item.idProduto
+          ); // Buscar o item correspondente pelo produtoId
+
           if (!item.idProduto || !itemAtualizado) {
             console.error("Produto não encontrado para o item", item);
             return item; // Retorne o item sem alterar se o idProduto ou itemAtualizado não existir
@@ -122,7 +127,11 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               precoUnitario: itemAtualizado.precoUnitario, // Usar o preço gravado na venda
             };
           } catch (error) {
-            console.error("Erro ao carregar o produto com idProduto:", item.idProduto, error);
+            console.error(
+              "Erro ao carregar o produto com idProduto:",
+              item.idProduto,
+              error
+            );
             return item; // Retorne o item sem modificar se houver erro ao carregar o produto
           }
         })
@@ -174,32 +183,41 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   const handleAddProduto = () => {
+    console.log("Produto selecionado:", produto);  // Verifica se o produto está correto
+    console.log("Preço do produto selecionado:", produto.preco);  // Verifica o preço do produto
+  
     const itensAdicionados = formik.values.itens || [];
-
+  
     const jaExisteOItemNaVenda = itensAdicionados.some(
       (itemVenda: ItemVenda) => itemVenda.produto.id === produto.id
     );
-
+  
     if (jaExisteOItemNaVenda) {
       itensAdicionados.forEach((itemVenda: ItemVenda) => {
         if (itemVenda.produto.id === produto.id) {
           itemVenda.quantidade += quantidadeProduto;
+          console.log("Item já existe na venda. Quantidade atualizada para:", itemVenda.quantidade);
         }
       });
     } else {
       itensAdicionados.push({
-        produto,
+        produto,  // Produto é o objeto selecionado
         quantidade: quantidadeProduto,
+        precoUnitario: produto.preco,  // Atribui o preço do produto no momento da adição
       });
+      console.log("Novo item adicionado à venda:", produto.nome, "com preço:", produto.preco);
     }
-
+  
     setProduto(null!);
     setCodigoProduto("");
     setQuantidadeProduto(0);
-
+  
+    // Calcula o total da venda e atualiza o campo
     const total = totalVenda();
+    console.log("Total atualizado:", total);  // Verifica se o total está sendo calculado corretamente
     formik.setFieldValue("total", total);
   };
+  
 
   const handleFecharDialogProdutoNaoEncontrado = () => {
     setCodigoProduto("");
@@ -233,16 +251,23 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   const totalVenda = () => {
+    console.log("Itens na venda:", formik.values.itens);  // Verifica os itens atualmente na venda
+  
     const totais: number[] | undefined = formik.values.itens?.map(
       (itemVenda) => {
-        return itemVenda.quantidade * itemVenda.precoUnitario;
+        // Verifica se o itemVenda possui um precoUnitario ou usa o preco do produto
+        const precoUnitario = itemVenda.precoUnitario || itemVenda.produto?.preco || 0;
+        console.log("Preço unitário para o item:", itemVenda.produto?.nome, precoUnitario);  // Verifica o preço unitário de cada item
+        return itemVenda.quantidade * precoUnitario;
       }
     );
-
+  
     if (totais && totais.length) {
-      return totais.reduce(
+      const total = totais.reduce(
         (somatoriaAtual = 0, valorItemAtual) => somatoriaAtual + valorItemAtual
       );
+      console.log("Total calculado da venda:", total);  // Verifica o total calculado
+      return total;
     } else {
       return 0;
     }
@@ -498,32 +523,55 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
         <div className="p-col-12">
           <div className="p-col-12">
-          <DataTable
-            value={formik.values.itens}
-            emptyMessage="Nenhum produto adicionado."
-            responsiveLayout="scroll"
-          >
-            <Column field="produto.id" header="Código" />
-            <Column field="produto.categoria" header="Categoria" />
-            <Column field="produto.nome" header="Produto" />
-            <Column field="produto.tipo" header="Tipo" />
-            <Column
-              header="Preço Unitário"
-              body={(itemVenda: ItemVenda) => {
-                const precoFormatado = formatadorMoney.format(itemVenda.precoUnitario || 0);
-                return <div>{precoFormatado}</div>;
-              }}
-            />
-            <Column field="quantidade" header="QTD" />
-            <Column
-              header="Total"
-              body={(itemVenda: ItemVenda) => {
-                const total = itemVenda.precoUnitario * itemVenda.quantidade;
-                const totalFormatado = formatadorMoney.format(total || 0);
-                return <div>{totalFormatado}</div>;
-              }}
-            />
-          </DataTable>
+            <DataTable
+              value={formik.values.itens}
+              emptyMessage="Nenhum produto adicionado."
+              responsiveLayout="scroll"
+            >
+              <Column field="produto.id" header="Código" />
+              <Column field="produto.categoria" header="Categoria" />
+              <Column field="produto.nome" header="Produto" />
+              <Column field="produto.tipo" header="Tipo" />
+              <Column
+                header="Preço Unitário"
+                body={(itemVenda: ItemVenda) => {
+                  const precoUnitario =
+                    itemVenda.precoUnitario || itemVenda.produto?.preco || 0;
+                  const precoFormatado = formatadorMoney.format(precoUnitario);
+                  return <div>{precoFormatado}</div>;
+                }}
+              />
+              <Column field="quantidade" header="QTD" />
+              <Column
+                header="Total"
+                body={(itemVenda: ItemVenda) => {
+                  const precoUnitario =
+                    itemVenda.precoUnitario || itemVenda.produto?.preco || 0;
+                  const total = precoUnitario * itemVenda.quantidade;
+                  const totalFormatado = formatadorMoney.format(total);
+                  return <div>{totalFormatado}</div>;
+                }}
+              />
+              <Column
+                header="Ações"
+                body={(itemVenda: ItemVenda) => {
+                  const handleRemoverItem = () => {
+                    const novaLista = formik.values.itens.filter(
+                      (item) => item.produto.id !== itemVenda.produto.id
+                    );
+                    formik.setFieldValue("itens", novaLista);
+                  };
+                  return (
+                    <Button
+                      type="button"
+                      icon="pi pi-trash"
+                      className="p-button-danger"
+                      onClick={handleRemoverItem}
+                    />
+                  );
+                }}
+              />
+            </DataTable>
           </div>
 
           <small className="p-error p-d-block">
