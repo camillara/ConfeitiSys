@@ -17,6 +17,6 @@ public class ItemVendaDTO {
 	private Long idProduto;
 	private String nomeProduto;
 	private Integer quantidade;
-	private BigDecimal valorUnitario;
+	private BigDecimal preco;
 	private List<ItemDetalhadoVendaDTO> itens;
 }

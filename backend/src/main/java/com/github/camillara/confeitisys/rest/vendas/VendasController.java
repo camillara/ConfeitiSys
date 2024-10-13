@@ -122,7 +122,7 @@ public class VendasController {
 							.idProduto(item.getProduto().getId())
 							.nomeProduto(item.getProduto().getNome()) // Nome do produto
 							.quantidade(item.getQuantidade())
-							.valorUnitario(item.getValorUnitario()) // Preço unitário
+							.preco(item.getValorUnitario()) // Preço unitário
 							.itens(itensDetalhadosDTO) // Itens detalhados
 							.build();
 				})
