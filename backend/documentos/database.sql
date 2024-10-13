@@ -1,3 +1,4 @@
+-- Criação do banco de dados
 CREATE DATABASE confeitisys;
 
 -- Tabela de produtos
@@ -42,9 +43,16 @@ CREATE TABLE cliente (
                          nome varchar(100) NOT NULL,
                          endereco varchar(255),
                          telefone varchar(14),
-                         email varchar(100),
+                         email varchar(100) UNIQUE,
                          data_cadastro date,
                          observacao varchar(255)
+);
+
+-- Tabela de usuários
+CREATE TABLE usuario (
+                         id bigserial NOT NULL PRIMARY KEY,
+                         email varchar(100) UNIQUE NOT NULL,
+                         senha varchar(255) NOT NULL
 );
 
 -- Tabela de vendas
@@ -66,7 +74,7 @@ CREATE TABLE item_venda (
                             id_venda bigint REFERENCES venda (id) NOT NULL,
                             id_produto bigint REFERENCES produto (id) NOT NULL,
                             quantidade integer NOT NULL,
-                            valor_unitario numeric(16, 2) NOT NULL -- Nova coluna para armazenar o valor unitário do produto no momento da venda
+                            valor_unitario numeric(16, 2) NOT NULL  -- Valor unitário do produto no momento da venda
 );
 
 -- Tabela de insumos para os produtos (usados na produção dos produtos)
