@@ -97,16 +97,45 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     validationSchema: validationScheme,
   });
 
+  const { carregarProduto } = useProdutoService();
+
+  // Função para carregar os produtos e montar a lista de itens
+  const carregarItensVenda = async (itensVenda: ItemVenda[]) => {
+    const itensComProduto = await Promise.all(
+      itensVenda.map(async (item) => {
+        // Agora usamos o idProduto diretamente do item
+        if (!item.idProduto) {
+          console.error("Produto não encontrado para o item", item);
+          return item; // Retorne o item sem alterar se o idProduto não existir
+        }
+  
+        // Carregar o produto pelo ID
+        try {
+          const produto = await carregarProduto(item.idProduto); // Usando idProduto diretamente
+          return {
+            ...item,
+            produto, // Atualizar o item com os dados do produto carregado
+          };
+        } catch (error) {
+          console.error("Erro ao carregar o produto com idProduto:", item.idProduto, error);
+          return item; // Retorne o item sem modificar se houver erro ao carregar o produto
+        }
+      })
+    );
+  
+    formik.setFieldValue("itens", itensComProduto); // Atualizar a lista de itens no formik
+  };
+  
+  
+
   useEffect(() => {
     if (id) {
-      // Se houver um id na URL, busca a venda correspondente
       buscarPorId(Number(id))
         .then((vendaCarregada) => {
           if (vendaCarregada) {
-            formik.setValues(vendaCarregada); // Setando os valores da venda no formulário
-            console.log("Venda carregada:", vendaCarregada); // Verificando a venda carregada
+            formik.setValues(vendaCarregada);
+            carregarItensVenda(vendaCarregada.itens || []); // Carregar os produtos para cada item de venda
           } else {
-            console.log("Nenhuma venda fornecida. Resetando o formulário."); // Adicionando console.log para depuração
             formik.resetForm({ values: formScheme });
           }
         })
@@ -114,7 +143,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           console.error("Erro ao carregar a venda:", error);
         });
     }
-  }, [id]); // O useEffect será executado sempre que o id mudar
+  }, [id]);
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
@@ -475,47 +504,30 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               <Column field="produto.categoria" header="Categoria" />
               <Column field="produto.nome" header="Produto" />
               <Column field="produto.tipo" header="Tipo" />
-
-              {/* Preço Unitário com formatação de moeda */}
               <Column
-                field="produto.precoUnitario"
                 header="Preço Unitário"
-                body={(itemVenda: ItemProdutoAtualizarDTO) => {
-                  // Se houver precoUnitario, usamos ele, caso contrário usamos o preço do produto.
-                  const precoUnitario = itemVenda.precoUnitario
-                    ? itemVenda.precoUnitario // Usar precoUnitario do ItemProdutoAtualizarDTO
-                    : itemVenda.produto?.preco; // Usar produto.preco para novos itens
-
-                  const precoFormatado = formatadorMoney.format(
-                    precoUnitario || 0
-                  );
+                body={(itemVenda: ItemVenda) => {
+                  const precoUnitario = itemVenda.produto?.preco || 0;
+                  const precoFormatado = formatadorMoney.format(precoUnitario);
                   return <div>{precoFormatado}</div>;
                 }}
               />
-
-              <Column field="qtd" header="QTD" />
-
-              {/* Coluna Total */}
+              <Column field="quantidade" header="QTD" />
               <Column
                 header="Total"
-                body={(itemVenda: ItemProdutoAtualizarDTO) => {
-                  const precoUnitario = itemVenda.precoUnitario
-                    ? itemVenda.precoUnitario
-                    : itemVenda.produto?.preco; // Mesma verificação aqui
-
-                  const total = precoUnitario * itemVenda.qtd;
-                  const totalFormatado = formatadorMoney.format(total || 0);
+                body={(itemVenda: ItemVenda) => {
+                  const precoUnitario = itemVenda.produto?.preco || 0;
+                  const total = precoUnitario * itemVenda.quantidade;
+                  const totalFormatado = formatadorMoney.format(total);
                   return <div>{totalFormatado}</div>;
                 }}
               />
-
-              {/* Ações - Remover Item */}
               <Column
                 header="Ações"
-                body={(itemVenda: ItemProdutoAtualizarDTO) => {
+                body={(itemVenda: ItemVenda) => {
                   const handleRemoverItem = () => {
-                    const novaLista = formik.values.itens?.filter(
-                      (item) => item.produtoId !== itemVenda.produtoId
+                    const novaLista = formik.values.itens.filter(
+                      (item) => item.produto.id !== itemVenda.produto.id
                     );
                     formik.setFieldValue("itens", novaLista);
                   };
