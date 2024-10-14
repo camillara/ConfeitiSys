@@ -8,12 +8,10 @@ import com.github.camillara.confeitisys.service.VendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -26,24 +24,28 @@ public class VendasController {
 
 	@PostMapping
 	@Transactional
-	public void realizarVenda(@RequestBody Venda venda) {
-		vendaService.realizarVenda(venda);
+	public void realizarVenda(@RequestBody Venda venda, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		vendaService.realizarVenda(venda, userId);
 	}
 
 	@GetMapping("/{id}")
-	public VendaDTO buscarVendaPorId(@PathVariable Long id) {
-		return vendaService.buscarVendaPorId(id);
+	public VendaDTO buscarVendaPorId(@PathVariable Long id, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return vendaService.buscarVendaPorId(id, userId);
 	}
 
 	@PutMapping("/{id}")
 	@Transactional
-	public VendaDTO atualizarVenda(@PathVariable Long id, @RequestBody VendaFormRequestDTO vendaAtualizadaDTO) {
-		return vendaService.atualizarVenda(id, vendaAtualizadaDTO);
+	public VendaDTO atualizarVenda(@PathVariable Long id, @RequestBody VendaFormRequestDTO vendaAtualizadaDTO, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return vendaService.atualizarVenda(id, vendaAtualizadaDTO, userId);
 	}
 
 	@GetMapping("/{idVenda}/itens-produto")
-	public ResponseEntity<List<ItemProdutoAtualizarDTO>> listarItensPorVenda(@PathVariable Long idVenda) {
-		return ResponseEntity.ok(vendaService.listarItensPorVenda(idVenda));
+	public ResponseEntity<List<ItemProdutoAtualizarDTO>> listarItensPorVenda(@PathVariable Long idVenda, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return ResponseEntity.ok(vendaService.listarItensPorVenda(idVenda, userId));
 	}
 
 	@GetMapping
@@ -52,15 +54,18 @@ public class VendasController {
 			@RequestParam(value = "formaPagamento", required = false) String formaPagamento,
 			@RequestParam(value = "statusPagamento", required = false) String statusPagamento,
 			@RequestParam(value = "statusPedido", required = false) String statusPedido,
+			@RequestParam("userId") String userId, // Recebe o userId
 			Pageable pageable) {
 
-		return vendaService.listarVendas(nomeCliente, formaPagamento, statusPagamento, statusPedido, pageable);
+		// Passa o userId para o serviço
+		return vendaService.listarVendas(nomeCliente, formaPagamento, statusPagamento, statusPedido, userId, pageable);
 	}
 
 	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<Void> deletarVenda(@PathVariable Long id) {
-		vendaService.deletarVenda(id);
+	public ResponseEntity<Void> deletarVenda(@PathVariable Long id, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		vendaService.deletarVenda(id, userId);
 		return ResponseEntity.noContent().build();
 	}
 }

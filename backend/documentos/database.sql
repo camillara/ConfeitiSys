@@ -67,7 +67,8 @@ CREATE TABLE venda (
                        total numeric(16,2) NOT NULL,
                        data_cadastro date,
                        data_entrega date,
-                       observacao varchar(255)
+                       observacao varchar(255),
+                       user_id bigint REFERENCES tb_user(id)
 );
 
 -- Tabela de itens de venda (produtos vendidos)

@@ -90,9 +90,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         ...values,
         id: id ? Number(id) : undefined, // Inclui o ID se estiver editando uma venda
         cliente: { id: values.cliente?.id } as Cliente, // Enviando apenas o id do cliente
-        dataEntrega: values.dataEntrega
-          ? new Date(values.dataEntrega).toISOString().split("T")[0]
-          : "",
+        dataEntrega: values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
+        ? new Date(values.dataEntrega).toISOString().split("T")[0]
+        : "",
       };
 
       // Verifica se estamos atualizando ou criando uma nova venda
