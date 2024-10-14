@@ -1,28 +1,51 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa"; // Import dos ícones
 
 export const Menu: React.FC = () => {
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar a expansão do menu
+  const [isExpanded, setIsExpanded] = useState(true); // Começa expandido em telas grandes
+
+  // Hook para detectar quando a tela é pequena
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsExpanded(false); // Recolher o menu para telas pequenas
+      } else {
+        setIsExpanded(true); // Manter expandido em telas grandes
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    // Definir o estado inicial
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleMenu = () => {
     setIsExpanded(!isExpanded); // Alterna o estado do menu expandido ou recolhido
+  };
+
+  const handleLinkClick = () => {
+    if (window.innerWidth <= 768) {
+      setIsExpanded(false); // Recolher o menu em telas pequenas após clicar em um item
+    }
   };
 
   return (
     <aside
       style={{
         width: isExpanded ? "200px" : "50px", // Largura de 50px quando recolhido e 200px quando expandido
-        backgroundColor: isExpanded ? "#007bff" : "transparent", // Cor de fundo azul apenas quando expandido
+        backgroundColor: "#3273dc", // Cor de fundo azul
         position: "fixed", // Menu fixo
         top: 0,
         left: 0,
-        height: "auto", // Altura dinâmica de acordo com o tamanho dos itens
+        height: "auto", // Altura automática de acordo com o conteúdo
         paddingBottom: "10px", // Pequeno espaçamento inferior
         zIndex: 1000, // Garante que o menu fique na frente
-        transition: "width 0.3s, background-color 0.3s", // Transição suave para largura e cor de fundo
+        transition: "width 0.3s", // Transição suave para largura
         boxShadow: isExpanded ? "2px 0 5px rgba(0, 0, 0, 0.1)" : "none", // Sombra apenas quando expandido
         overflow: "hidden", // Esconde conteúdo quando recolhido
       }}
@@ -42,7 +65,7 @@ export const Menu: React.FC = () => {
         ) : (
           <FaBars
             onClick={toggleMenu} // Ícone de abrir quando o menu está recolhido
-            style={{ cursor: "pointer", color: "#007bff", fontSize: "24px" }} // Estilo do ícone de abrir
+            style={{ cursor: "pointer", color: "white", fontSize: "24px" }} // Estilo do ícone de abrir
           />
         )}
       </div>
@@ -72,11 +95,13 @@ export const Menu: React.FC = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
               e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
               e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
             }}
+            onClick={handleLinkClick}
           >
             <Link href="/">
               <a style={{ color: "white", textDecoration: "none" }}>Home</a>
@@ -93,11 +118,13 @@ export const Menu: React.FC = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
               e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
               e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
             }}
+            onClick={handleLinkClick}
           >
             <Link href="/consultas/produtos">
               <a style={{ color: "white", textDecoration: "none" }}>Produtos</a>
@@ -114,11 +141,13 @@ export const Menu: React.FC = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
               e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
               e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
             }}
+            onClick={handleLinkClick}
           >
             <Link href="/consultas/clientes">
               <a style={{ color: "white", textDecoration: "none" }}>Clientes</a>
@@ -135,11 +164,13 @@ export const Menu: React.FC = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
               e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
               e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
             }}
+            onClick={handleLinkClick}
           >
             <Link href="/consultas/vendas">
               <a style={{ color: "white", textDecoration: "none" }}>Vendas</a>
@@ -156,12 +187,16 @@ export const Menu: React.FC = () => {
             onMouseOver={(e) => {
               e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
               e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
               e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
             }}
-            onClick={() => router.push("/login")} // Redireciona para a página de login
+            onClick={() => {
+              handleLinkClick();
+              router.push("/login"); // Redireciona para a página de login
+            }}
           >
             <a style={{ color: "white", textDecoration: "none" }}>Sair</a>
           </li>
