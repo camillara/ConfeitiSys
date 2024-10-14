@@ -98,6 +98,7 @@ export const ListagemVendas: React.FC = () => {
     values: filtro,
     handleChange,
     setFieldValue,
+    resetForm,  // Para resetar o formulário
   } = useFormik<ConsultaVendasForm>({
     onSubmit: handleSubmit,
     initialValues: {
@@ -112,8 +113,10 @@ export const ListagemVendas: React.FC = () => {
     carregarVendas(filtro, event.page, event.rows);
   };
 
+  // Atualizado: Limpa os filtros e carrega as vendas com filtros vazios, sem recarregar a página
   const limparFiltro = () => {
-    window.location.reload();
+    resetForm();  // Redefine os campos do formulário para os valores iniciais
+    carregarVendas({}, 0, vendas.size);  // Recarrega as vendas com os filtros vazios
   };
 
   const editar = (venda: Venda) => {

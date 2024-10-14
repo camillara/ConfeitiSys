@@ -10,7 +10,7 @@ import { DataTablePageParams } from "primereact/datatable";
 import { Button } from "primereact/button";
 import { Page } from "app/models/common/page";
 import { Toast } from "primereact/toast";
-import Select from "react-select"; // Importar o componente de Select
+import Select from "react-select";
 
 interface ConsultaProdutosForm {
   nome?: string;
@@ -74,7 +74,7 @@ export const ListagemProdutos: React.FC = () => {
     carregarProdutos(filtro.nome || "", filtro.categoria || "", 0, produtos.size);
   };
 
-  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue } = useFormik<ConsultaProdutosForm>({
+  const { handleSubmit: formikSubmit, values: filtro, handleChange, setFieldValue, resetForm } = useFormik<ConsultaProdutosForm>({
     onSubmit: handleSubmit,
     initialValues: { nome: "", categoria: "" },
   });
@@ -83,8 +83,10 @@ export const ListagemProdutos: React.FC = () => {
     carregarProdutos(filtro.nome || "", filtro.categoria || "", event.page, event.rows);
   };
 
+  // Atualizado: Limpa os filtros e carrega os produtos com filtros vazios, sem recarregar a página
   const limparFiltro = () => {
-    window.location.reload();
+    resetForm();  // Redefine os campos do formulário para os valores iniciais
+    carregarProdutos("", "", 0, produtos.size);  // Recarrega os produtos com os filtros vazios
   };
 
   const editar = (produto: Produto) => {
