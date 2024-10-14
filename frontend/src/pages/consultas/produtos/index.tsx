@@ -1,3 +1,9 @@
-import { ListagemProdutos } from "components";
+import React from "react";
+import withAuth from "components/common/withAuth";
+import { ListagemProdutos as ProdutosList } from "components"; 
 
-export default ListagemProdutos;
+const ListagemProdutosPage: React.FC = () => {
+  return <ProdutosList />;  
+};
+
+export default withAuth(ListagemProdutosPage);
