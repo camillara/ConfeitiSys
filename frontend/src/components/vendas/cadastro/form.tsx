@@ -56,6 +56,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 }) => {
   const router = useRouter(); // Usando o useRouter para pegar a URL atual
   const { id } = router.query; // Pegando o parâmetro "id" da URL
+  console.log("ID da venda vindo do router:", id);
   const { buscarPorId, listarItensPorVenda } = useVendaService(); // Função para buscar a venda e os itens pelo ID
 
   const formasPagamento: String[] = [
@@ -90,9 +91,10 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         ...values,
         id: id ? Number(id) : undefined, // Inclui o ID se estiver editando uma venda
         cliente: { id: values.cliente?.id } as Cliente, // Enviando apenas o id do cliente
-        dataEntrega: values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
-        ? new Date(values.dataEntrega).toISOString().split("T")[0]
-        : "",
+        dataEntrega:
+          values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
+            ? new Date(values.dataEntrega).toISOString().split("T")[0]
+            : "",
       };
 
       // Verifica se estamos atualizando ou criando uma nova venda
@@ -111,8 +113,17 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   // Função para carregar os produtos e montar a lista de itens
   const carregarItensVenda = async (
     itensVenda: ItemVenda[],
-    idVenda: number
+    idVenda: number | undefined // Ajustando o tipo para aceitar undefined
   ) => {
+    console.log("Verificando idVenda:", idVenda); // Adicione esta linha para verificar o valor de idVenda
+
+    if (!idVenda) {
+      // Se não houver idVenda, isso significa que é uma nova venda
+      console.log("Nova venda, não é necessário carregar itens.");
+      formik.setFieldValue("itens", []); // Limpa os itens no formik
+      return; // Retorna sem fazer a chamada à API
+    }
+
     try {
       const itensProduto = await listarItensPorVenda(idVenda); // Buscar os itens com o preço gravado no momento da venda
       const itensComProduto = await Promise.all(
@@ -152,20 +163,31 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   };
 
   useEffect(() => {
-    if (id) {
-      buscarPorId(Number(id))
-        .then((vendaCarregada) => {
-          if (vendaCarregada) {
-            formik.setValues(vendaCarregada);
-            carregarItensVenda(vendaCarregada.itens || [], Number(id)); // Carregar os produtos para cada item de venda com o idVenda
-          } else {
-            formik.resetForm({ values: formScheme });
-          }
-        })
-        .catch((error) => {
-          console.error("Erro ao carregar a venda:", error);
-        });
+    // Verificar se o ID da venda existe
+    console.log("ID da venda vindo do router:", id);
+
+    if (!id) {
+      // Se não houver ID, estamos criando uma nova venda
+      console.log("Nova venda, não é necessário carregar itens.");
+      formik.resetForm({ values: formScheme }); // Resetar o formulário para valores iniciais
+      formik.setFieldValue("itens", []); // Certificar-se de que os itens estão vazios
+      return; // Sair da função
     }
+
+    // Caso haja um ID, estamos editando uma venda, então buscamos os dados
+    buscarPorId(Number(id))
+      .then((vendaCarregada) => {
+        if (vendaCarregada) {
+          console.log("Venda carregada:", vendaCarregada);
+          formik.setValues(vendaCarregada);
+          carregarItensVenda(vendaCarregada.itens || [], Number(id)); // Carregar os itens da venda
+        } else {
+          formik.resetForm({ values: formScheme }); // Se a venda não for encontrada, resetar o formulário
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar a venda:", error);
+      });
   }, [id]);
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
