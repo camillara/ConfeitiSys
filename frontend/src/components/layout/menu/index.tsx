@@ -58,26 +58,112 @@ export const Menu: React.FC = () => {
             listStyleType: "none", // Remove o estilo de lista padrão
             padding: 0,
             margin: 0,
-            color: "white", // Cor do texto branca
           }}
         >
-          <li style={{ margin: "15px 0" }}>
-            <Link href="/">Home</Link>
-          </li>
-          <li style={{ margin: "15px 0" }}>
-            <Link href="/consultas/produtos">Produtos</Link>
-          </li>
-          <li style={{ margin: "15px 0" }}>
-            <Link href="/consultas/clientes">Clientes</Link>
-          </li>
-          <li style={{ margin: "15px 0" }}>
-            <Link href="/consultas/vendas">Vendas</Link>
+          {/** Estilos de hover aplicados em cada item */}
+          <li
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
+          >
+            <Link href="/">
+              <a style={{ color: "white", textDecoration: "none" }}>Home</a>
+            </Link>
           </li>
           <li
-            style={{ margin: "15px 0", cursor: "pointer" }}
-            onClick={() => router.push("/login")} // Função para redirecionar ao logout
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
           >
-            Sair
+            <Link href="/consultas/produtos">
+              <a style={{ color: "white", textDecoration: "none" }}>Produtos</a>
+            </Link>
+          </li>
+          <li
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
+          >
+            <Link href="/consultas/clientes">
+              <a style={{ color: "white", textDecoration: "none" }}>Clientes</a>
+            </Link>
+          </li>
+          <li
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
+          >
+            <Link href="/consultas/vendas">
+              <a style={{ color: "white", textDecoration: "none" }}>Vendas</a>
+            </Link>
+          </li>
+          <li
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
+            onClick={() => router.push("/login")} // Redireciona para a página de login
+          >
+            <a style={{ color: "white", textDecoration: "none" }}>Sair</a>
           </li>
         </ul>
       </div>
