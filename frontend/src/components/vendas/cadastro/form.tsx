@@ -742,7 +742,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             {/* Botão de Voltar para a listagem */}
             <Button
               type="button"
-              onClick={() => router.push("/vendas/vendas")}
+              onClick={() => router.push("/consultas/vendas")}
               label="Voltar"
               className="p-button-secondary"
               style={{
