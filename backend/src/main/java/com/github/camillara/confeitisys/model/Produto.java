@@ -47,6 +47,10 @@ public class Produto {
 	@OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemProduto> itensProduto;
 
+	@ManyToOne(fetch = FetchType.LAZY) // Relacionamento ManyToOne com User
+	@JoinColumn(name = "user_id", nullable = false) // FK para a tabela de usuários
+	private User user;
+
 	@PrePersist
 	public void prePersist() {
 		setDataCadastro(LocalDate.now());

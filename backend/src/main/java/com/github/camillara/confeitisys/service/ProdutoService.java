@@ -3,8 +3,10 @@ package com.github.camillara.confeitisys.service;
 import com.github.camillara.confeitisys.exception.OperacaoNaoPermitidaException;
 import com.github.camillara.confeitisys.model.ItemProduto;
 import com.github.camillara.confeitisys.model.Produto;
+import com.github.camillara.confeitisys.model.User;
 import com.github.camillara.confeitisys.model.enums.Categoria;
 import com.github.camillara.confeitisys.model.repositories.ProdutoRepository;
+import com.github.camillara.confeitisys.model.repositories.UserRepository;
 import com.github.camillara.confeitisys.rest.produtos.dto.ProdutoFormRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,13 +24,40 @@ public class ProdutoService {
     @Autowired
     private ProdutoRepository repository;
 
-    public List<ProdutoFormRequestDTO> getLista() {
-        return repository.findAll().stream().map(ProdutoFormRequestDTO::fromModel).collect(Collectors.toList());
+    @Autowired
+    private UserRepository userRepository; // Para buscar o usuário pelo ID
+
+    // Método para converter a String userId para Long
+    private Long convertStringToLong(String userId) {
+        try {
+            return Long.parseLong(userId);
+        } catch (NumberFormatException e) {
+            throw new OperacaoNaoPermitidaException("ID de usuário inválido.");
+        }
     }
 
-    public ResponseEntity<ProdutoFormRequestDTO> getById(Long id) {
-        Optional<Produto> produtoExistente = repository.findById(id);
+    public List<ProdutoFormRequestDTO> getLista(String userId) {
+        Long userLongId = convertStringToLong(userId); // Converte o userId para Long
+        Optional<User> user = userRepository.findById(userLongId); // Verifica se o userId é válido
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
+        // Busca os produtos pertencentes ao usuário logado
+        return repository.findByUserId(userLongId)
+                .stream()
+                .map(ProdutoFormRequestDTO::fromModel)
+                .collect(Collectors.toList());
+    }
 
+
+    public ResponseEntity<ProdutoFormRequestDTO> getById(Long id, String userId) {
+        Long userLongId = convertStringToLong(userId);
+        Optional<User> user = userRepository.findById(userLongId);
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
+
+        Optional<Produto> produtoExistente = repository.findById(id);
         if (produtoExistente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -37,17 +66,30 @@ public class ProdutoService {
         return ResponseEntity.ok(produto);
     }
 
-    public ProdutoFormRequestDTO salvar(ProdutoFormRequestDTO produtoDTO) {
+    public ProdutoFormRequestDTO salvar(ProdutoFormRequestDTO produtoDTO, String userId) {
+        Long userLongId = convertStringToLong(userId);
+        Optional<User> user = userRepository.findById(userLongId);
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
+
         Produto entidadeProduto = produtoDTO.toModel();
         entidadeProduto.setItensProduto(null);
+        entidadeProduto.setUser(user.get());
         Produto produtoSalvo = repository.save(entidadeProduto);
         salvarItensProduto(produtoDTO, produtoSalvo);
         return ProdutoFormRequestDTO.fromModel(produtoSalvo);
     }
 
-    public ResponseEntity<Void> atualizar(Long id, ProdutoFormRequestDTO produtoDTO) {
-        Optional<Produto> produtoExistenteOptional = repository.findById(id);
 
+    public ResponseEntity<Void> atualizar(Long id, ProdutoFormRequestDTO produtoDTO, String userId) {
+        Long userLongId = convertStringToLong(userId);
+        Optional<User> user = userRepository.findById(userLongId);
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
+
+        Optional<Produto> produtoExistenteOptional = repository.findById(id);
         if (produtoExistenteOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -69,21 +111,54 @@ public class ProdutoService {
             produtoExistente.getItensProduto().addAll(novosItens);
         }
 
+        produtoExistente.setUser(user.get()); // Define o usuário ao atualizar
         repository.save(produtoExistente);
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<Void> deletar(Long id) {
-        Optional<Produto> produtoExistente = repository.findById(id);
+    public ResponseEntity<Void> deletar(Long id, String userId) {
+        Long userLongId = convertStringToLong(userId);
+        Optional<User> user = userRepository.findById(userLongId);
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
 
+        Optional<Produto> produtoExistente = repository.findById(id);
         if (produtoExistente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         Produto produto = produtoExistente.get();
+
+        // Verifica se o produto é matéria-prima e está sendo utilizado
+        verificarUsoDeMateriaPrima(produto);
+
+        // Verifica se o produto está vinculado a uma venda
         verificarProdutoVinculadoAVenda(produto);
-        repository.delete(produto);
+
+        repository.delete(produto); // Agora pode deletar o produto se todas as verificações passarem
         return ResponseEntity.noContent().build();
+    }
+
+
+    public Page<ProdutoFormRequestDTO> getLista(String nome, String categoria, String userId, Pageable pageable) {
+        Long userLongId = convertStringToLong(userId);
+        Optional<User> user = userRepository.findById(userLongId);
+        if (user.isEmpty()) {
+            throw new OperacaoNaoPermitidaException("Usuário não encontrado.");
+        }
+
+        Categoria categoriaEnum = null;
+        if (categoria != null && !categoria.isEmpty()) {
+            try {
+                categoriaEnum = Categoria.valueOf(categoria.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Categoria inválida, log ou lance exceção se necessário
+            }
+        }
+
+        return repository.buscarPorNomeECategoriaEUser("%" + nome + "%", categoriaEnum, userLongId, pageable)
+                .map(ProdutoFormRequestDTO::fromModel);
     }
 
     private void salvarItensProduto(ProdutoFormRequestDTO produtoDTO, Produto produtoSalvo) {
@@ -130,20 +205,7 @@ public class ProdutoService {
         return ResponseEntity.ok(produtoDTOs);
     }
 
-    public Page<ProdutoFormRequestDTO> getLista(String nome, String categoria, Pageable pageable) {
-        Categoria categoriaEnum = null;
 
-        if (categoria != null && !categoria.isEmpty()) {
-            try {
-                categoriaEnum = Categoria.valueOf(categoria.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Categoria inválida, log ou lance exceção se necessário
-            }
-        }
-
-        return repository.buscarPorNomeECategoria("%" + nome + "%", categoriaEnum, pageable)
-                .map(ProdutoFormRequestDTO::fromModel);
-    }
 
     private void verificarProdutoVinculadoAVenda(Produto produto) {
         boolean produtoVinculadoEmVenda = repository.existsProdutoVinculadoEmItemVenda(produto.getId()) ||

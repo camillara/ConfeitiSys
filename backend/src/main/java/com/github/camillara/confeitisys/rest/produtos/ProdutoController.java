@@ -19,28 +19,33 @@ public class ProdutoController {
 	private ProdutoService produtoService;
 
 	@GetMapping
-	public List<ProdutoFormRequestDTO> getLista() {
-		return produtoService.getLista();
+	public List<ProdutoFormRequestDTO> getLista(@RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return produtoService.getLista(userId);
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<ProdutoFormRequestDTO> getById(@PathVariable Long id) {
-		return produtoService.getById(id);
+	public ResponseEntity<ProdutoFormRequestDTO> getById(@PathVariable Long id, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return produtoService.getById(id, userId);
 	}
 
 	@PostMapping
-	public ProdutoFormRequestDTO salvar(@RequestBody ProdutoFormRequestDTO produtoDTO) {
-		return produtoService.salvar(produtoDTO);
+	public ProdutoFormRequestDTO salvar(@RequestBody ProdutoFormRequestDTO produtoDTO, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return produtoService.salvar(produtoDTO, userId);
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ProdutoFormRequestDTO produtoDTO) {
-		return produtoService.atualizar(id, produtoDTO);
+	public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ProdutoFormRequestDTO produtoDTO, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return produtoService.atualizar(id, produtoDTO, userId);
 	}
 
 	@DeleteMapping("{id}")
-	public ResponseEntity<Void> deletar(@PathVariable Long id) {
-		return produtoService.deletar(id);
+	public ResponseEntity<Void> deletar(@PathVariable Long id, @RequestParam("userId") String userId) {
+		// Passa o userId para o serviço
+		return produtoService.deletar(id, userId);
 	}
 
 	@GetMapping("/por-item/{itemProdutoId}")
@@ -52,7 +57,9 @@ public class ProdutoController {
 	public Page<ProdutoFormRequestDTO> getLista(
 			@RequestParam(value = "nome", required = false, defaultValue = "") String nome,
 			@RequestParam(value = "categoria", required = false) String categoria,
+			@RequestParam("userId") String userId,
 			Pageable pageable) {
-		return produtoService.getLista(nome, categoria, pageable);
+		// Passa o userId para o serviço
+		return produtoService.getLista(nome, categoria, userId, pageable);
 	}
 }

@@ -33,7 +33,8 @@ CREATE TABLE produto (
                                                           'TBSP',        -- Colher de sopa
                                                           'TSP'          -- Colher de chá
                              )) NOT NULL,
-                         data_cadastro date
+                         data_cadastro date,
+                         user_id bigint REFERENCES tb_user(id)
 );
 
 -- Tabela de clientes
