@@ -12,9 +12,8 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = (props: LayoutProps) => {
   return (
     <div className="app">
+      <Menu />  {/* Menu responsivo será exibido em todas as páginas */}
       <section className="main-content columns is-fullheight">
-        <Menu />
-
         <div className="container column is-10">
           <div className="section">
             <div className="card">
@@ -34,6 +33,20 @@ export const Layout: React.FC<LayoutProps> = (props: LayoutProps) => {
           </div>
         </div>
       </section>
+
+      {/* Estilos em linha para o layout */}
+      <style jsx>{`
+        .main-content {
+          margin-left: 250px !important; /* Adiciona espaço para o menu */
+          padding: 20px !important;
+        }
+
+        @media screen and (max-width: 768px) {
+          .main-content {
+            margin-left: 0 !important; /* Remove margem em dispositivos móveis */
+          }
+        }
+      `}</style>
     </div>
   );
 };
