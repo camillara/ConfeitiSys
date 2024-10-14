@@ -1,5 +1,5 @@
 import { InputHTMLAttributes } from "react";
-import { formatReal } from "app/util/money";
+import { formatCurrencyBRL } from "app/util/money";
 import { FormatUtils } from "@4us-dev/utils";
 
 const formatUtils = new FormatUtils();
@@ -51,7 +51,7 @@ export const Input: React.FC<InputProps> = ({
 };
 
 export const InputMoney: React.FC<InputProps> = (props: InputProps) => {
-  return <Input {...props} formatter={formatReal} />;
+  return <Input {...props} formatter={formatCurrencyBRL}/>;
 };
 
 

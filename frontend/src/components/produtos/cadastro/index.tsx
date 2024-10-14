@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Layout, Input, InputMoney } from "components";
 import { useProdutoService } from "app/services";
 import { Produto, ItensProduto } from "app/models/produtos";
-import { converterEmBigDecimal, formatReal } from "app/util/money";
+import {
+  converterEmBigDecimal,
+  formatReal,
+  formatCurrencyBRL,
+} from "app/util/money";
 import { Alert } from "components/common/message";
 import * as yup from "yup";
 import Link from "next/link";
@@ -105,10 +109,9 @@ export const CadastroProdutos: React.FC = () => {
         setNome(produtoEncontrado.nome ?? "");
         setDescricao(produtoEncontrado.descricao ?? "");
 
-        // Apenas atribuir o preço recebido
+        // Garantir que o valor do preço seja carregado corretamente
         const precoRecebido = produtoEncontrado.preco;
-        setPreco(produtoEncontrado.preco.toString()); // Apenas converte o número para string
-
+        setPreco(precoRecebido); // Exibir o valor formatado corretamente
         setCadastro(produtoEncontrado.cadastro || ``);
         setItensProduto(produtoEncontrado.itensProduto || []);
       });
@@ -119,33 +122,37 @@ export const CadastroProdutos: React.FC = () => {
     if (queryId) {
       service.carregarProduto(queryId).then((produtoEncontrado: Produto) => {
         console.log("Produto encontrado:", produtoEncontrado);
-
+  
         // Verifique o valor do preço
         const precoRecebido = produtoEncontrado.preco;
-        console.log("Preço recebido do backend:", precoRecebido);
-
+  
+        // Formatar o valor para ter 2 casas decimais, substituir ponto por vírgula, e adicionar "R$"
         const precoFormatado = precoRecebido
-          ? formatReal(precoRecebido.toString())
-          : "0,00";
-
+          ? `R$ ${precoRecebido.toFixed(2).replace(".", ",")}`
+          : "R$ 0,00";
+  
         console.log("Preço formatado:", precoFormatado);
-
-        setPreco(precoFormatado); // Certifique-se de definir o preço corretamente
+  
+        setPreco(precoFormatado); 
       });
     }
   }, [queryId]);
+  
+  
 
   const submit = () => {
+    const precoConvertido = converterEmBigDecimal(preco); // Converte o valor formatado de string para BigDecimal
+  
     const produto: Produto = {
       id,
       categoria: categoria || "",
       tipo: tipo || "",
-      preco: converterEmBigDecimal(preco),
+      preco: precoConvertido, // Enviar o valor convertido para o backend
       nome,
       descricao,
       itensProduto: itensProduto.length > 0 ? itensProduto : [],
     };
-
+  
     validationSchema
       .validate(produto)
       .then(() => {
@@ -193,13 +200,14 @@ export const CadastroProdutos: React.FC = () => {
       .catch((error) => {
         const field = error.path;
         const message = error.message;
-
+  
         setErrors({
           ...errors,
           [field]: message,
         });
       });
   };
+  
 
   const adicionarItemProduto = () => {
     if (produtoSelecionado) {
@@ -248,6 +256,11 @@ export const CadastroProdutos: React.FC = () => {
       (item) => item.itemProdutoId !== itemProdutoId
     );
     setItensProduto(novaLista);
+  };
+
+  const handlePrecoChange = (e) => {
+    // Apenas capturando o valor diretamente, sem formatação
+    setPreco(e.target.value);
   };
 
   return (
@@ -476,7 +489,7 @@ export const CadastroProdutos: React.FC = () => {
                   const item = listaProdutos.find(
                     (p) => p.id === rowData.itemProdutoId
                   );
-                  return item ? formatReal(item.preco || 0) : "0,00";
+                  return item ? formatCurrencyBRL(item.preco || 0) : "0,00";
                 }}
               />
               <Column
@@ -486,7 +499,7 @@ export const CadastroProdutos: React.FC = () => {
                     (p) => p.id === rowData.itemProdutoId
                   );
                   return item
-                    ? formatReal(
+                    ? formatCurrencyBRL(
                         calcularValorTotal(rowData.quantidade, item.preco || 0)
                       )
                     : "0,00";
@@ -506,7 +519,7 @@ export const CadastroProdutos: React.FC = () => {
             </DataTable>
             <div className="columns is-justify-content-flex-end mt-2">
               <strong>
-                Total Geral: {formatReal(calcularSomatorioTotal())}
+                Total Geral: {formatCurrencyBRL(calcularSomatorioTotal())}
               </strong>
             </div>
           </div>
