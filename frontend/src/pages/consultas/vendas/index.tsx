@@ -1,8 +1,9 @@
-// pages/consultas/vendas.tsx
-import { ListagemVendas } from "components/vendas/listagem";
+import React from "react";
+import withAuth from "components/common/withAuth";
+import { ListagemVendas as VendasList } from "components/vendas/listagem"; 
 
-const VendasPage: React.FC = () => {
-  return <ListagemVendas />;
+const ListagemVendasPage: React.FC = () => {
+  return <VendasList />;  
 };
 
-export default VendasPage;
+export default withAuth(ListagemVendasPage);
