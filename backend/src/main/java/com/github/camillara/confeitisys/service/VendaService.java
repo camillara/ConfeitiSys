@@ -280,18 +280,6 @@ public class VendaService {
 				.build();
 	}
 
-	public List<VendaDTO> listarVendasEmProducao(String userId) {
-		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
-
-		// Busca as vendas em produção para o usuário
-		List<Venda> vendas = repository.findVendasEmProducaoByUserId(userLongId);
-
-		// Converte as vendas para DTOs
-		return vendas.stream()
-				.map(this::converterVendaParaDTO)
-				.collect(Collectors.toList());
-	}
-
 	public List<RelatorioVendasDTO> gerarRelatorioPorFormaPagamentoEPeriodo(String userId, LocalDate dataInicio, LocalDate dataFim) {
 		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
 
@@ -322,8 +310,28 @@ public class VendaService {
 		return new ArrayList<>(mapaRelatorio.values());
 	}
 
+	public List<VendaEmProducaoDTO> listarItensVendasEmProducao(String userId) {
+		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
 
+		// Busca as vendas em produção para o usuário
+		List<Venda> vendas = repository.findVendasEmProducaoByUserId(userLongId);
 
+		// Verifique se a venda contém itens de venda e faça o mapeamento para DTO
+		return vendas.stream()
+				.flatMap(venda -> venda.getItens().stream().map(item -> {
+					BigDecimal valorTotalItem = item.getValorUnitario().multiply(new BigDecimal(item.getQuantidade()));
+					return new VendaEmProducaoDTO(
+							venda.getId(),
+							venda.getCliente().getNome(),   // Nome do cliente
+							item.getProduto().getNome(),    // Nome do produto
+							item.getQuantidade(),           // Quantidade
+							item.getValorUnitario(),        // Valor unitário
+							valorTotalItem,                  // Valor total (quantidade * valor unitário)
+							venda.getDataEntrega()
+					);
+				}))
+				.collect(Collectors.toList());
+	}
 
 
 

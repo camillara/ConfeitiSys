@@ -4,6 +4,7 @@ import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.rest.produtos.dto.ItemProdutoAtualizarDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.RelatorioVendasDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.VendaDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.VendaEmProducaoDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
 import com.github.camillara.confeitisys.service.VendaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,8 +74,8 @@ public class VendasController {
 	}
 
 	@GetMapping("/em-producao")
-	public ResponseEntity<List<VendaDTO>> listarVendasEmProducao(@RequestParam("userId") String userId) {
-		List<VendaDTO> vendasEmProducao = vendaService.listarVendasEmProducao(userId);
+	public ResponseEntity<List<VendaEmProducaoDTO>> listarVendasEmProducao(@RequestParam("userId") String userId) {
+		List<VendaEmProducaoDTO> vendasEmProducao = vendaService.listarItensVendasEmProducao(userId);
 		return ResponseEntity.ok(vendasEmProducao);
 	}
 

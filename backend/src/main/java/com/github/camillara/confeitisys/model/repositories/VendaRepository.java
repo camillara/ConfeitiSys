@@ -35,9 +35,6 @@ public interface VendaRepository extends JpaRepository<Venda, Long>{
     @Query("SELECT v FROM Venda v WHERE v.id = :id AND v.user.id = :userId")
     Optional<Venda> findByIdEUser(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query("SELECT v FROM Venda v WHERE v.statusPedido = 'EM_PRODUCAO' AND v.user.id = :userId")
-    List<Venda> findVendasEmProducaoByUserId(@Param("userId") Long userId);
-
     @Query("SELECT v.formaPagamento, v.statusPagamento, SUM(v.total) " +
             "FROM Venda v " +
             "WHERE v.dataCadastro BETWEEN :dataInicio AND :dataFim " +
@@ -47,6 +44,9 @@ public interface VendaRepository extends JpaRepository<Venda, Long>{
                                                            @Param("dataInicio") LocalDate dataInicio,
                                                            @Param("dataFim") LocalDate dataFim);
 
+
+    @Query("SELECT v FROM Venda v WHERE v.statusPedido = 'PRODUCAO' AND v.user.id = :userId")
+    List<Venda> findVendasEmProducaoByUserId(@Param("userId") Long userId);
 
 
 }
