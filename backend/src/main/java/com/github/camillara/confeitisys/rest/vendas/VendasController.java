@@ -2,16 +2,19 @@ package com.github.camillara.confeitisys.rest.vendas;
 
 import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.rest.produtos.dto.ItemProdutoAtualizarDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.RelatorioVendasDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.VendaDTO;
 import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
 import com.github.camillara.confeitisys.service.VendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -68,4 +71,27 @@ public class VendasController {
 		vendaService.deletarVenda(id, userId);
 		return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/em-producao")
+	public ResponseEntity<List<VendaDTO>> listarVendasEmProducao(@RequestParam("userId") String userId) {
+		List<VendaDTO> vendasEmProducao = vendaService.listarVendasEmProducao(userId);
+		return ResponseEntity.ok(vendasEmProducao);
+	}
+
+	@GetMapping("/relatorio-vendas")
+	public ResponseEntity<List<RelatorioVendasDTO>> gerarRelatorioPorFormaPagamentoEPeriodo(
+			@RequestParam("userId") String userId,
+			@RequestParam("dataInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+			@RequestParam("dataFim") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+
+		List<RelatorioVendasDTO> relatorio = vendaService.gerarRelatorioPorFormaPagamentoEPeriodo(userId, dataInicio, dataFim);
+		return ResponseEntity.ok(relatorio);
+	}
+
+
+
+
+
+
+
 }

@@ -3,12 +3,11 @@ package com.github.camillara.confeitisys.service;
 import com.github.camillara.confeitisys.exception.VendaNaoEncontradaException;
 import com.github.camillara.confeitisys.exception.OperacaoNaoPermitidaException;
 import com.github.camillara.confeitisys.model.*;
+import com.github.camillara.confeitisys.model.enums.FormaPagamento;
+import com.github.camillara.confeitisys.model.enums.StatusPagamento;
 import com.github.camillara.confeitisys.model.repositories.*;
 import com.github.camillara.confeitisys.rest.produtos.dto.ItemProdutoAtualizarDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.ItemDetalhadoVendaDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.ItemVendaDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -280,4 +279,52 @@ public class VendaService {
 				.observacao(venda.getObservacao())
 				.build();
 	}
+
+	public List<VendaDTO> listarVendasEmProducao(String userId) {
+		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
+
+		// Busca as vendas em produção para o usuário
+		List<Venda> vendas = repository.findVendasEmProducaoByUserId(userLongId);
+
+		// Converte as vendas para DTOs
+		return vendas.stream()
+				.map(this::converterVendaParaDTO)
+				.collect(Collectors.toList());
+	}
+
+	public List<RelatorioVendasDTO> gerarRelatorioPorFormaPagamentoEPeriodo(String userId, LocalDate dataInicio, LocalDate dataFim) {
+		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
+
+		List<Object[]> resultados = repository.gerarRelatorioPorFormaPagamentoEPeriodo(userLongId, dataInicio, dataFim);
+
+		Map<FormaPagamento, RelatorioVendasDTO> mapaRelatorio = new HashMap<>();
+
+		// Processa os resultados
+		for (Object[] resultado : resultados) {
+			FormaPagamento formaPagamento = (FormaPagamento) resultado[0];
+			StatusPagamento statusPagamento = (StatusPagamento) resultado[1];  // Alterado para StatusPagamento (enum)
+			BigDecimal total = (BigDecimal) resultado[2];  // Alterado para BigDecimal
+
+			// Se já existe uma entrada para essa forma de pagamento, atualiza
+			RelatorioVendasDTO dto = mapaRelatorio.getOrDefault(formaPagamento, new RelatorioVendasDTO(formaPagamento, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
+
+			if (StatusPagamento.PAGO.equals(statusPagamento)) {
+				dto.setTotalPagas(dto.getTotalPagas().add(total));
+			} else if (StatusPagamento.PENDENTE.equals(statusPagamento)) {
+				dto.setTotalPendentes(dto.getTotalPendentes().add(total));
+			}
+
+			// Atualiza o valor total (pagas + pendentes)
+			dto.setValorTotal(dto.getTotalPagas().add(dto.getTotalPendentes()));
+			mapaRelatorio.put(formaPagamento, dto);
+		}
+
+		return new ArrayList<>(mapaRelatorio.values());
+	}
+
+
+
+
+
+
 }
