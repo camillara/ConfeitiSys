@@ -27,3 +27,21 @@ export interface ItemProdutoAtualizarDTO {
   qtd: number;
   total: number;
 }
+
+export interface PedidosProducao {
+  id?: number; 
+  nomeCliente?: string;
+  nomeProduto?: string;
+  quantidade?: number;
+  valorUnitario?: number;
+  valorTotal?: number;
+  total: number;
+  dataEntrega?: string;
+}
+
+export interface VendasPorStatus{
+  formaPagamento?: string;
+  totalPagas?: number;
+  totalPendentes?: number;
+  valorTotal?: number;
+}

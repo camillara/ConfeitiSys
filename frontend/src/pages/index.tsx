@@ -5,8 +5,8 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>Vendas App</title>
-        <meta name="description" content="Sistema de Vendas" />
+        <title>ConfeitiSys</title>
+        <meta name="description" content="Sistema de Gestão para Confeitarias Artesanais" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
