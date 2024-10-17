@@ -11,27 +11,37 @@ export const RelatoriosHome = () => {
   const [relatorioVendas, setRelatorioVendas] = useState<VendasPorStatus[]>([]);
   const [insumosNecessarios, setInsumosNecessarios] = useState<InsumoNecessario[]>([]);
   const [dias, setDias] = useState(7); // Número de dias para o relatório de insumos
+  const [visibleRows, setVisibleRows] = useState(10); // Controla o número de linhas visíveis inicialmente
   const { user } = useUser(); // Acessa o usuário logado
   const vendaService = useVendaService();
 
+  // Carregar as vendas em produção e relatório de vendas uma única vez ao montar o componente
   useEffect(() => {
     if (user) {
-      // Busca as vendas em produção
+      console.log("Buscando dados de vendas em produção e relatórios...");
       vendaService.listarVendasEmProducao(user.id).then((data) => {
         setVendasEmProducao(data);
       });
 
-      // Busca o relatório de vendas por status
       vendaService.gerarRelatorioPorFormaPagamentoEPeriodo(user.id, new Date(), new Date()).then((data) => {
         setRelatorioVendas(data);
       });
+    }
+  }, [user]); // Executa apenas quando o usuário estiver disponível (carregamento único)
 
-      // Busca os insumos necessários para os próximos dias
+  // Função chamada ao clicar no botão "Ver mais"
+  const mostrarMaisLinhas = () => {
+    setVisibleRows((prevVisibleRows) => prevVisibleRows + 10); // Aumenta o número de linhas visíveis em 10
+  };
+
+  // Função para buscar insumos necessários (chamada ao clicar em um botão, não no useEffect)
+  const buscarInsumos = () => {
+    if (user) {
       vendaService.listarInsumosNecessarios(user.id, dias).then((data) => {
         setInsumosNecessarios(data);
       });
     }
-  }, [user, dias]);
+  };
 
   return (
     <div>
@@ -39,7 +49,8 @@ export const RelatoriosHome = () => {
 
       <div>
         <h3>Pedidos em Produção</h3>
-        <DataTable value={vendasEmProducao}>
+        <DataTable value={vendasEmProducao.slice(0, visibleRows)}>
+          {/* Exibe apenas as linhas controladas por visibleRows */}
           <Column field="nomeCliente" header="Cliente" />
           <Column field="nomeProduto" header="Produto" />
           <Column field="quantidade" header="Quantidade" />
@@ -47,6 +58,11 @@ export const RelatoriosHome = () => {
           <Column field="valorTotal" header="Valor Total" />
           <Column field="dataEntrega" header="Data de Entrega" />
         </DataTable>
+        {visibleRows < vendasEmProducao.length && (
+          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+            <Button label="Ver mais" onClick={mostrarMaisLinhas} />
+          </div>
+        )}
       </div>
 
       <div>
@@ -69,6 +85,7 @@ export const RelatoriosHome = () => {
             value={dias}
             onChange={(e) => setDias(Number(e.target.value))}
           />
+          <Button label="Buscar Insumos" onClick={buscarInsumos} /> {/* Botão para buscar insumos */}
         </div>
 
         <DataTable value={insumosNecessarios}>
