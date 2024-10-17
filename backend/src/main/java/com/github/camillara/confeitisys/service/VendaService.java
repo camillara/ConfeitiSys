@@ -274,6 +274,7 @@ public class VendaService {
 				.statusPedido(venda.getStatusPedido())
 				.itens(itensDTO)
 				.total(venda.getTotal())
+				.valorRecebido(venda.getValorRecebido())
 				.cadastro(venda.getDataCadastro())
 				.dataEntrega(venda.getDataEntrega())
 				.observacao(venda.getObservacao())

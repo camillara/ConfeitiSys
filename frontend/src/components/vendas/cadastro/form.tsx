@@ -88,17 +88,19 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const formik = useFormik<Venda>({
     onSubmit: (values) => {
-      const venda: Venda = {
-        ...values,
-        statusPagamento:
-          values.valorRecebido === values.total ? "PAGO" : "PENDENTE",
-        id: id ? Number(id) : undefined, // Inclui o ID se estiver editando uma venda
-        cliente: { id: values.cliente?.id } as Cliente, // Enviando apenas o id do cliente
-        dataEntrega:
-          values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
-            ? new Date(values.dataEntrega).toISOString().split("T")[0]
-            : "",
-      };
+  const novoValorRecebido = formik.values.valorRecebido + formik.values.baixarValor;  // Somar o valor baixado
+  const venda: Venda = {
+    ...values,
+    valorRecebido: novoValorRecebido,  // Atualiza com o novo valor recebido
+    statusPagamento:
+      novoValorRecebido === values.total ? "PAGO" : "PENDENTE",
+    id: id ? Number(id) : undefined,
+    cliente: { id: values.cliente?.id } as Cliente,
+    dataEntrega:
+      values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
+        ? new Date(values.dataEntrega).toISOString().split("T")[0]
+        : "",
+  };
 
       // Verifica se estamos atualizando ou criando uma nova venda
       if (id) {
@@ -195,6 +197,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           formik.setValues({
             ...vendaCarregada,
             dataEntrega: dataEntregaFormatada, // Atribuir o objeto Date ao formik
+            valorRecebido: vendaCarregada.valorRecebido,
           });
 
           carregarItensVenda(vendaCarregada.itens || [], Number(id)); // Carregar os itens da venda
@@ -227,6 +230,21 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         .then((produtoEncontrado) => setProduto(produtoEncontrado))
         .catch(() => setMensagem("Produto não encontrado!"));
     }
+  };
+
+  const handleValorRecebidoChange = (e) => {
+    const valorRecebido = e.value;
+
+    if (valorRecebido > formik.values.total) {
+      formik.setFieldValue("valorRecebido", formik.values.total);
+    } else {
+      formik.setFieldValue("valorRecebido", valorRecebido);
+    }
+
+    // Atualiza automaticamente o statusPagamento
+    const novoStatus =
+      valorRecebido === formik.values.total ? "PAGO" : "PENDENTE";
+    formik.setFieldValue("statusPagamento", novoStatus);
   };
 
   const handleAddProduto = () => {
@@ -368,21 +386,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     }
   }, [venda]);
 
-  const handleValorRecebidoChange = (e) => {
-    const valorRecebido = e.value;
-
-    if (valorRecebido > formik.values.total) {
-      formik.setFieldValue("valorRecebido", formik.values.total);
-    } else {
-      formik.setFieldValue("valorRecebido", valorRecebido);
-    }
-
-    // Atualiza automaticamente o statusPagamento
-    const novoStatus =
-      valorRecebido === formik.values.total ? "PAGO" : "PENDENTE";
-    formik.setFieldValue("statusPagamento", novoStatus);
-  };
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="p-fluid">
@@ -475,14 +478,15 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 >
                   Status de Pagamento: *
                 </label>
-                <div className="column is-3">
-                  <Dropdown
-                    disabled
-                    options={["PAGO", "PENDENTE"]}
-                    value={formik.values.statusPagamento}
-                    placeholder="Status de Pagamento"
-                  />
-                </div>
+
+                <Dropdown
+                  disabled
+                  options={["PAGO", "PENDENTE"]}
+                  value={formik.values.statusPagamento}
+                  placeholder="Status de Pagamento"
+                  style={{ height: "38px", width: "100%" }}
+                />
+
                 <small className="p-error p-d-block">
                   {formik.touched.statusPagamento &&
                     formik.errors.statusPagamento}
@@ -688,7 +692,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
         <div className="columns" style={{ gap: "1rem" }}>
           {/* Campo Itens */}
-          <div className="column is-3">
+          <div className="column is-1">
             <div className="p-field">
               <label htmlFor="itens" style={{ marginBottom: "0.5rem" }}>
                 Itens:
@@ -705,7 +709,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           <div className="column is-3">
             <div className="p-field">
               <label htmlFor="total" style={{ marginBottom: "0.5rem" }}>
-                Total:
+                Total Pedido:
               </label>
               <InputText
                 disabled
@@ -714,12 +718,33 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               />
             </div>
           </div>
+          {/* Campo Total Recebido */}
+          {id && (
+            <div className="column is-3">
+              <div className="p-field">
+                <label
+                  htmlFor="valorRecebido"
+                  style={{ marginBottom: "0.5rem" }}
+                >
+                  Total Recebido:
+                </label>
+                <InputText
+                  disabled
+                  value={formatadorMoney.format(formik.values.valorRecebido)}
+                  style={{ height: "38px", width: "100%" }}
+                />
+              </div>
+            </div>
+          )}
 
+          {/* Campo para inserir Valor Recebido */}
           <div className="column is-3">
-            <label>Valor Recebido:</label>
+            <label>Baixar Valor:</label>
             <InputNumber
-              value={formik.values.valorRecebido}
-              onValueChange={handleValorRecebidoChange}
+              value={formik.values.baixarValor} // Um novo campo para armazenar o valor baixado
+              onValueChange={(e) =>
+                formik.setFieldValue("baixarValor", e.value)
+              } // Atualiza somente o valor baixado
               mode="currency"
               currency="BRL"
               locale="pt-BR"
