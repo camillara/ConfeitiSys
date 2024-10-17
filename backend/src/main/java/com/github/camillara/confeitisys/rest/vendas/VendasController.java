@@ -2,10 +2,7 @@ package com.github.camillara.confeitisys.rest.vendas;
 
 import com.github.camillara.confeitisys.model.Venda;
 import com.github.camillara.confeitisys.rest.produtos.dto.ItemProdutoAtualizarDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.RelatorioVendasDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaEmProducaoDTO;
-import com.github.camillara.confeitisys.rest.vendas.dto.VendaFormRequestDTO;
+import com.github.camillara.confeitisys.rest.vendas.dto.*;
 import com.github.camillara.confeitisys.service.VendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -88,6 +85,16 @@ public class VendasController {
 		List<RelatorioVendasDTO> relatorio = vendaService.gerarRelatorioPorFormaPagamentoEPeriodo(userId, dataInicio, dataFim);
 		return ResponseEntity.ok(relatorio);
 	}
+
+	@GetMapping("/insumos-necessarios")
+	public ResponseEntity<List<InsumoNecessarioDTO>> listarInsumosNecessarios(
+			@RequestParam("userId") String userId,
+			@RequestParam("dias") int dias) {
+
+		List<InsumoNecessarioDTO> insumosNecessarios = vendaService.listarInsumosNecessarios(userId, dias);
+		return ResponseEntity.ok(insumosNecessarios);
+	}
+
 
 
 

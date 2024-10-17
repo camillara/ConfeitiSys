@@ -48,5 +48,9 @@ public interface VendaRepository extends JpaRepository<Venda, Long>{
     @Query("SELECT v FROM Venda v WHERE v.statusPedido = 'PRODUCAO' AND v.user.id = :userId")
     List<Venda> findVendasEmProducaoByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT v FROM Venda v WHERE v.statusPedido = 'PRODUCAO' AND v.dataEntrega BETWEEN :dataAtual AND :dataFim AND v.user.id = :userId")
+    List<Venda> findVendasEmProducaoPorPeriodo(@Param("userId") Long userId, @Param("dataAtual") LocalDate dataAtual, @Param("dataFim") LocalDate dataFim);
+
+
 
 }

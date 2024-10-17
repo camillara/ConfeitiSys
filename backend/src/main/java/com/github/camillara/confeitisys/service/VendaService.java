@@ -333,6 +333,39 @@ public class VendaService {
 				.collect(Collectors.toList());
 	}
 
+	public List<InsumoNecessarioDTO> listarInsumosNecessarios(String userId, int dias) {
+		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
+		LocalDate dataAtual = LocalDate.now();
+		LocalDate dataFim = dataAtual.plusDays(dias);
+
+		// Busca as vendas em produção com entrega nos próximos dias
+		List<Venda> vendas = repository.findVendasEmProducaoPorPeriodo(userLongId, dataAtual, dataFim);
+
+		// Mapeia os itens detalhados para calcular a quantidade total de insumos por produto
+		Map<Long, InsumoNecessarioDTO> insumosMap = new HashMap<>();
+
+		for (Venda venda : vendas) {
+			for (ItemVenda itemVenda : venda.getItens()) {
+				for (ItemDetalhadoVenda itemDetalhado : itemVenda.getItensDetalhados()) {
+					Long idProduto = itemDetalhado.getProduto().getId();
+					String nomeProduto = itemDetalhado.getProduto().getNome();
+					Integer quantidadeUsada = itemDetalhado.getQuantidadeUsada();
+
+					// Atualiza ou cria um novo DTO para o insumo
+					InsumoNecessarioDTO dto = insumosMap.getOrDefault(idProduto, new InsumoNecessarioDTO(idProduto, nomeProduto, 0));
+					dto.setQuantidade(dto.getQuantidade() + quantidadeUsada);
+
+					// Atualiza o map
+					insumosMap.put(idProduto, dto);
+				}
+			}
+		}
+
+		// Retorna a lista de insumos
+		return new ArrayList<>(insumosMap.values());
+	}
+
+
 
 
 }
