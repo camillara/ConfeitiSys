@@ -18,7 +18,6 @@ export const RelatoriosHome = () => {
   // Carregar as vendas em produção e relatório de vendas uma única vez ao montar o componente
   useEffect(() => {
     if (user) {
-      console.log("Buscando dados de vendas em produção e relatórios...");
       vendaService.listarVendasEmProducao(user.id).then((data) => {
         setVendasEmProducao(data);
       });
@@ -29,18 +28,16 @@ export const RelatoriosHome = () => {
     }
   }, [user]); // Executa apenas quando o usuário estiver disponível (carregamento único)
 
+  // Efeito para buscar insumos automaticamente sempre que o valor de "dias" mudar
+  useEffect(() => {
+    if (user) {
+      vendaService.listarInsumosNecessarios(user.id, dias).then(setInsumosNecessarios);
+    }
+  }, [user, dias]);
+
   // Função chamada ao clicar no botão "Ver mais"
   const mostrarMaisLinhas = () => {
     setVisibleRows((prevVisibleRows) => prevVisibleRows + 10); // Aumenta o número de linhas visíveis em 10
-  };
-
-  // Função para buscar insumos necessários (chamada ao clicar em um botão, não no useEffect)
-  const buscarInsumos = () => {
-    if (user) {
-      vendaService.listarInsumosNecessarios(user.id, dias).then((data) => {
-        setInsumosNecessarios(data);
-      });
-    }
   };
 
   return (
@@ -49,8 +46,8 @@ export const RelatoriosHome = () => {
 
       <div>
         <h3>Pedidos em Produção</h3>
-        <DataTable value={vendasEmProducao.slice(0, visibleRows)}>
-          {/* Exibe apenas as linhas controladas por visibleRows */}
+        {/* Configuração para rolagem e altura fixa */}
+        <DataTable value={vendasEmProducao.slice(0, visibleRows)} scrollable scrollHeight="400px">
           <Column field="nomeCliente" header="Cliente" />
           <Column field="nomeProduto" header="Produto" />
           <Column field="quantidade" header="Quantidade" />
@@ -67,7 +64,7 @@ export const RelatoriosHome = () => {
 
       <div>
         <h3>Relatório de Vendas</h3>
-        <DataTable value={relatorioVendas}>
+        <DataTable value={relatorioVendas} scrollable scrollHeight="400px">
           <Column field="formaPagamento" header="Forma de Pagamento" />
           <Column field="totalPagas" header="Total Pagas" />
           <Column field="totalPendentes" header="Total Pendentes" />
@@ -83,12 +80,11 @@ export const RelatoriosHome = () => {
             type="number"
             id="dias"
             value={dias}
-            onChange={(e) => setDias(Number(e.target.value))}
+            onChange={(e) => setDias(Number(e.target.value))} // Atualiza automaticamente ao mudar o número de dias
           />
-          <Button label="Buscar Insumos" onClick={buscarInsumos} /> {/* Botão para buscar insumos */}
         </div>
 
-        <DataTable value={insumosNecessarios}>
+        <DataTable value={insumosNecessarios} scrollable scrollHeight="400px">
           <Column field="nomeProduto" header="Produto" />
           <Column field="quantidade" header="Quantidade Necessária" />
         </DataTable>
