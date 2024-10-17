@@ -69,7 +69,6 @@ export const RelatoriosHome = () => {
             value={dias}
             onChange={(e) => setDias(Number(e.target.value))}
           />
-          <Button label="Atualizar" onClick={() => vendaService.listarInsumosNecessarios(user.id, dias).then(setInsumosNecessarios)} />
         </div>
 
         <DataTable value={insumosNecessarios}>
