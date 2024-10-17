@@ -160,7 +160,7 @@ export const TabelaProdutos: React.FC<TabelaProdutosProps> = ({
           body={precoTemplate}
           style={{ textAlign: "right" }}
         />
-        <Column body={actionTemplate} header="" />
+        <Column body={actionTemplate} header="Ações" />
       </DataTable>
       <div style={{ marginTop: "10px", textAlign: "right" }}>
         Contém {Math.ceil(totalRecords / rows)} páginas

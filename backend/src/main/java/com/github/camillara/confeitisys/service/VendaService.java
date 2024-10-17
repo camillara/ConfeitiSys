@@ -316,8 +316,9 @@ public class VendaService {
 		// Busca as vendas em produção para o usuário
 		List<Venda> vendas = repository.findVendasEmProducaoByUserId(userLongId);
 
-		// Verifique se a venda contém itens de venda e faça o mapeamento para DTO
+		// Ordena as vendas pela data de entrega em ordem crescente, movendo as que não têm data para o final
 		return vendas.stream()
+				.sorted(Comparator.comparing(Venda::getDataEntrega, Comparator.nullsLast(Comparator.naturalOrder()))) // Ordena pela data de entrega (nulls vão para o final)
 				.flatMap(venda -> venda.getItens().stream().map(item -> {
 					BigDecimal valorTotalItem = item.getValorUnitario().multiply(new BigDecimal(item.getQuantidade()));
 					return new VendaEmProducaoDTO(
@@ -326,12 +327,14 @@ public class VendaService {
 							item.getProduto().getNome(),    // Nome do produto
 							item.getQuantidade(),           // Quantidade
 							item.getValorUnitario(),        // Valor unitário
-							valorTotalItem,                  // Valor total (quantidade * valor unitário)
-							venda.getDataEntrega()
+							valorTotalItem,                 // Valor total (quantidade * valor unitário)
+							venda.getDataEntrega()          // Data de entrega
 					);
 				}))
 				.collect(Collectors.toList());
 	}
+
+
 
 	public List<InsumoNecessarioDTO> listarInsumosNecessarios(String userId, int dias) {
 		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
