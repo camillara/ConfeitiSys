@@ -48,6 +48,9 @@ public class Venda {
 	@Column
 	private BigDecimal total;
 
+	@Column
+	private BigDecimal valorRecebido;
+
 	@Column(name = "data_de_cadastro")
 	private LocalDate dataCadastro;
 

@@ -23,6 +23,7 @@ import { Dropdown } from "primereact/dropdown";
 import { validationScheme } from "./validationScheme";
 import { useRouter } from "next/router";
 import { Calendar } from "primereact/calendar";
+import { InputNumber } from "primereact/inputnumber";
 
 const formatadorMoney = new Intl.NumberFormat("pt-br", {
   style: "currency",
@@ -40,6 +41,7 @@ const formScheme: Venda = {
   cliente: null!,
   itens: [] as ItemVenda[],
   total: 0,
+  valorRecebido: 0, // Novo campo
   formaPagamento: "",
   statusPagamento: "",
   statusPedido: "",
@@ -65,7 +67,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     "CARTAO_DE_CREDITO",
     "CARTAO_DE_DEBITO",
   ];
-  const statusPagamento: String[] = ["PENDENTE", "PAGO"];
   const statusPedido: String[] = ["PRODUCAO", "ENTREGUE", "CANCELADO"];
   const clienteService = useClienteService();
   const produtoService = useProdutoService();
@@ -89,6 +90,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     onSubmit: (values) => {
       const venda: Venda = {
         ...values,
+        statusPagamento:
+          values.valorRecebido === values.total ? "PAGO" : "PENDENTE",
         id: id ? Number(id) : undefined, // Inclui o ID se estiver editando uma venda
         cliente: { id: values.cliente?.id } as Cliente, // Enviando apenas o id do cliente
         dataEntrega:
@@ -165,7 +168,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   useEffect(() => {
     // Verificar se o ID da venda existe
     console.log("ID da venda vindo do router:", id);
-  
+
     if (!id) {
       // Se não houver ID, estamos criando uma nova venda
       console.log("Nova venda, não é necessário carregar itens.");
@@ -173,25 +176,27 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       formik.setFieldValue("itens", []); // Certificar-se de que os itens estão vazios
       return; // Sair da função
     }
-  
+
     // Caso haja um ID, estamos editando uma venda, então buscamos os dados
     buscarPorId(Number(id))
       .then((vendaCarregada) => {
         if (vendaCarregada) {
           console.log("Venda carregada:", vendaCarregada);
-  
+
           // Formatar a data de entrega recebida (que está no formato "dd/MM/yyyy") para um objeto Date sem ajuste de fuso horário
-          const [dia, mes, ano] = vendaCarregada.dataEntrega.split("/").map(Number);
+          const [dia, mes, ano] = vendaCarregada.dataEntrega
+            .split("/")
+            .map(Number);
           const dataEntregaFormatada = vendaCarregada.dataEntrega
             ? new Date(ano, mes - 1, dia) // Mês no JavaScript é baseado em zero, por isso (mes - 1)
             : null;
-  
+
           // Definir os valores do formik com a venda carregada e a data formatada
           formik.setValues({
             ...vendaCarregada,
             dataEntrega: dataEntregaFormatada, // Atribuir o objeto Date ao formik
           });
-  
+
           carregarItensVenda(vendaCarregada.itens || [], Number(id)); // Carregar os itens da venda
         } else {
           formik.resetForm({ values: formScheme }); // Se a venda não for encontrada, resetar o formulário
@@ -201,8 +206,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         console.error("Erro ao carregar a venda:", error);
       });
   }, [id]);
-  
-  
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
@@ -355,6 +358,31 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (venda) {
+      formik.setValues({
+        ...venda,
+        valorRecebido: venda.valorRecebido || 0,
+        total: venda.total || 0,
+      });
+    }
+  }, [venda]);
+
+  const handleValorRecebidoChange = (e) => {
+    const valorRecebido = e.value;
+
+    if (valorRecebido > formik.values.total) {
+      formik.setFieldValue("valorRecebido", formik.values.total);
+    } else {
+      formik.setFieldValue("valorRecebido", valorRecebido);
+    }
+
+    // Atualiza automaticamente o statusPagamento
+    const novoStatus =
+      valorRecebido === formik.values.total ? "PAGO" : "PENDENTE";
+    formik.setFieldValue("statusPagamento", novoStatus);
+  };
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="p-fluid">
@@ -447,16 +475,14 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 >
                   Status de Pagamento: *
                 </label>
-                <Dropdown
-                  id="statusPagamento"
-                  options={statusPagamento}
-                  value={formik.values.statusPagamento}
-                  onChange={(e) =>
-                    formik.setFieldValue("statusPagamento", e.value)
-                  }
-                  placeholder="Selecione..."
-                  style={{ height: "38px", width: "100%" }}
-                />
+                <div className="column is-3">
+                  <Dropdown
+                    disabled
+                    options={["PAGO", "PENDENTE"]}
+                    value={formik.values.statusPagamento}
+                    placeholder="Status de Pagamento"
+                  />
+                </div>
                 <small className="p-error p-d-block">
                   {formik.touched.statusPagamento &&
                     formik.errors.statusPagamento}
@@ -687,6 +713,18 @@ export const VendasForm: React.FC<VendasFormProps> = ({
                 style={{ height: "38px", width: "100%" }}
               />
             </div>
+          </div>
+
+          <div className="column is-3">
+            <label>Valor Recebido:</label>
+            <InputNumber
+              value={formik.values.valorRecebido}
+              onValueChange={handleValorRecebidoChange}
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              max={formik.values.total}
+            />
           </div>
         </div>
 

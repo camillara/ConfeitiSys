@@ -26,6 +26,8 @@ public class VendaDTO {
 	private StatusPedido statusPedido;
 	private List<ItemVendaDTO> itens;
 	private BigDecimal total;
+	private BigDecimal valorRecebido;
+
 
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate cadastro;

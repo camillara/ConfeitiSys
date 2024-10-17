@@ -9,6 +9,7 @@ export interface Venda {
   statusPagamento?: string;
   statusPedido?: string;
   total: number;
+  valorRecebido: number;
   cadastro?: string;
   dataEntrega?: string;
   observacao?: string;

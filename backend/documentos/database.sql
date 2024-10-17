@@ -65,6 +65,7 @@ CREATE TABLE venda (
                        status_pagamento varchar(8) CHECK (status_pagamento IN ('PAGO', 'PENDENTE')) NOT NULL,
                        status_pedido varchar(8) CHECK (status_pedido IN ('PRODUCAO', 'ENTREGUE', 'CANCELADO')) NOT NULL,
                        total numeric(16,2) NOT NULL,
+                       valor_recebido numeric(16,2),
                        data_cadastro date,
                        data_entrega date,
                        observacao varchar(255),
