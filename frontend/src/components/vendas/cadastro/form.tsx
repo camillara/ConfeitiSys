@@ -24,6 +24,7 @@ import { validationScheme } from "./validationScheme";
 import { useRouter } from "next/router";
 import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
+import Router from "next/router";
 
 const formatadorMoney = new Intl.NumberFormat("pt-br", {
   style: "currency",
@@ -88,19 +89,20 @@ export const VendasForm: React.FC<VendasFormProps> = ({
 
   const formik = useFormik<Venda>({
     onSubmit: (values) => {
-  const novoValorRecebido = formik.values.valorRecebido + formik.values.baixarValor;  // Somar o valor baixado
-  const venda: Venda = {
-    ...values,
-    valorRecebido: novoValorRecebido,  // Atualiza com o novo valor recebido
-    statusPagamento:
-      novoValorRecebido === values.total ? "PAGO" : "PENDENTE",
-    id: id ? Number(id) : undefined,
-    cliente: { id: values.cliente?.id } as Cliente,
-    dataEntrega:
-      values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
-        ? new Date(values.dataEntrega).toISOString().split("T")[0]
-        : "",
-  };
+      const novoValorRecebido =
+        formik.values.valorRecebido + formik.values.baixarValor; // Somar o valor baixado
+      const venda: Venda = {
+        ...values,
+        valorRecebido: novoValorRecebido, // Atualiza com o novo valor recebido
+        statusPagamento:
+          novoValorRecebido === values.total ? "PAGO" : "PENDENTE",
+        id: id ? Number(id) : undefined,
+        cliente: { id: values.cliente?.id } as Cliente,
+        dataEntrega:
+          values.dataEntrega && !isNaN(new Date(values.dataEntrega).getTime())
+            ? new Date(values.dataEntrega).toISOString().split("T")[0]
+            : "",
+      };
 
       // Verifica se estamos atualizando ou criando uma nova venda
       if (id) {
@@ -359,6 +361,9 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     onNovaVenda();
   };
 
+  // Calcula o valor a receber
+  const totalAReceber = formik.values.total - formik.values.valorRecebido;
+
   const handleSubmit = async (venda: Venda) => {
     try {
       if (venda.id) {
@@ -370,7 +375,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       }
 
       // Redireciona ou exibe uma mensagem de sucesso após salvar
-      Router.push("/vendas");
+      Router.push("/consultas/vendas");
     } catch (error) {
       console.error("Erro ao salvar a venda:", error);
     }
@@ -469,31 +474,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               </div>
             </div>
 
-            {/* Status de Pagamento */}
-            <div className="column is-3">
-              <div className="p-field">
-                <label
-                  htmlFor="statusPagamento"
-                  style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
-                >
-                  Status de Pagamento: *
-                </label>
-
-                <Dropdown
-                  disabled
-                  options={["PAGO", "PENDENTE"]}
-                  value={formik.values.statusPagamento}
-                  placeholder="Status de Pagamento"
-                  style={{ height: "38px", width: "100%" }}
-                />
-
-                <small className="p-error p-d-block">
-                  {formik.touched.statusPagamento &&
-                    formik.errors.statusPagamento}
-                </small>
-              </div>
-            </div>
-
+            
             {/* Status do Pedido */}
             <div className="column is-3">
               <div className="p-field">
@@ -691,22 +672,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         <br />
 
         <div className="columns" style={{ gap: "1rem" }}>
-          {/* Campo Itens */}
-          <div className="column is-1">
-            <div className="p-field">
-              <label htmlFor="itens" style={{ marginBottom: "0.5rem" }}>
-                Itens:
-              </label>
-              <InputText
-                disabled
-                value={formik.values.itens?.length}
-                style={{ height: "38px", width: "100%" }}
-              />
-            </div>
-          </div>
-
           {/* Campo Total */}
-          <div className="column is-3">
+          <div className="column is-2">
             <div className="p-field">
               <label htmlFor="total" style={{ marginBottom: "0.5rem" }}>
                 Total Pedido:
@@ -720,7 +687,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           </div>
           {/* Campo Total Recebido */}
           {id && (
-            <div className="column is-3">
+            <div className="column is-2">
               <div className="p-field">
                 <label
                   htmlFor="valorRecebido"
@@ -737,8 +704,22 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             </div>
           )}
 
+          {/* Novo campo Total a Receber */}
+          <div className="column is-2">
+            <div className="p-field">
+              <label htmlFor="totalAReceber" style={{ marginBottom: "0.5rem" }}>
+                Total a Receber:
+              </label>
+              <InputText
+                disabled
+                value={formatadorMoney.format(totalAReceber)}
+                style={{ height: "38px", width: "100%" }}
+              />
+            </div>
+          </div>
+
           {/* Campo para inserir Valor Recebido */}
-          <div className="column is-3">
+          <div className="column is-2">
             <label>Baixar Valor:</label>
             <InputNumber
               value={formik.values.baixarValor} // Um novo campo para armazenar o valor baixado
@@ -751,6 +732,30 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               max={formik.values.total}
             />
           </div>
+                      {/* Status de Pagamento */}
+                      <div className="column is-3">
+              <div className="p-field">
+                <label
+                  htmlFor="statusPagamento"
+                  style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+                >
+                  Status de Pagamento: *
+                </label>
+
+                <Dropdown
+                  disabled
+                  options={["PAGO", "PENDENTE"]}
+                  value={formik.values.statusPagamento}
+                  placeholder="Status de Pagamento"
+                  style={{ height: "38px", width: "100%" }}
+                />
+
+                <small className="p-error p-d-block">
+                  {formik.touched.statusPagamento &&
+                    formik.errors.statusPagamento}
+                </small>
+              </div>
+            </div>
         </div>
 
         <div className="columns">
