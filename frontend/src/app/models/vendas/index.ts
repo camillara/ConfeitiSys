@@ -45,3 +45,9 @@ export interface VendasPorStatus{
   totalPendentes?: number;
   valorTotal?: number;
 }
+
+export interface InsumoNecessario{
+  idProduto?: number;
+  nomeProduto?: string;
+  quantidade?: number;
+}

@@ -1,6 +1,12 @@
 import { httpClient } from "app/http";
 import { Page } from "app/models/common/page";
-import { ItemProdutoAtualizarDTO, Venda } from "app/models/vendas";
+import { 
+  ItemProdutoAtualizarDTO, 
+  Venda, 
+  PedidosProducao, 
+  VendasPorStatus, 
+  InsumoNecessario 
+} from "app/models/vendas";
 import { AxiosResponse } from "axios";
 import { useUser } from "context/UserContext"; // Importa o contexto do usuário
 
@@ -84,6 +90,21 @@ export const useVendaService = () => {
     }
   };
 
+  const listarVendasEmProducao = async (userId: string): Promise<PedidosProducao[]> => {
+    const response: AxiosResponse<PedidosProducao[]> = await httpClient.get(`${resourceURL}/em-producao?userId=${userId}`);
+    return response.data;
+  };
+
+  const gerarRelatorioPorFormaPagamentoEPeriodo = async (userId: string, dataInicio: Date, dataFim: Date): Promise<VendasPorStatus[]> => {
+    const response: AxiosResponse<VendasPorStatus[]> = await httpClient.get(`${resourceURL}/relatorio-vendas?userId=${userId}&dataInicio=${dataInicio.toISOString().split("T")[0]}&dataFim=${dataFim.toISOString().split("T")[0]}`);
+    return response.data;
+  };
+
+  const listarInsumosNecessarios = async (userId: string, dias: number): Promise<InsumoNecessario[]> => {
+    const response: AxiosResponse<InsumoNecessario[]> = await httpClient.get(`${resourceURL}/insumos-necessarios?userId=${userId}&dias=${dias}`);
+    return response.data;
+  };
+
   return {
     realizarVenda,
     find,
@@ -91,5 +112,8 @@ export const useVendaService = () => {
     deletar,
     listarItensPorVenda,
     atualizarVenda, 
+    listarVendasEmProducao,
+    gerarRelatorioPorFormaPagamentoEPeriodo,
+    listarInsumosNecessarios,
   };
 };

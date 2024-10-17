@@ -1,7 +1,10 @@
 import Head from "next/head";
 import { Layout } from "components";
+import { RelatoriosHome } from "components/relatoriosHome"; 
+import withAuth from "components/common/withAuth";
 
-export default function Home() {
+
+function Home() {
   return (
     <div>
       <Head>
@@ -10,7 +13,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Layout />
+      <Layout>
+        <RelatoriosHome />
+      </Layout>
     </div>
   );
 }
+
+// Exporta a página Home com proteção de autenticação
+export default withAuth(Home);
