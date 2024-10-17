@@ -2,6 +2,7 @@ import { Cliente } from "../clientes";
 import { Produto } from "../produtos";
 
 export interface Venda {
+  id?: number; // Add the id property
   cliente?: Cliente;
   itens?: Array<ItemVenda>;
   formaPagamento?: string;
