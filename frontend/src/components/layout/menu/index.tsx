@@ -83,30 +83,6 @@ export const Menu: React.FC = () => {
             margin: 0,
           }}
         >
-          {/** Estilos de hover aplicados em cada item */}
-          <li
-            style={{
-              margin: "15px 0",
-              cursor: "pointer",
-              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
-              fontSize: "16px", // Tamanho inicial da fonte
-              padding: "10px", // Espaçamento interno para os itens do menu
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
-              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
-              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
-              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
-            }}
-            onClick={handleLinkClick}
-          >
-            <Link href="/">
-              <a style={{ color: "white", textDecoration: "none" }}>Home</a>
-            </Link>
-          </li>
           <li
             style={{
               margin: "15px 0",
@@ -130,6 +106,7 @@ export const Menu: React.FC = () => {
               <a style={{ color: "white", textDecoration: "none" }}>Produtos</a>
             </Link>
           </li>
+
           <li
             style={{
               margin: "15px 0",
@@ -153,6 +130,7 @@ export const Menu: React.FC = () => {
               <a style={{ color: "white", textDecoration: "none" }}>Clientes</a>
             </Link>
           </li>
+
           <li
             style={{
               margin: "15px 0",
@@ -176,6 +154,32 @@ export const Menu: React.FC = () => {
               <a style={{ color: "white", textDecoration: "none" }}>Vendas</a>
             </Link>
           </li>
+
+          {/** Novo item de menu para a página de relatórios */}
+          <li
+            style={{
+              margin: "15px 0",
+              cursor: "pointer",
+              transition: "font-size 0.3s, background-color 0.3s", // Animação suave no tamanho da fonte e na cor de fundo
+              fontSize: "16px", // Tamanho inicial da fonte
+              padding: "10px", // Espaçamento interno para os itens do menu
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.fontSize = "20px"; // Aumenta a fonte ao passar o mouse
+              e.currentTarget.style.backgroundColor = "#0056b3"; // Muda a cor de fundo ao passar o mouse
+              e.currentTarget.style.fontWeight = "bold"; // Deixa o texto em negrito
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.fontSize = "16px"; // Volta ao tamanho original
+              e.currentTarget.style.backgroundColor = "transparent"; // Volta ao fundo transparente
+            }}
+            onClick={handleLinkClick}
+          >
+            <Link href="/relatorios">
+              <a style={{ color: "white", textDecoration: "none" }}>Relatórios</a>
+            </Link>
+          </li>
+
           <li
             style={{
               margin: "15px 0",
