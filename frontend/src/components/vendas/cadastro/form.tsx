@@ -165,7 +165,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
   useEffect(() => {
     // Verificar se o ID da venda existe
     console.log("ID da venda vindo do router:", id);
-
+  
     if (!id) {
       // Se não houver ID, estamos criando uma nova venda
       console.log("Nova venda, não é necessário carregar itens.");
@@ -173,24 +173,25 @@ export const VendasForm: React.FC<VendasFormProps> = ({
       formik.setFieldValue("itens", []); // Certificar-se de que os itens estão vazios
       return; // Sair da função
     }
-
+  
     // Caso haja um ID, estamos editando uma venda, então buscamos os dados
     buscarPorId(Number(id))
       .then((vendaCarregada) => {
         if (vendaCarregada) {
           console.log("Venda carregada:", vendaCarregada);
-
-          // Formatar a data de entrega recebida para o formato Date do JavaScript
+  
+          // Formatar a data de entrega recebida (que está no formato "dd/MM/yyyy") para um objeto Date sem ajuste de fuso horário
+          const [dia, mes, ano] = vendaCarregada.dataEntrega.split("/").map(Number);
           const dataEntregaFormatada = vendaCarregada.dataEntrega
-            ? new Date(vendaCarregada.dataEntrega)
+            ? new Date(ano, mes - 1, dia) // Mês no JavaScript é baseado em zero, por isso (mes - 1)
             : null;
-
+  
           // Definir os valores do formik com a venda carregada e a data formatada
           formik.setValues({
             ...vendaCarregada,
-            dataEntrega: dataEntregaFormatada,
+            dataEntrega: dataEntregaFormatada, // Atribuir o objeto Date ao formik
           });
-
+  
           carregarItensVenda(vendaCarregada.itens || [], Number(id)); // Carregar os itens da venda
         } else {
           formik.resetForm({ values: formScheme }); // Se a venda não for encontrada, resetar o formulário
@@ -200,6 +201,8 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         console.error("Erro ao carregar a venda:", error);
       });
   }, [id]);
+  
+  
 
   const handleClienteAutocomplete = (e: AutoCompleteCompleteMethodParams) => {
     const nome = e.query;
@@ -383,7 +386,7 @@ export const VendasForm: React.FC<VendasFormProps> = ({
             </div>
 
             {/* Campo de Data (Data Entrega) */}
-            <div className="column is-3">
+            <div className="column is-2">
               <div className="p-field">
                 <label
                   htmlFor="dataEntrega"
