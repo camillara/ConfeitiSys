@@ -233,11 +233,12 @@ export const VendasForm: React.FC<VendasFormProps> = ({
         .catch(() => setMensagem("Produto não encontrado!"));
     }
   };
-
+  // Calcula o valor a receber
+  const totalAReceber = formik.values.total - formik.values.valorRecebido;
   const handleValorRecebidoChange = (e) => {
     const valorRecebido = e.value;
 
-    if (valorRecebido > formik.values.total) {
+    if (valorRecebido > totalAReceber) {
       formik.setFieldValue("valorRecebido", formik.values.total);
     } else {
       formik.setFieldValue("valorRecebido", valorRecebido);
@@ -361,9 +362,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
     onNovaVenda();
   };
 
-  // Calcula o valor a receber
-  const totalAReceber = formik.values.total - formik.values.valorRecebido;
-
   const handleSubmit = async (venda: Venda) => {
     try {
       if (venda.id) {
@@ -474,7 +472,6 @@ export const VendasForm: React.FC<VendasFormProps> = ({
               </div>
             </div>
 
-            
             {/* Status do Pedido */}
             <div className="column is-3">
               <div className="p-field">
@@ -719,43 +716,47 @@ export const VendasForm: React.FC<VendasFormProps> = ({
           </div>
 
           {/* Campo para inserir Valor Recebido */}
-          <div className="column is-2">
-            <label>Baixar Valor:</label>
-            <InputNumber
-              value={formik.values.baixarValor} // Um novo campo para armazenar o valor baixado
-              onValueChange={(e) =>
-                formik.setFieldValue("baixarValor", e.value)
-              } // Atualiza somente o valor baixado
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              max={formik.values.total}
-            />
-          </div>
-                      {/* Status de Pagamento */}
-                      <div className="column is-3">
-              <div className="p-field">
-                <label
-                  htmlFor="statusPagamento"
-                  style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
-                >
-                  Status de Pagamento: *
-                </label>
-
-                <Dropdown
-                  disabled
-                  options={["PAGO", "PENDENTE"]}
-                  value={formik.values.statusPagamento}
-                  placeholder="Status de Pagamento"
-                  style={{ height: "38px", width: "100%" }}
-                />
-
-                <small className="p-error p-d-block">
-                  {formik.touched.statusPagamento &&
-                    formik.errors.statusPagamento}
-                </small>
-              </div>
+          {/* Campo para inserir Valor Recebido */}
+          {totalAReceber > 0 && (
+            <div className="column is-2">
+              <label>Baixar Valor:</label>
+              <InputNumber
+                value={formik.values.baixarValor} // Um novo campo para armazenar o valor baixado
+                onValueChange={(e) =>
+                  formik.setFieldValue("baixarValor", e.value)
+                } // Atualiza somente o valor baixado
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                max={formik.values.total}
+              />
             </div>
+          )}
+
+          {/* Status de Pagamento */}
+          <div className="column is-3">
+            <div className="p-field">
+              <label
+                htmlFor="statusPagamento"
+                style={{ marginBottom: "0.5rem", fontWeight: "bold" }}
+              >
+                Status de Pagamento: *
+              </label>
+
+              <Dropdown
+                disabled
+                options={["PAGO", "PENDENTE"]}
+                value={formik.values.statusPagamento}
+                placeholder="Status de Pagamento"
+                style={{ height: "38px", width: "100%" }}
+              />
+
+              <small className="p-error p-d-block">
+                {formik.touched.statusPagamento &&
+                  formik.errors.statusPagamento}
+              </small>
+            </div>
+          </div>
         </div>
 
         <div className="columns">
