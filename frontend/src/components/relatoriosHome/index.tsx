@@ -11,18 +11,19 @@ import { Column } from "primereact/column";
 import { Calendar } from "primereact/calendar"; // Componente de calendário para selecionar datas
 import { useUser } from "context/UserContext"; // Contexto de usuário
 
+// Função para formatar a data
 const formatarData = (data: string | Date) => {
   if (!data) return "";
-  // Se o tipo for string, converter para Date
   const dateObj =
     typeof data === "string"
       ? new Date(data.split("/").reverse().join("-"))
       : new Date(data);
   const dia = String(dateObj.getDate()).padStart(2, "0");
-  const mes = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const mes = String(dateObj.getMonth() + 1).padStart(2, "0"); // getMonth() retorna o mês baseado em zero
   const ano = dateObj.getFullYear();
   return `${dia}/${mes}/${ano}`;
 };
+
 
 // Função para formatar valor monetário, alinhando R$ à esquerda e valor à direita
 const formatarMoeda = (valor: number) => {
@@ -54,8 +55,8 @@ export const RelatoriosHome = () => {
     InsumoNecessario[]
   >([]);
   const [dias, setDias] = useState(7); // Número de dias para o relatório de insumos
-  const [dataInicio, setDataInicio] = useState<Date | null>(new Date()); // Data de início
-  const [dataFim, setDataFim] = useState<Date | null>(new Date()); // Data de fim
+  const [dataInicio, setDataInicio] = useState<Date | null>(null); // Inicialmente null
+  const [dataFim, setDataFim] = useState<Date | null>(null); // Inicialmente null
   const [visibleRows, setVisibleRows] = useState(10); // Controla o número de linhas visíveis inicialmente
   const { user } = useUser(); // Acessa o usuário logado
   const vendaService = useVendaService();
