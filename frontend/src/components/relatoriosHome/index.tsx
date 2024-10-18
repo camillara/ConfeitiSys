@@ -1,19 +1,25 @@
 import { useState, useEffect } from "react";
 import { useVendaService } from "app/services"; // Serviço de vendas criado
-import { PedidosProducao, VendasPorStatus, InsumoNecessario } from "app/models/vendas";
+import {
+  PedidosProducao,
+  VendasPorStatus,
+  InsumoNecessario,
+} from "app/models/vendas";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Calendar } from "primereact/calendar"; // Componente de calendário para selecionar datas
 import { useUser } from "context/UserContext"; // Contexto de usuário
 
-
-// Função para formatar data para dd/mm/yyyy
 const formatarData = (data: string | Date) => {
   if (!data) return "";
-  const dateObj = new Date(data);
-  const dia = String(dateObj.getDate()).padStart(2, '0');
-  const mes = String(dateObj.getMonth() + 1).padStart(2, '0');
+  // Se o tipo for string, converter para Date
+  const dateObj =
+    typeof data === "string"
+      ? new Date(data.split("/").reverse().join("-"))
+      : new Date(data);
+  const dia = String(dateObj.getDate()).padStart(2, "0");
+  const mes = String(dateObj.getMonth() + 1).padStart(2, "0");
   const ano = dateObj.getFullYear();
   return `${dia}/${mes}/${ano}`;
 };
@@ -21,19 +27,32 @@ const formatarData = (data: string | Date) => {
 // Função para formatar valor monetário, alinhando R$ à esquerda e valor à direita
 const formatarMoeda = (valor: number) => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
       <span>R$</span>
-      <span style={{ marginLeft: 'auto', textAlign: 'right', width: '100%' }}>
-        {valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      <span style={{ marginLeft: "auto", textAlign: "right", width: "100%" }}>
+        {valor.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </span>
     </div>
   );
 };
 
 export const RelatoriosHome = () => {
-  const [vendasEmProducao, setVendasEmProducao] = useState<PedidosProducao[]>([]);
+  const [vendasEmProducao, setVendasEmProducao] = useState<PedidosProducao[]>(
+    []
+  );
   const [relatorioVendas, setRelatorioVendas] = useState<VendasPorStatus[]>([]);
-  const [insumosNecessarios, setInsumosNecessarios] = useState<InsumoNecessario[]>([]);
+  const [insumosNecessarios, setInsumosNecessarios] = useState<
+    InsumoNecessario[]
+  >([]);
   const [dias, setDias] = useState(7); // Número de dias para o relatório de insumos
   const [dataInicio, setDataInicio] = useState<Date | null>(new Date()); // Data de início
   const [dataFim, setDataFim] = useState<Date | null>(new Date()); // Data de fim
@@ -44,9 +63,11 @@ export const RelatoriosHome = () => {
   // Função para buscar relatório de vendas quando as datas mudarem ou ao carregar a página
   const buscarRelatorioVendas = () => {
     if (user && dataInicio && dataFim) {
-      vendaService.gerarRelatorioPorFormaPagamentoEPeriodo(user.id, dataInicio, dataFim).then((data) => {
-        setRelatorioVendas(data);
-      });
+      vendaService
+        .gerarRelatorioPorFormaPagamentoEPeriodo(user.id, dataInicio, dataFim)
+        .then((data) => {
+          setRelatorioVendas(data);
+        });
     }
   };
 
@@ -79,7 +100,11 @@ export const RelatoriosHome = () => {
       <div>
         <h3>Pedidos em Produção</h3>
         {/* Configuração para rolagem e altura fixa */}
-        <DataTable value={vendasEmProducao.slice(0, visibleRows)} scrollable scrollHeight="400px">
+        <DataTable
+          value={vendasEmProducao.slice(0, visibleRows)}
+          scrollable
+          scrollHeight="400px"
+        >
           <Column field="nomeCliente" header="Cliente" />
           <Column field="nomeProduto" header="Produto" />
           <Column field="quantidade" header="Quantidade" />
@@ -96,11 +121,11 @@ export const RelatoriosHome = () => {
           <Column
             field="dataEntrega"
             header="Data de Entrega"
-            body={(rowData) => formatarData(rowData.dataEntrega)} // Formata a data para o formato brasileiro
+            body={(rowData) => formatarData(rowData.dataEntrega)} // Usar a função de formatação
           />
         </DataTable>
         {visibleRows < vendasEmProducao.length && (
-          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+          <div style={{ marginTop: "1rem", textAlign: "center" }}>
             <Button label="Ver mais" onClick={mostrarMaisLinhas} />
           </div>
         )}
@@ -108,26 +133,32 @@ export const RelatoriosHome = () => {
 
       <div>
         <h3>Relatório de Vendas</h3>
-        <div style={{ marginBottom: '1rem' }}>
+        <div style={{ marginBottom: "1rem" }}>
           <label htmlFor="dataInicio">Data Início: </label>
-          <Calendar 
-            id="dataInicio" 
-            value={dataInicio} 
-            onChange={(e) => setDataInicio(e.value as Date)} 
+          <Calendar
+            id="dataInicio"
+            value={dataInicio}
+            onChange={(e) => setDataInicio(e.value as Date)}
             dateFormat="dd/mm/yy" // Formato de data
-            showIcon 
+            showIcon
           />
 
-          <label htmlFor="dataFim" style={{ marginLeft: '1rem' }}>Data Fim: </label>
-          <Calendar 
-            id="dataFim" 
-            value={dataFim} 
-            onChange={(e) => setDataFim(e.value as Date)} 
+          <label htmlFor="dataFim" style={{ marginLeft: "1rem" }}>
+            Data Fim:{" "}
+          </label>
+          <Calendar
+            id="dataFim"
+            value={dataFim}
+            onChange={(e) => setDataFim(e.value as Date)}
             dateFormat="dd/mm/yy" // Formato de data
-            showIcon 
+            showIcon
           />
 
-          <Button label="Gerar Relatório" onClick={buscarRelatorioVendas} style={{ marginLeft: '1rem' }} />
+          <Button
+            label="Gerar Relatório"
+            onClick={buscarRelatorioVendas}
+            style={{ marginLeft: "1rem" }}
+          />
         </div>
 
         <DataTable value={relatorioVendas} scrollable scrollHeight="400px">
@@ -152,7 +183,7 @@ export const RelatoriosHome = () => {
 
       <div>
         <h3>Insumos Necessários</h3>
-        <div style={{ marginBottom: '1rem' }}>
+        <div style={{ marginBottom: "1rem" }}>
           <label htmlFor="dias">Dias: </label>
           <input
             type="number"
