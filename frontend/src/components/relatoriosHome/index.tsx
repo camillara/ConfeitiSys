@@ -94,16 +94,15 @@ export const RelatoriosHome = () => {
       vendaService.listarVendasEmProducao(user.id).then((data) => {
         setVendasEmProducao(data);
       });
-
-      // Busca inicial dos insumos
+  
       vendaService.listarInsumosNecessarios(user.id, dias).then((data) => {
         setInsumosNecessarios(data);
       });
 
-      // Carrega o relatório de vendas pela primeira vez
       buscarRelatorioVendas();
     }
-  }, [user]);
+  }, [user, dias]);
+
 
   // Função chamada ao clicar no botão "Ver mais" na tabela de produção
   const mostrarMaisLinhas = () => {
@@ -212,9 +211,9 @@ export const RelatoriosHome = () => {
       <br />
       <br />
       <div>
-        <h3>Insumos Necessários</h3>
+        <h3>Insumos Necessários Próximos Dias</h3>
         <div style={{ marginBottom: "1rem" }}>
-          <label htmlFor="dias">Dias: </label>
+          <label htmlFor="dias">Informe o número de dias para calcular a quantidade de insumos necessários: </label>
           <input
             type="number"
             id="dias"
