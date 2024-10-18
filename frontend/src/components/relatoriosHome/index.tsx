@@ -71,6 +71,22 @@ export const RelatoriosHome = () => {
     }
   };
 
+  const calcularTotais = () => {
+    let totalPagas = 0;
+    let totalPendentes = 0;
+    let valorTotal = 0;
+
+    relatorioVendas.forEach((venda) => {
+      totalPagas += venda.totalPagas || 0;
+      totalPendentes += venda.totalPendentes || 0;
+      valorTotal += venda.valorTotal || 0;
+    });
+
+    return { totalPagas, totalPendentes, valorTotal };
+  };
+
+  const totais = calcularTotais();
+
   // Carregar vendas em produção ao montar o componente
   useEffect(() => {
     if (user) {
@@ -105,6 +121,9 @@ export const RelatoriosHome = () => {
           scrollable
           scrollHeight="400px"
         >
+          {/* Nova coluna para exibir o ID do pedido */}
+          <Column field="id" header="ID do Pedido" />
+
           <Column field="nomeCliente" header="Cliente" />
           <Column field="nomeProduto" header="Produto" />
           <Column field="quantidade" header="Quantidade" />
@@ -121,7 +140,7 @@ export const RelatoriosHome = () => {
           <Column
             field="dataEntrega"
             header="Data de Entrega"
-            body={(rowData) => formatarData(rowData.dataEntrega)} // Usar a função de formatação
+            body={(rowData) => formatarData(rowData.dataEntrega)} // Formata a data para o formato brasileiro
           />
         </DataTable>
         {visibleRows < vendasEmProducao.length && (
@@ -130,11 +149,13 @@ export const RelatoriosHome = () => {
           </div>
         )}
       </div>
+      <br />
+      <br />
 
       <div>
-        <h3>Relatório de Vendas</h3>
+        <h3>Relatório Financeiro Período</h3>
         <div style={{ marginBottom: "1rem" }}>
-          <label htmlFor="dataInicio">Data Início: </label>
+          <label htmlFor="dataInicio">Data Venda Início: </label>
           <Calendar
             id="dataInicio"
             value={dataInicio}
@@ -144,7 +165,7 @@ export const RelatoriosHome = () => {
           />
 
           <label htmlFor="dataFim" style={{ marginLeft: "1rem" }}>
-            Data Fim:{" "}
+            Data Venda Final:
           </label>
           <Calendar
             id="dataFim"
@@ -167,20 +188,28 @@ export const RelatoriosHome = () => {
             field="totalPagas"
             header="Total Pagas"
             body={(rowData) => formatarMoeda(rowData.totalPagas)} // Formatação de valores para moeda brasileira
+            footer={formatarMoeda(totais.totalPagas)} // Exibe a soma na coluna de "Total Pagas"
+            footerStyle={{ fontWeight: "bold", backgroundColor: "#f0f8ff" }} // Estilo para a linha de totais
           />
           <Column
             field="totalPendentes"
             header="Total Pendentes"
             body={(rowData) => formatarMoeda(rowData.totalPendentes)} // Formatação de valores para moeda brasileira
+            footer={formatarMoeda(totais.totalPendentes)} // Exibe a soma na coluna de "Total Pendentes"
+            footerStyle={{ fontWeight: "bold", backgroundColor: "#f0f8ff" }} // Estilo para a linha de totais
           />
           <Column
             field="valorTotal"
             header="Valor Total"
             body={(rowData) => formatarMoeda(rowData.valorTotal)} // Formatação de valores para moeda brasileira
+            footer={formatarMoeda(totais.valorTotal)} // Exibe a soma na coluna de "Valor Total"
+            footerStyle={{ fontWeight: "bold", backgroundColor: "#f0f8ff" }} // Estilo para a linha de totais
           />
         </DataTable>
       </div>
 
+      <br />
+      <br />
       <div>
         <h3>Insumos Necessários</h3>
         <div style={{ marginBottom: "1rem" }}>

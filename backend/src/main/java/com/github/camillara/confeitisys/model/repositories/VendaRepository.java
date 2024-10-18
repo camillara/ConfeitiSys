@@ -35,14 +35,22 @@ public interface VendaRepository extends JpaRepository<Venda, Long>{
     @Query("SELECT v FROM Venda v WHERE v.id = :id AND v.user.id = :userId")
     Optional<Venda> findByIdEUser(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query("SELECT v.formaPagamento, v.statusPagamento, SUM(v.total) " +
+    @Query("SELECT v.formaPagamento, " +
+            "SUM(CASE WHEN v.valorRecebido > 0 THEN v.valorRecebido ELSE 0 END) AS totalPagas, " +
+            "SUM(CASE WHEN v.total > v.valorRecebido THEN (v.total - v.valorRecebido) ELSE 0 END) AS totalPendentes, " +
+            "SUM(v.total) AS valorTotal " +
             "FROM Venda v " +
             "WHERE v.dataCadastro BETWEEN :dataInicio AND :dataFim " +
             "AND v.user.id = :userId " +
-            "GROUP BY v.formaPagamento, v.statusPagamento")
-    List<Object[]> gerarRelatorioPorFormaPagamentoEPeriodo(@Param("userId") Long userId,
-                                                           @Param("dataInicio") LocalDate dataInicio,
-                                                           @Param("dataFim") LocalDate dataFim);
+            "AND v.statusPedido != 'CANCELADO' " +
+            "GROUP BY v.formaPagamento")
+    List<Object[]> gerarRelatorioPorFormaPagamentoEPeriodo(
+            @Param("userId") Long userId,
+            @Param("dataInicio") LocalDate dataInicio,
+            @Param("dataFim") LocalDate dataFim
+    );
+
+
 
 
     @Query("SELECT v FROM Venda v WHERE v.statusPedido = 'PRODUCAO' AND v.user.id = :userId")

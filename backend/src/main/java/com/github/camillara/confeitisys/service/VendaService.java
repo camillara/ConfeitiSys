@@ -288,28 +288,30 @@ public class VendaService {
 
 		Map<FormaPagamento, RelatorioVendasDTO> mapaRelatorio = new HashMap<>();
 
-		// Processa os resultados
 		for (Object[] resultado : resultados) {
-			FormaPagamento formaPagamento = (FormaPagamento) resultado[0];
-			StatusPagamento statusPagamento = (StatusPagamento) resultado[1];  // Alterado para StatusPagamento (enum)
-			BigDecimal total = (BigDecimal) resultado[2];  // Alterado para BigDecimal
+			FormaPagamento formaPagamento = (FormaPagamento) resultado[0]; // Forma de pagamento
+			BigDecimal totalPagas = (BigDecimal) resultado[1];  // Total pagas
+			BigDecimal totalPendentes = (BigDecimal) resultado[2];  // Total pendentes
+			BigDecimal valorTotal = (BigDecimal) resultado[3];  // Valor total
 
-			// Se já existe uma entrada para essa forma de pagamento, atualiza
-			RelatorioVendasDTO dto = mapaRelatorio.getOrDefault(formaPagamento, new RelatorioVendasDTO(formaPagamento, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
+			RelatorioVendasDTO dto = mapaRelatorio.getOrDefault(
+					formaPagamento,
+					new RelatorioVendasDTO(formaPagamento, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)
+			);
 
-			if (StatusPagamento.PAGO.equals(statusPagamento)) {
-				dto.setTotalPagas(dto.getTotalPagas().add(total));
-			} else if (StatusPagamento.PENDENTE.equals(statusPagamento)) {
-				dto.setTotalPendentes(dto.getTotalPendentes().add(total));
-			}
-
-			// Atualiza o valor total (pagas + pendentes)
+			// Atualiza os valores no DTO
+			dto.setTotalPagas(dto.getTotalPagas().add(totalPagas));
+			dto.setTotalPendentes(dto.getTotalPendentes().add(totalPendentes));
 			dto.setValorTotal(dto.getTotalPagas().add(dto.getTotalPendentes()));
+
 			mapaRelatorio.put(formaPagamento, dto);
 		}
 
 		return new ArrayList<>(mapaRelatorio.values());
 	}
+
+
+
 
 	public List<VendaEmProducaoDTO> listarItensVendasEmProducao(String userId) {
 		Long userLongId = validarUsuario(userId);  // Valida e converte o userId para Long
