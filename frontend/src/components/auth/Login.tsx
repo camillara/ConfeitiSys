@@ -29,7 +29,7 @@ const Login = () => {
           setUser({ id: userData.id, email: userData.email });
           console.log("UserContext after login:", { id: userData.id, email: userData.email });
           // Redireciona para o dashboard
-          router.push('/');
+          router.push('/relatorios');
         } else {
           console.error("ID ou email do usuário não encontrados na resposta da API.");
         }
